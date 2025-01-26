@@ -1,15 +1,15 @@
-export default function userProfile( {params} : any) {
-    return (
+"use client";
 
-        <div>
-            <h1>Profile</h1>
-            <hr />
-            <p className="text-4xl">profile page {params.id}
-                
-            </p>
-        </div>
-        
+interface ProfileParams {
+  id: string;
+}
 
-    )
-  }
-  
+export default function ProfilePage({ params }: { params: ProfileParams }) {
+  return (
+    <div>
+      <h1>Profile</h1>
+      <hr />
+      <p className="text-4xl">Profile page for user ID: {params.id}</p>
+    </div>
+  );
+}

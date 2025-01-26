@@ -1,15 +1,14 @@
 import { connect } from "@/dbConfig/dbConfig";
 import User from "@/models/userModel";
 import { NextRequest, NextResponse } from "next/server";
-const jwt = require("jsonwebtoken");
-
+import jwt from "jsonwebtoken";
 
 connect(); // Ensure MongoDB connection
 
 export async function POST(request: NextRequest) {
   try {
     const reqBody = await request.json();
-    const { email, password } = reqBody;
+    const { email, password }: { email: string; password: string } = reqBody;
 
     if (!email || !password) {
       return NextResponse.json(
@@ -33,14 +32,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Ensure TOKEN_SECRET exists
     if (!process.env.TOKEN_SECRET) {
-      throw new Error("TOKEN_SECRET is not defined in the environment variables.");
+      throw new Error("TOKEN_SECRET is not defined in environment variables.");
     }
 
     const token = jwt.sign(
       { id: user._id, email: user.email },
-      process.env.TOKEN_SECRET!,
+      process.env.TOKEN_SECRET,
       { expiresIn: "1h" }
     );
 
@@ -48,11 +46,13 @@ export async function POST(request: NextRequest) {
       { message: "Login successful!", token },
       { status: 200 }
     );
-  } catch (error: any) {
-    console.error("Error in login route:", error.message);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in login route:", error.message);
+      return NextResponse.json(
+        { error: "Internal Server Error" },
+        { status: 500 }
+      );
+    }
   }
 }
