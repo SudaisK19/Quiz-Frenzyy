@@ -133,7 +133,7 @@ const styles = {
   text: {
     textAlign: "center" as "center",
     fontSize: "0.9rem",
-    color: "#757575",
+    color: "#000000",
   },
   link: {
     color: "#57B894",
