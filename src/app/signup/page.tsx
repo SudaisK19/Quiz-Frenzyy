@@ -5,12 +5,12 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
-  const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState<string>(""); // Explicitly typed
+  const [username, setUsername] = useState<string>(""); // Explicitly typed
+  const [password, setPassword] = useState<string>(""); // Explicitly typed
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
@@ -24,9 +24,12 @@ export default function SignupPage() {
         alert("Signup successful!");
         router.push("/login");
       }
-    } catch (error: any) {
-      console.error("Signup failed:", error);
-      alert(error.response?.data?.error || "Signup failed. Please try again.");
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        alert(error.response?.data?.error || "Signup failed. Please try again.");
+      } else {
+        alert("An unexpected error occurred. Please try again.");
+      }
     }
   };
 
@@ -88,7 +91,7 @@ const styles = {
     minHeight: "100vh",
     backgroundColor: "#f9f9f9",
     padding: "20px",
-  },
+  } as const, // Ensuring type safety with `as const`
   formWrapper: {
     width: "100%",
     maxWidth: "400px",
@@ -96,22 +99,22 @@ const styles = {
     borderRadius: "10px",
     boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
     padding: "30px",
-  },
+  } as const,
   form: {
     display: "flex",
-    flexDirection: "column" as "column",
+    flexDirection: "column" as const,
     gap: "15px",
-  },
+  } as const,
   heading: {
     fontSize: "2rem",
     color: "#4EA685",
     marginBottom: "10px",
-    textAlign: "center" as "center",
-  },
+    textAlign: "center" as const,
+  } as const,
   inputGroup: {
     width: "100%",
     marginBottom: "10px",
-  },
+  } as const,
   input: {
     width: "100%",
     padding: "10px",
@@ -119,7 +122,7 @@ const styles = {
     borderRadius: "5px",
     border: "1px solid #ccc",
     outline: "none",
-  },
+  } as const,
   button: {
     width: "100%",
     padding: "10px",
@@ -129,15 +132,15 @@ const styles = {
     border: "none",
     borderRadius: "5px",
     cursor: "pointer",
-  },
+  } as const,
   text: {
-    textAlign: "center" as "center",
+    textAlign: "center" as const,
     fontSize: "0.9rem",
     color: "#000000",
-  },
+  } as const,
   link: {
     color: "#57B894",
     textDecoration: "none",
-    fontWeight: "bold" as "bold",
-  },
+    fontWeight: "bold" as const,
+  } as const,
 };
