@@ -1,58 +1,42 @@
 import { connect } from "@/dbConfig/dbConfig";
 import User from "@/models/userModel";
-import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
+import { NextRequest, NextResponse } from "next/server";
 
-connect(); // Ensure MongoDB connection
+connect();
 
 export async function POST(request: NextRequest) {
   try {
-    const reqBody = await request.json();
-    const { email, password }: { email: string; password: string } = reqBody;
-
-    if (!email || !password) {
-      return NextResponse.json(
-        { error: "Email and password are required." },
-        { status: 400 }
-      );
-    }
+    const { email, password } = await request.json();
 
     const user = await User.findOne({ email });
     if (!user) {
-      return NextResponse.json(
-        { error: "Invalid email or password." },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "user not found" }, { status: 404 });
     }
 
-    if (user.password !== password) {
-      return NextResponse.json(
-        { error: "Invalid email or password." },
-        { status: 401 }
-      );
+    if (password !== user.password) {
+      return NextResponse.json({ error: "invalid email or password" }, { status: 401 });
     }
 
-    if (!process.env.TOKEN_SECRET) {
-      throw new Error("TOKEN_SECRET is not defined in environment variables.");
+    if (!process.env.JWT_SECRET) {
+      throw new Error("jwt_secret not defined in environment variables");
     }
 
-    const token = jwt.sign(
-      { id: user._id, email: user.email },
-      process.env.TOKEN_SECRET,
-      { expiresIn: "1h" }
-    );
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
-    return NextResponse.json(
-      { message: "Login successful!", token },
-      { status: 200 }
-    );
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error("Error in login route:", error.message);
-      return NextResponse.json(
-        { error: "Internal Server Error" },
-        { status: 500 }
-      );
-    }
+    const response = NextResponse.json({ message: "login successful", success: true }, { status: 200 });
+    response.cookies.set({
+      name: "authToken",
+      value: token,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60,
+    });
+
+    return response;
+  } catch (error) {
+    console.error("error during login:", error);
+    return NextResponse.json({ error: "login failed" }, { status: 500 });
   }
 }

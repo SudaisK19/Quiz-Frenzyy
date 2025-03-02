@@ -1,101 +1,161 @@
-import Image from "next/image";
+"use client";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [quizCode, setQuizCode] = useState(""); // State for quiz code
+  const [error, setError] = useState(""); // State for error message
+  const router = useRouter();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  useEffect(() => {
+    // Check if user is logged in by checking the authToken
+    fetch("/api/users/profile", { method: "GET", credentials: "include" })
+      .then((res) => res.json())
+      .then((data) => {
+        setIsLoggedIn(data.success);
+      })
+      .catch(() => setIsLoggedIn(false));
+  }, []);
+
+  async function handleJoinQuiz() {
+    if (!quizCode.trim()) {
+      setError("Please enter a valid quiz code.");
+      return;
+    }
+
+    setError(""); // Clear previous errors
+    console.log("🔍 Sending request to join quiz with code:", quizCode);
+
+    try {
+      // 1. Check user authentication
+      const userResponse = await fetch("/api/users/profile", {
+        method: "GET",
+        credentials: "include",
+      });
+      const userData = await userResponse.json();
+
+      if (!userData.success || !userData.user?._id) {
+        setError("User authentication required.");
+        return;
+      }
+
+      // 2. Attempt to join quiz session
+      const joinResponse = await fetch(`/api/quizzes/join/${quizCode}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "x-user-id": userData.user._id,
+        },
+      });
+
+      // 3. If the API returns a 400, handle error gracefully
+      if (joinResponse.status === 400) {
+        const errorData = await joinResponse.json();
+        const errMsg = errorData.error?.toLowerCase() || "";
+        if (errMsg.includes("expired")) {
+          setError("Session expired. Please rehost the quiz.");
+        } else if (errMsg.includes("already joined") || errMsg.includes("already played")) {
+          setError("You have already played. Unable to join again.");
+        } else {
+          setError(errorData.error || "Failed to join quiz.");
+        }
+        return; // Do not redirect if an error is detected
+      }
+
+      // 4. Otherwise, parse the response and check success
+      const data = await joinResponse.json();
+      if (data.success) {
+        console.log("✅ Session ID:", data.session_id);
+        router.push(
+          `/play-quiz?session_id=${data.session_id}&player_quiz_id=${data.player_quiz_id}`
+        );
+      } else {
+        setError("Invalid quiz code. Please try again.");
+      }
+    } catch (error: any) {
+      console.error("❌ Error joining quiz:", error);
+      setError(error.message || "Something went wrong.");
+    }
+  }
+
+  return (
+    <div style={{ textAlign: "center", padding: "40px" }}>
+      <h1>Welcome to Quiz Frenzy 🎉</h1>
+      <p>
+        Your ultimate quiz platform. Test your knowledge, host quizzes, and
+        challenge friends!
+      </p>
+
+      {/* Join Quiz Section */}
+      <div style={{ marginTop: "20px" }}>
+        <h2>Join a Quiz</h2>
+        <input
+          type="text"
+          placeholder="Enter Quiz Code"
+          value={quizCode}
+          onChange={(e) => setQuizCode(e.target.value.trim().toUpperCase())}
+          style={{
+            padding: "10px",
+            width: "200px",
+            marginRight: "10px",
+          }}
+        />
+        <button onClick={handleJoinQuiz} style={{ padding: "10px 20px" }}>
+          Join
+        </button>
+        {error && <p style={{ color: "red" }}>{error}</p>}
+      </div>
+
+      {/* Create Quiz Section */}
+      <div style={{ marginTop: "20px" }}>
+        <h2>Create a Quiz</h2>
+        <button
+          onClick={() => router.push("/create-quiz")}
+          style={{ padding: "10px 20px" }}
+        >
+          Create Now
+        </button>
+      </div>
+
+      {/* AI-Generated Quiz Section */}
+      <div style={{ marginTop: "20px" }}>
+        <h2>Generate a Quiz with AI</h2>
+        <button
+          onClick={() => router.push("/ai-quiz")}
+          style={{ padding: "10px 20px" }}
+        >
+          Generate
+        </button>
+      </div>
+
+      {/* Show Login/Signup if not logged in */}
+      {!isLoggedIn && (
+        <div style={{ marginTop: "30px" }}>
+          <h3>Login or Sign Up to Start Playing!</h3>
+          <button
+            onClick={() => router.push("/login")}
+            style={{ padding: "10px 20px", marginRight: "10px" }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            Login
+          </button>
+          <button onClick={() => router.push("/signup")} style={{ padding: "10px 20px" }}>
+            Sign Up
+          </button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      )}
+
+      {/* Show Profile Button if Logged In */}
+      {isLoggedIn && (
+        <div style={{ marginTop: "30px" }}>
+          <button
+            onClick={() => router.push("/profile")}
+            style={{ padding: "10px 20px" }}
+          >
+            View Profile
+          </button>
+        </div>
+      )}
     </div>
   );
 }

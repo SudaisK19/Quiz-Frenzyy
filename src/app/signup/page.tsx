@@ -1,14 +1,27 @@
 "use client";
 
-import React, { useState } from "react";
-import axios from "axios";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
+import Link from "next/link";
 
 export default function SignupPage() {
-  const [email, setEmail] = useState<string>(""); // Explicitly typed
-  const [username, setUsername] = useState<string>(""); // Explicitly typed
-  const [password, setPassword] = useState<string>(""); // Explicitly typed
+  const [email, setEmail] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
   const router = useRouter();
+
+  useEffect(() => {
+    // Dynamically add keyframes for animated lines
+    const styleSheet = document.createElement("style");
+    styleSheet.innerHTML = `
+      @keyframes run {
+        0% { top: -50%; }
+        100% { top: 110%; }
+      }
+    `;
+    document.head.appendChild(styleSheet);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -35,112 +48,148 @@ export default function SignupPage() {
 
   return (
     <div style={styles.container}>
-      <div style={styles.formWrapper}>
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <h2 style={styles.heading}>Welcome to QuizFrenzy</h2>
-          <div style={styles.inputGroup}>
-            <input
-              type="text"
-              placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              style={styles.input}
-              required
-            />
-          </div>
-          <div style={styles.inputGroup}>
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              style={styles.input}
-              required
-            />
-          </div>
-          <div style={styles.inputGroup}>
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              style={styles.input}
-              required
-            />
-          </div>
-          <button type="submit" style={styles.button}>
-            Sign Up
-          </button>
-          <p style={styles.text}>
-            Already have an account?{" "}
-            <a href="/login" style={styles.link}>
-              Sign in here
-            </a>
-          </p>
-        </form>
+      {/* Animated Background Lines */}
+      <div style={styles.linesContainer}>
+        {[...Array(20)].map((_, i) => (
+          <div
+            key={i}
+            style={{
+              marginLeft: `${(i - 10) * 5}%`,
+              animationDelay: `${i * 0.5}s`,
+              background: "rgba(255, 79, 158, 0.8)", // Darker pink for visibility
+              width: "2px", // Thicker lines
+              height: "50%", // Shorter lines
+            }}
+          ></div>
+        ))}
       </div>
+
+      {/* Signup Box */}
+      <form onSubmit={handleSubmit} style={styles.box}>
+        <h1 style={styles.heading}>Sign Up</h1>
+        <input
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+          style={styles.input}
+        />
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          style={styles.input}
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          style={styles.input}
+        />
+        <button type="submit" style={styles.button}>
+          Sign Up
+        </button>
+        <p style={styles.text}>
+          Already have an account?{" "}
+          <Link href="/login" style={styles.link}>
+            Login here
+          </Link>
+        </p>
+      </form>
     </div>
   );
 }
 
+// **💡 Styles**
 const styles = {
   container: {
+    margin: 0,
+    padding: 0,
+    fontFamily: "sans-serif",
+    background: "linear-gradient(135deg, #121212, #2C003E, #FF4F9E)", // 🎨 CYBORG Theme Gradient
+    backgroundSize: "cover",
+    backgroundRepeat: "no-repeat",
+    backgroundPosition: "center",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
     minHeight: "100vh",
-    backgroundColor: "#f9f9f9",
-    padding: "20px",
-  } as const, // Ensuring type safety with `as const`
-  formWrapper: {
-    width: "100%",
-    maxWidth: "400px",
-    backgroundColor: "#ffffff",
-    borderRadius: "10px",
-    boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
-    padding: "30px",
+    position: "relative" as const,
+    overflow: "hidden",
   } as const,
-  form: {
-    display: "flex",
-    flexDirection: "column" as const,
-    gap: "15px",
-  } as const,
+
+  box: {
+    width: "300px",
+    padding: "40px",
+    background: "#191919",
+    textAlign: "center" as const,
+    boxShadow:
+      "-1px 92px 99px -62px rgba(3, 107, 255, 0.27), 0 1px 6px 0 rgba(10, 48, 255, 0.48)",
+    borderRadius: "5px",
+    position: "relative" as const,
+    zIndex: 2,
+  },
+
   heading: {
-    fontSize: "2rem",
-    color: "#4EA685",
-    marginBottom: "10px",
-    textAlign: "center" as const,
+    color: "white",
+    textTransform: "uppercase",
+    fontWeight: "500",
   } as const,
-  inputGroup: {
-    width: "100%",
-    marginBottom: "10px",
-  } as const,
+
   input: {
-    width: "100%",
-    padding: "10px",
-    fontSize: "1rem",
-    borderRadius: "5px",
-    border: "1px solid #ccc",
-    outline: "none",
-  } as const,
-  button: {
-    width: "100%",
-    padding: "10px",
-    fontSize: "1rem",
-    color: "#ffffff",
-    backgroundColor: "#4EA685",
-    border: "none",
-    borderRadius: "5px",
-    cursor: "pointer",
-  } as const,
-  text: {
+    background: "none",
+    display: "block",
+    margin: "20px auto",
     textAlign: "center" as const,
-    fontSize: "0.9rem",
-    color: "#000000",
+    border: "2px solid #FF4F9E", // 💡 Matches Pink from CYBORG theme
+    padding: "14px 10px",
+    width: "200px",
+    outline: "none",
+    color: "white",
+    borderRadius: "24px",
+    transition: "0.25s",
   } as const,
+
+  button: {
+    border: "0",
+    background: "#FF4F9E",
+    display: "block",
+    margin: "20px auto",
+    textAlign: "center" as const,
+    padding: "14px 40px",
+    outline: "none",
+    color: "white",
+    borderRadius: "24px",
+    cursor: "pointer",
+    transition: "0.25s",
+  } as const,
+
+  text: {
+    marginTop: "10px",
+    fontSize: "1rem",
+    color: "#FF4F9E",
+  } as const,
+
   link: {
-    color: "#57B894",
+    color: "#FF4F9E",
     textDecoration: "none",
-    fontWeight: "bold" as const,
+    fontWeight: "bold",
   } as const,
+
+  // **🔹 Animated Lines**
+  linesContainer: {
+    position: "absolute" as const,
+    top: 0,
+    left: 0,
+    right: 0,
+    height: "100%",
+    width: "100vw",
+    zIndex: 1,
+    overflow: "hidden",
+  },
 };

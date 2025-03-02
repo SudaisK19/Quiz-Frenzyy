@@ -6,12 +6,13 @@ const userSchema = new mongoose.Schema({
     email:{type:String,required:[true,"Please provide a email"],unique:true},
     password :{type:String,required:[true,"Please provide a password"],},
     isVerified :{type:Boolean ,default:false},
-    isAdmin :{type:Boolean ,default:false},
-    forgotPasswordToken : String,
-    forgotPasswordTokenExpiry : Date,verifyToken:String,
-    verifyTokenExpiry: Date,
+    total_points : {
+        type:Number,default:0
+    },
+    badges :{type:[String],default:[]},
+    hosted_quizzes : [ {type: mongoose.Schema.Types.ObjectId ,ref:"Quiz"}]
 
-})  
+}, { timestamps: true})  
 
 const User  = mongoose.models.User || mongoose.model("User",userSchema);
 
