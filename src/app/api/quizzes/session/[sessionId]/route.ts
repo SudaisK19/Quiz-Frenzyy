@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Session from "@/models/sessionModel";
 import Question from "@/models/questionModel";
 import { connect } from "@/dbConfig/dbConfig";
+import { shuffle } from "lodash";  //library for shuffle function
 
 connect();
 
@@ -33,10 +34,21 @@ export async function GET(
       return NextResponse.json({ error: "session expired" }, { status: 400 });
     }
 
-    const questions = await Question.find({ quiz_id: session.quiz_id._id });
+    let questions = await Question.find({ quiz_id: session.quiz_id._id });
     if (questions.length === 0) {
       return NextResponse.json({ error: "no questions available for this quiz" }, { status: 404 });
     }
+
+    // Use Lodash's shuffle to randomize the order of questions
+    questions = shuffle(questions);
+
+    // For each MCQ, use Lodash's shuffle to randomize the options
+    questions = questions.map((question) => {
+      if (question.question_type === "MCQ" && question.options && question.options.length) {
+        question.options = shuffle(question.options);
+      }
+      return question;
+    });
 
     return NextResponse.json(
       {
