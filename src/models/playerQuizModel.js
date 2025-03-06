@@ -1,12 +1,17 @@
 import mongoose from "mongoose";
 
 const playerQuizSchema = new mongoose.Schema({
-    session_id: { type: mongoose.Schema.Types.ObjectId, ref: "Session", required: true },
-    quiz_id: { type: mongoose.Schema.Types.ObjectId, ref: "Quiz", required: true },
-    player_id: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-    score: { type: Number, default: 0 },
-    completed_at: { type: Date }
+  session_id: { type: mongoose.Schema.Types.ObjectId, ref: "Session" },
+  quiz_id: { type: mongoose.Schema.Types.ObjectId, ref: "Quiz" },
+  player_id: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  score: { type: Number, default: 0 },
+  start_time: { type: Date, default: Date.now },
+  completed_at: { type: Date },
+  displayName: { type: String, default: "" },
+  avatar: { type: String, default: "" },
 }, { timestamps: true });
 
-const PlayerQuiz = mongoose.models.PlayerQuiz || mongoose.model("PlayerQuiz", playerQuizSchema);
-export default PlayerQuiz;
+const PlayerQuizNew =
+  mongoose.models.PlayerQuizNew || mongoose.model("PlayerQuizNew", playerQuizSchema);
+
+export default PlayerQuizNew;
