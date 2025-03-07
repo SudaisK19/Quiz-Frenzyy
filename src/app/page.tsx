@@ -10,9 +10,7 @@ export default function Home() {
   const [userData, setUserData] = useState<any>(null);
   const [joinData, setJoinData] = useState<any>(null);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
-  // We'll treat the avatar seed as an integer between 0 and 100
   const [avatarSeed, setAvatarSeed] = useState(50);
-  // New state for session-specific display name
   const [sessionDisplayName, setSessionDisplayName] = useState("");
 
   const router = useRouter();
@@ -28,6 +26,11 @@ export default function Home() {
   }, []);
 
   async function handleJoinQuiz() {
+    if (!isLoggedIn) {
+      alert("Please log in to join a quiz.");
+      router.push("/login");
+      return;
+    }
     if (!quizCode.trim()) {
       setError("Please enter a valid quiz code.");
       return;
@@ -110,6 +113,13 @@ export default function Home() {
     }
   }
 
+  function handleLeftArrow() {
+    setAvatarSeed((prev) => (prev <= 0 ? 100 : prev - 1));
+  }
+  function handleRightArrow() {
+    setAvatarSeed((prev) => (prev >= 100 ? 0 : prev + 1));
+  }
+
   return (
     <div style={{ textAlign: "center", padding: "40px" }}>
       <h1>Welcome to Quiz Frenzy 🎉</h1>
@@ -117,7 +127,6 @@ export default function Home() {
         Your ultimate quiz platform. Test your knowledge, host quizzes, and challenge friends!
       </p>
 
-      {/* Join Quiz Section */}
       <div style={{ marginTop: "20px" }}>
         <h2>Join a Quiz</h2>
         <input
@@ -137,17 +146,36 @@ export default function Home() {
         {error && <p style={{ color: "red" }}>{error}</p>}
       </div>
 
-      {/* Additional Sections */}
       <div style={{ marginTop: "20px" }}>
         <h2>Create a Quiz</h2>
-        <button onClick={() => router.push("/create-quiz")} style={{ padding: "10px 20px" }}>
+        <button
+          onClick={() => {
+            if (!isLoggedIn) {
+              alert("Please log in to create a quiz.");
+              router.push("/login");
+              return;
+            }
+            router.push("/create-quiz");
+          }}
+          style={{ padding: "10px 20px" }}
+        >
           Create Now
         </button>
       </div>
 
       <div style={{ marginTop: "20px" }}>
         <h2>Generate a Quiz with AI</h2>
-        <button onClick={() => router.push("/ai-quiz")} style={{ padding: "10px 20px" }}>
+        <button
+          onClick={() => {
+            if (!isLoggedIn) {
+              alert("Please log in to generate a quiz.");
+              router.push("/login");
+              return;
+            }
+            router.push("/ai-quiz");
+          }}
+          style={{ padding: "10px 20px" }}
+        >
           Generate
         </button>
       </div>
@@ -175,7 +203,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* Avatar & Session Name Selection Popup */}
       {showAvatarModal && (
         <div
           style={{
@@ -217,11 +244,11 @@ export default function Home() {
                 gap: "10px",
               }}
             >
-              <button style={{ padding: "6px 12px" }} onClick={() => handleLeftArrow()}>
+              <button style={{ padding: "6px 12px" }} onClick={handleLeftArrow}>
                 ◀
               </button>
               <span>{avatarSeed}</span>
-              <button style={{ padding: "6px 12px" }} onClick={() => handleRightArrow()}>
+              <button style={{ padding: "6px 12px" }} onClick={handleRightArrow}>
                 ▶
               </button>
             </div>
@@ -246,11 +273,4 @@ export default function Home() {
       )}
     </div>
   );
-
-  function handleLeftArrow() {
-    setAvatarSeed((prev) => (prev <= 0 ? 100 : prev - 1));
-  }
-  function handleRightArrow() {
-    setAvatarSeed((prev) => (prev >= 100 ? 0 : prev + 1));
-  }
 }
