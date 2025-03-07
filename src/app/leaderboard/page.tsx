@@ -4,7 +4,9 @@ import { useSearchParams } from "next/navigation";
 
 interface Player {
   _id: string;
-  player_name: string;
+  displayName: string;
+  avatar: string;
+  originalUsername: string;
   score: number;
   completed_at: string;
   attempted?: number;
@@ -43,6 +45,8 @@ export default function Leaderboard() {
     }
 
     fetchLeaderboard();
+
+    // Optionally auto-refresh every 10 seconds
     const interval = setInterval(fetchLeaderboard, 10000);
     return () => clearInterval(interval);
   }, [session_id]);
@@ -62,8 +66,12 @@ export default function Leaderboard() {
         <thead>
           <tr>
             <th style={{ border: "1px solid #ccc", padding: "8px" }}>Rank</th>
+            <th style={{ border: "1px solid #ccc", padding: "8px" }}>Avatar</th>
             <th style={{ border: "1px solid #ccc", padding: "8px" }}>
-              User Name
+              Display Name
+            </th>
+            <th style={{ border: "1px solid #ccc", padding: "8px" }}>
+              Original Username
             </th>
             <th style={{ border: "1px solid #ccc", padding: "8px" }}>
               Attempted
@@ -81,13 +89,27 @@ export default function Leaderboard() {
                 {index + 1}
               </td>
               <td style={{ border: "1px solid #ccc", padding: "8px" }}>
-                {player.player_name}
+                {player.avatar ? (
+                  <img
+                    src={player.avatar}
+                    alt="Avatar"
+                    style={{ width: "40px", borderRadius: "50%" }}
+                  />
+                ) : (
+                  "No avatar"
+                )}
               </td>
               <td style={{ border: "1px solid #ccc", padding: "8px" }}>
-                {player.attempted !== undefined ? player.attempted : "-"}
+                {player.displayName || "—"}
               </td>
               <td style={{ border: "1px solid #ccc", padding: "8px" }}>
-                {player.correct !== undefined ? player.correct : "-"}
+                {player.originalUsername || "—"}
+              </td>
+              <td style={{ border: "1px solid #ccc", padding: "8px" }}>
+                {player.attempted ?? "-"}
+              </td>
+              <td style={{ border: "1px solid #ccc", padding: "8px" }}>
+                {player.correct ?? "-"}
               </td>
               <td style={{ border: "1px solid #ccc", padding: "8px" }}>
                 {player.score}

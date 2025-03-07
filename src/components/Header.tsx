@@ -15,39 +15,25 @@ export default function Header() {
       .catch(() => setIsLoggedIn(false));
   }, []);
 
-  const handleLogout = async () => {
-    await fetch("/api/users/logout", { method: "POST", credentials: "include" });
-    router.push("/login");
-  };
-
   return (
-    <header style={{ backgroundColor: "#007bff", padding: "15px", color: "white", textAlign: "center" }}>
-      <h1 style={{ margin: 0, cursor: "pointer" }} onClick={() => router.push("/")}>Quiz Frenzy 🎉</h1>
-      <nav style={{ marginTop: "10px" }}>
-        <button onClick={() => router.push("/")} style={navButtonStyle}>Home</button>
+    <header className="bg-[#1f2122] py-4 text-center border-b border-pink-500 shadow-md">
+      <h1 className="text-pink-400 text-3xl font-bold cursor-pointer hover:text-white transition" onClick={() => router.push("/")}>
+        Quiz Frenzy 🎮
+      </h1>
+      <nav className="flex justify-center space-x-4 mt-2">
+        <button className="main-button" onClick={() => router.push("/")}>Home</button>
         {isLoggedIn ? (
           <>
-            <button onClick={() => router.push("/my-collection")} style={navButtonStyle}>My Collection</button> {/* ✅ NEW */}
-            <button onClick={() => router.push("/profile")} style={navButtonStyle}>Profile</button>
-            <button onClick={handleLogout} style={{ ...navButtonStyle, backgroundColor: "red" }}>Logout</button>
+            <button className="main-button" onClick={() => router.push("/profile")}>Profile</button>
+            <button className="main-button" onClick={() => router.push("/logout")}>Logout</button>
           </>
         ) : (
           <>
-            <button onClick={() => router.push("/login")} style={navButtonStyle}>Login</button>
-            <button onClick={() => router.push("/signup")} style={navButtonStyle}>Sign Up</button>
+            <button className="main-button" onClick={() => router.push("/login")}>Login</button>
+            <button className="main-button" onClick={() => router.push("/signup")}>Sign Up</button>
           </>
         )}
       </nav>
     </header>
   );
 }
-
-const navButtonStyle = {
-  backgroundColor: "white",
-  color: "#007bff",
-  padding: "10px",
-  margin: "5px",
-  border: "none",
-  cursor: "pointer",
-  borderRadius: "5px",
-};

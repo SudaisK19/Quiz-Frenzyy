@@ -48,21 +48,7 @@ export default function SignupPage() {
 
   return (
     <div style={styles.container}>
-      {/* Animated Background Lines */}
-      <div style={styles.linesContainer}>
-        {[...Array(20)].map((_, i) => (
-          <div
-            key={i}
-            style={{
-              marginLeft: `${(i - 10) * 5}%`,
-              animationDelay: `${i * 0.5}s`,
-              background: "rgba(255, 79, 158, 0.8)", // Darker pink for visibility
-              width: "2px", // Thicker lines
-              height: "50%", // Shorter lines
-            }}
-          ></div>
-        ))}
-      </div>
+      
 
       {/* Signup Box */}
       <form onSubmit={handleSubmit} style={styles.box}>
@@ -108,19 +94,11 @@ export default function SignupPage() {
 // **💡 Styles**
 const styles = {
   container: {
-    margin: 0,
-    padding: 0,
-    fontFamily: "sans-serif",
-    background: "linear-gradient(135deg, #121212, #2C003E, #FF4F9E)", // 🎨 CYBORG Theme Gradient
-    backgroundSize: "cover",
-    backgroundRepeat: "no-repeat",
-    backgroundPosition: "center",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    minHeight: "100vh",
-    position: "relative" as const,
-    overflow: "hidden",
+    height: "100vh", // Ensures full-screen height
+    width: "100vw",  // Ensures full-screen width
   } as const,
 
   box: {

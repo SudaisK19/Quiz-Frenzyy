@@ -49,20 +49,6 @@ export default function LoginPage() {
 
   return (
     <div style={styles.container}>
-      {/* Animated Background Lines */}
-      <div style={styles.linesContainer}>
-        {[...Array(20)].map((_, i) => (
-          <div
-            key={i}
-            style={{
-             // ...styles.line,
-              marginLeft: `${(i - 10) * 5}%`,
-              animationDelay: `${i * 0.5}s`,
-            }}
-          ></div>
-        ))}
-      </div>
-
       {/* Login Box */}
       <form style={styles.box} onSubmit={handleSubmit}>
         <h1 style={styles.heading}>Login</h1>
@@ -99,19 +85,11 @@ export default function LoginPage() {
 // **💡 Styles**
 const styles = {
   container: {
-    margin: 0,
-    padding: 0,
-    fontFamily: "sans-serif",
-    background: "linear-gradient(135deg, #121212, #2C003E, #FF4F9E)", // 🎨 CYBORG Theme Gradient
-    backgroundSize: "cover",
-    backgroundRepeat: "no-repeat",
-    backgroundPosition: "center",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    minHeight: "100vh",
-    position: "relative" as const,
-    overflow: "hidden",
+    height: "100vh", // Ensures full-screen height
+    width: "100vw",  // Ensures full-screen width
   } as const,
 
   box: {
@@ -172,25 +150,7 @@ const styles = {
     fontWeight: "bold",
   } as const,
 
-  // **🔹 Animated Lines**
-  linesContainer: {
-    position: "absolute" as const,
-    top: 0,
-    left: 0,
-    right: 0,
-    height: "100%",
-    width: "100vw",
-    zIndex: 1,
-    overflow: "hidden",
-  },
+  
 
-  // line: {
-  //   position: "absolute" as const,
-  //   width: "2px", // **Make Lines Thicker**
-  //   height: "100%",
-  //   top: 0,
-  //   background: "rgba(255, 79, 158, 0.8)", // **Darker Pink for Visibility**
-  //   animation: "run 7s infinite cubic-bezier(0.4, 0.26, 0, 0.97)",
-  // },
+  
 };
-
