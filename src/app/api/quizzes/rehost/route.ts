@@ -1,17 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import Quiz from "@/models/quizModel";
 import Session from "@/models/sessionModel";
+import UserNew from "@/models/userModel";
 import { connect } from "@/dbConfig/dbConfig";
-import mongoose from "mongoose";
+import jwt from "jsonwebtoken";
 
 connect();
 
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest, res: NextResponse) {
   try {
-    const { quizId, duration } = await request.json();
+    const { quizId, duration } = await req.json();
     if (!quizId) {
       return NextResponse.json({ error: "Quiz ID is required" }, { status: 400 });
     }
+
+    // Decode token to get user id
+    const token = req.cookies.get("authToken")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string };
+    const userId = decoded.id;
 
     const quiz = await Quiz.findById(quizId);
     if (!quiz) {
@@ -30,6 +39,14 @@ export async function POST(request: NextRequest) {
     });
 
     await newSession.save();
+
+    // Update user's hosted_quizzes using $addToSet to avoid duplicates.
+    const updatedUser = await UserNew.findByIdAndUpdate(
+      userId,
+      { $addToSet: { hosted_quizzes: quiz._id } },
+      { new: true }
+    );
+    console.log("Updated user document:", updatedUser);
 
     return NextResponse.json(
       {

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Quiz from "@/models/quizModel";
 import Question from "@/models/questionModel";
 import Session from "@/models/sessionModel";
+import UserNew from "@/models/userModel"; // Import the user model
 import { connect } from "@/dbConfig/dbConfig";
 import mongoose from "mongoose";
 import jwt, { JwtPayload } from "jsonwebtoken";
@@ -105,26 +106,19 @@ Do not include any "question_type" field or markdown formatting.`;
       }
     }
 
-    // Ensure generatedQuestions is an array.
     if (!Array.isArray(generatedQuestions)) {
       generatedQuestions = [generatedQuestions];
     }
 
     console.log("AI generated questions (before filtering):", generatedQuestions);
 
-    // Filter out any questions that don't have at least 4 options.
     const filteredQuestions = generatedQuestions.filter((q: any) =>
       Array.isArray(q.options) && q.options.length >= 4
     );
 
-    // If filtering removes all questions, use an empty array.
-    if (filteredQuestions.length === 0) {
-      console.error("No valid multiple choice questions found in AI output:", generatedQuestions);
-      return NextResponse.json({ error: "failed to generate valid multiple choice questions" }, { status: 500 });
-    }
-
     console.log("Filtered questions (MCQs only):", filteredQuestions);
 
+    // Create a new quiz document.
     const newQuiz = new Quiz({
       title: `ai quiz on ${topic}`,
       description: `automatically generated quiz about ${topic}`,
@@ -134,13 +128,17 @@ Do not include any "question_type" field or markdown formatting.`;
     });
     await newQuiz.save();
 
-    // Build questionDocs while ignoring any question_type from the AI.
-    const questionDocs = filteredQuestions.map((q: any, index: number) => {
-      // If options are missing or not enough, force default options.
-      let options = Array.isArray(q.options) && q.options.length >= 4 ? q.options : ["Option A", "Option B", "Option C", "Option D"];
-      // Ensure the correct_answer is one of the options.
-      let correct_answer = (q.correct_answer && options.includes(q.correct_answer)) ? q.correct_answer : options[0];
+    // Update user's hosted_quizzes using $addToSet
+    const updatedUser = await UserNew.findByIdAndUpdate(
+      userId,
+      { $addToSet: { hosted_quizzes: newQuiz._id } },
+      { new: true }
+    );
+    console.log("Updated user document:", updatedUser);
 
+    const questionDocs = filteredQuestions.map((q: any, index: number) => {
+      let options = Array.isArray(q.options) && q.options.length >= 4 ? q.options : ["Option A", "Option B", "Option C", "Option D"];
+      let correct_answer = (q.correct_answer && options.includes(q.correct_answer)) ? q.correct_answer : options[0];
       return {
         quiz_id: newQuiz._id,
         question_text: q.question_text,
@@ -152,7 +150,6 @@ Do not include any "question_type" field or markdown formatting.`;
     });
 
     console.log("Final questionDocs:", questionDocs);
-
     await Question.insertMany(questionDocs);
 
     const totalQuizPoints = questionDocs.reduce((sum: number, q: any) => sum + q.points, 0);

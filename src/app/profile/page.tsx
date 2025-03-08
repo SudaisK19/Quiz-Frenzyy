@@ -1,14 +1,20 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+
+interface Badge {
+  name: string;
+  imageUrl: string;
+  description: string;
+}
 
 interface User {
   _id: string;
   username: string;
   email: string;
   total_points: number;
-  badges: string[];
+  badges: Badge[];
 }
 
 export default function Profile() {
@@ -34,7 +40,6 @@ export default function Profile() {
       .catch(() => setError("Failed to load profile"));
   }, []);
 
-  // ✅ Update Profile
   const handleUpdate = async () => {
     const res = await fetch("/api/users/profile", {
       method: "PATCH",
@@ -42,24 +47,22 @@ export default function Profile() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newData),
     });
-
     const data = await res.json();
     if (data.success) {
-      alert("Profile updated successfully!");
+      toast.success("Profile updated successfully!");
       setUser(data.user);
     } else {
-      alert("Update failed: " + data.error);
+      toast.error("Update failed: " + data.error);
     }
   };
 
-  // ✅ Logout Function
   const handleLogout = async () => {
     const res = await fetch("/api/users/logout", { method: "POST", credentials: "include" });
     const data = await res.json();
     if (data.success) {
       router.push("/login");
     } else {
-      alert("Logout failed. Try again.");
+      toast.error("Logout failed. Try again.");
     }
   };
 
@@ -72,22 +75,45 @@ export default function Profile() {
       <p><strong>Email:</strong> {user?.email}</p>
 
       <h3>Update Profile</h3>
-      <input type="text" value={newData.username} onChange={(e) => setNewData({ ...newData, username: e.target.value })} />
-      <input type="email" value={newData.email} onChange={(e) => setNewData({ ...newData, email: e.target.value })} />
-      <input type="password" placeholder="New Password" value={newData.password} onChange={(e) => setNewData({ ...newData, password: e.target.value })} />
+      <input
+        type="text"
+        value={newData.username}
+        onChange={(e) => setNewData({ ...newData, username: e.target.value })}
+      />
+      <input
+        type="email"
+        value={newData.email}
+        onChange={(e) => setNewData({ ...newData, email: e.target.value })}
+      />
+      <input
+        type="password"
+        placeholder="New Password"
+        value={newData.password}
+        onChange={(e) => setNewData({ ...newData, password: e.target.value })}
+      />
       <button onClick={handleUpdate}>Update</button>
 
       <h3>Badges:</h3>
       {user?.badges && user.badges.length > 0 ? (
-        <ul>{user.badges.map((badge, index) => <li key={index}>{badge}</li>)}</ul>
-      ) : (<p>No badges yet.</p>)}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+          {user.badges.map((badge, index) => (
+            <div key={index} style={{ textAlign: "center" }}>
+              <img src={badge.imageUrl} alt={badge.name} style={{ width: "50px", height: "50px" }} />
+              <p style={{ fontSize: "0.8em" }}>{badge.name}</p>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p>No badges yet.</p>
+      )}
 
-      {/* ✅ Go to My Collection */}
       <button onClick={() => router.push("/my-collection")}>Go to My Collection</button>
-
-      <button onClick={handleLogout} style={{ backgroundColor: "red", color: "white", padding: "10px", marginTop: "20px" }}>
+      <button
+        onClick={handleLogout}
+        style={{ backgroundColor: "red", color: "white", padding: "10px", marginTop: "20px" }}
+      >
         Logout
       </button>
     </div>
   );
-}  
+}

@@ -1,7 +1,77 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+
+
+function showBadgeToast(badge: { name: string; imageUrl: string; description: string }) {
+  toast.custom(
+    (t) => (
+      <div
+        className={`${
+          t.visible ? "opacity-100 scale-100" : "opacity-0 scale-95"
+        } transform transition-all duration-300 pointer-events-auto flex items-center rounded-sm bg-blue-800 text-white p-1 w-40 shadow-md`}
+        style={{
+          // Ensure the container can't expand beyond 160px
+          width: "160px",
+        }}
+      >
+        {/* Force the badge image to be very small (16×16) via inline style */}
+        <img
+          src={badge.imageUrl}
+          alt={badge.name}
+          style={{
+            width: "16px",
+            height: "16px",
+            marginRight: "6px",
+          }}
+        />
+
+        {/* Text container with smaller font */}
+        <div style={{ lineHeight: "1.1" }}>
+          <p style={{ fontSize: "10px", fontWeight: "bold", marginBottom: "2px" }}>Congrats!</p>
+          <p style={{ fontSize: "9px", marginBottom: "2px" }}>
+            You've earned{" "}
+            <span style={{ fontWeight: "600" }}>{badge.name}</span>
+          </p>
+          <p style={{ fontSize: "8px" }}>{badge.description}</p>
+        </div>
+      </div>
+    ),
+    {
+      duration: 5000,
+      position: "top-right", // ensures it appears in the top-right corner
+    }
+  );
+}
+
+
+
+
+async function updateBadges(userId: string) {
+  try {
+    const res = await fetch("/api/users/badges", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      data.badges.forEach((badge: { name: string; imageUrl: string; description: string }) => {
+        // Namespace the localStorage key by userId to avoid conflicts from old accounts.
+        if (!localStorage.getItem(`badge_shown_${userId}_${badge.name}`)) {
+          showBadgeToast(badge);
+          localStorage.setItem(`badge_shown_${userId}_${badge.name}`, "true");
+        }
+      });
+    } else {
+      toast.error("Badge update failed.");
+    }
+  } catch (err) {
+    console.error("Error updating badges:", err);
+    toast.error("Badge update failed.");
+  }
+}
 
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -12,7 +82,6 @@ export default function Home() {
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [avatarSeed, setAvatarSeed] = useState(50);
   const [sessionDisplayName, setSessionDisplayName] = useState("");
-
   const router = useRouter();
 
   useEffect(() => {
@@ -21,6 +90,10 @@ export default function Home() {
       .then((data) => {
         setIsLoggedIn(data.success);
         setUserData(data.user);
+        // Call updateBadges only once when home loads, if logged in.
+        if (data.success && data.user?._id) {
+          updateBadges(data.user._id);
+        }
       })
       .catch(() => setIsLoggedIn(false));
   }, []);
@@ -86,7 +159,6 @@ export default function Home() {
     const avatarUrl = `https://api.dicebear.com/6.x/bottts/svg?seed=${encodeURIComponent(
       avatarSeed.toString()
     )}`;
-
     try {
       const res = await fetch("/api/player-quiz-settings", {
         method: "PATCH",
@@ -101,9 +173,7 @@ export default function Home() {
       const updatedData = await res.json();
       if (updatedData.success) {
         setShowAvatarModal(false);
-        router.push(
-          `/play-quiz?session_id=${joinData.session_id}&player_quiz_id=${joinData.player_quiz_id}`
-        );
+        router.push(`/play-quiz?session_id=${joinData.session_id}&player_quiz_id=${joinData.player_quiz_id}`);
       } else {
         setError("Failed to update session details: " + updatedData.error);
       }
@@ -123,9 +193,7 @@ export default function Home() {
   return (
     <div style={{ textAlign: "center", padding: "40px" }}>
       <h1>Welcome to Quiz Frenzy 🎉</h1>
-      <p>
-        Your ultimate quiz platform. Test your knowledge, host quizzes, and challenge friends!
-      </p>
+      <p>Your ultimate quiz platform. Test your knowledge, host quizzes, and challenge friends!</p>
 
       <div style={{ marginTop: "20px" }}>
         <h2>Join a Quiz</h2>
@@ -134,11 +202,7 @@ export default function Home() {
           placeholder="Enter Quiz Code"
           value={quizCode}
           onChange={(e) => setQuizCode(e.target.value.trim().toUpperCase())}
-          style={{
-            padding: "10px",
-            width: "200px",
-            marginRight: "10px",
-          }}
+          style={{ padding: "10px", width: "200px", marginRight: "10px" }}
         />
         <button onClick={handleJoinQuiz} style={{ padding: "10px 20px" }}>
           Join
@@ -183,10 +247,7 @@ export default function Home() {
       {!isLoggedIn && (
         <div style={{ marginTop: "30px" }}>
           <h3>Login or Sign Up to Start Playing!</h3>
-          <button
-            onClick={() => router.push("/login")}
-            style={{ padding: "10px 20px", marginRight: "10px" }}
-          >
+          <button onClick={() => router.push("/login")} style={{ padding: "10px 20px", marginRight: "10px" }}>
             Login
           </button>
           <button onClick={() => router.push("/signup")} style={{ padding: "10px 20px" }}>
@@ -218,32 +279,15 @@ export default function Home() {
             zIndex: 1000,
           }}
         >
-          <div
-            style={{
-              backgroundColor: "white",
-              padding: "20px",
-              borderRadius: "8px",
-              textAlign: "center",
-              width: "300px",
-            }}
-          >
+          <div style={{ backgroundColor: "white", padding: "20px", borderRadius: "8px", textAlign: "center", width: "300px" }}>
             <h2>Select Your Avatar & Session Name</h2>
             <p>Welcome, {userData?.username}!</p>
             <img
-              src={`https://api.dicebear.com/6.x/bottts/svg?seed=${encodeURIComponent(
-                avatarSeed.toString()
-              )}`}
+              src={`https://api.dicebear.com/6.x/bottts/svg?seed=${encodeURIComponent(avatarSeed.toString())}`}
               alt="Avatar"
               style={{ width: "100px", height: "100px", marginBottom: "10px" }}
             />
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: "10px",
-              }}
-            >
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "10px" }}>
               <button style={{ padding: "6px 12px" }} onClick={handleLeftArrow}>
                 ◀
               </button>
@@ -257,13 +301,7 @@ export default function Home() {
               placeholder="Enter Display Name"
               value={sessionDisplayName}
               onChange={(e) => setSessionDisplayName(e.target.value)}
-              style={{
-                padding: "12px",
-                width: "100%",
-                marginTop: "10px",
-                border: "1px solid #ccc",
-                borderRadius: "4px",
-              }}
+              style={{ padding: "12px", width: "100%", marginTop: "10px", border: "1px solid #ccc", borderRadius: "4px" }}
             />
             <button onClick={handleConfirmAvatar} style={{ padding: "10px 20px", marginTop: "10px" }}>
               Confirm

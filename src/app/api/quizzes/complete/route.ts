@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import Answer from "@/models/answerModel";
 import Question from "@/models/questionModel";
 import PlayerQuiz from "@/models/playerQuizModel";
+import UserNew from "@/models/userModel";
 import { connect } from "@/dbConfig/dbConfig";
 
 connect();
@@ -12,21 +13,27 @@ export async function POST(request: NextRequest) {
     const { player_quiz_id, answers } = await request.json();
 
     if (!player_quiz_id || !answers || answers.length === 0) {
-      console.log("missing required fields: player_quiz_id or answers");
-      return NextResponse.json({ error: "player quiz id and answers are required" }, { status: 400 });
+      console.log("Missing required fields: player_quiz_id or answers");
+      return NextResponse.json(
+        { error: "player quiz id and answers are required" },
+        { status: 400 }
+      );
     }
 
     const playerQuiz = await PlayerQuiz.findById(player_quiz_id);
     if (!playerQuiz) {
-      console.log("player quiz not found for id:", player_quiz_id);
-      return NextResponse.json({ error: "player quiz not found" }, { status: 404 });
+      console.log("Player quiz not found for id:", player_quiz_id);
+      return NextResponse.json(
+        { error: "player quiz not found" },
+        { status: 404 }
+      );
     }
 
     const answerDocs = await Promise.all(
       answers.map(async (ans: { question_id: string; submitted_answer: string }) => {
         const question = await Question.findById(ans.question_id);
         if (!question) {
-          throw new Error(`question not found for id: ${ans.question_id}`);
+          throw new Error(`Question not found for id: ${ans.question_id}`);
         }
         const is_correct =
           question.correct_answer.trim().toLowerCase() === ans.submitted_answer.trim().toLowerCase();
@@ -40,7 +47,7 @@ export async function POST(request: NextRequest) {
           points,
         };
 
-        console.log("computed answer document:", answerDoc);
+        console.log("Computed answer document:", answerDoc);
         return answerDoc;
       })
     );
@@ -51,12 +58,20 @@ export async function POST(request: NextRequest) {
       { $match: { player_quiz_id: new mongoose.Types.ObjectId(player_quiz_id) } },
       { $group: { _id: null, total: { $sum: "$points" } } },
     ]);
-    console.log("aggregation result (total score):", totalScore);
+    console.log("Aggregation result (total score):", totalScore);
 
     playerQuiz.score = totalScore[0]?.total || 0;
     playerQuiz.completed_at = new Date();
     await playerQuiz.save();
-    console.log("updated player quiz document:", playerQuiz);
+    console.log("Updated player quiz document:", playerQuiz);
+
+    // Update the user's cumulative total points.
+    const user = await UserNew.findById(playerQuiz.player_id);
+    if (user) {
+      user.total_points += playerQuiz.score;
+      await user.save();
+      console.log("Updated user's total points:", user.total_points);
+    }
 
     return NextResponse.json(
       {
@@ -68,7 +83,7 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("error finalizing quiz:", error);
+    console.error("Error finalizing quiz:", error);
     return NextResponse.json({ error: "internal server error" }, { status: 500 });
   }
 }

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import toast from "react-hot-toast";
 
 export default function QuizComplete() {
   const searchParams = useSearchParams();
@@ -27,7 +28,6 @@ export default function QuizComplete() {
 
       if (data.success) {
         setMessage("Quiz completed successfully!");
-        // Ensure session_id is a string (if it comes as an ObjectId, convert it)
         setSessionId(data.session_id ? data.session_id.toString() : null);
         setScore(data.score);
         setCompletedAt(new Date(data.completed_at).toLocaleString());
@@ -35,7 +35,6 @@ export default function QuizComplete() {
         setMessage("Error fetching quiz results.");
       }
     }
-
     fetchQuizResults();
   }, [player_quiz_id]);
 
@@ -46,15 +45,9 @@ export default function QuizComplete() {
       <h1>🎉 Quiz Completed! 🎉</h1>
       <h2>Your Score: {score ?? "N/A"}</h2>
       {completedAt && <p>Completed at: {completedAt}</p>}
-
-      <button
-        onClick={() => router.push("/")}
-        style={{ margin: "10px", padding: "10px 20px" }}
-      >
+      <button onClick={() => router.push("/")} style={{ margin: "10px", padding: "10px 20px" }}>
         Home
       </button>
-
-      {/* View Leaderboard button */}
       <button
         onClick={() => {
           if (sessionId) {

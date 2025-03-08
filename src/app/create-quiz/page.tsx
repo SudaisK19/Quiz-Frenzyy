@@ -1,24 +1,24 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-// ✅ Define Question Type
 interface Question {
   question_text: string;
   question_type: string;
   options: string[];
   correct_answer: string;
   media_url?: string;
-  points: number; // ✅ Points per question (remains)
+  points: number;
 }
 
-// ✅ Define Quiz Type
 interface Quiz {
   _id?: string;
   title: string;
   description: string;
   join_code?: string;
+  session_id?: string;
   created_by: string;
-  duration: number; // ✅ Only one global quiz duration
+  duration: number;
   questions: Question[];
 }
 
@@ -27,13 +27,13 @@ export default function CreateQuiz() {
     title: "",
     description: "",
     created_by: "",
-    duration: 10, // ✅ Default quiz duration in minutes
+    duration: 10,
     questions: [],
   });
-
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-  // ✅ Fetch Logged-in User ID
+  // Fetch logged-in user and set created_by field.
   useEffect(() => {
     fetch("/api/users/profile", { method: "GET", credentials: "include" })
       .then((res) => res.json())
@@ -45,7 +45,7 @@ export default function CreateQuiz() {
       .catch(() => console.error("Failed to fetch user profile"));
   }, []);
 
-  // ✅ Add New Question
+  // Add a new empty question.
   function addQuestion() {
     setQuiz((prevQuiz) => ({
       ...prevQuiz,
@@ -56,84 +56,112 @@ export default function CreateQuiz() {
           question_type: "MCQ",
           options: ["", "", "", ""],
           correct_answer: "",
-          points: 10, // ✅ Default 10 points per question
+          points: 10,
         },
       ],
     }));
   }
 
-  // ✅ Handle Input Change for Quiz Details
-  function handleInputChange(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, field: keyof Quiz) {
+  // Handle change in quiz details.
+  function handleInputChange(
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    field: keyof Quiz
+  ) {
     setQuiz((prevQuiz) => ({
       ...prevQuiz,
-      [field]: field === "duration" ? Number(event.target.value) : event.target.value, // ✅ Ensure duration is a number
+      [field]:
+        field === "duration" ? Number(event.target.value) : event.target.value,
     }));
   }
 
-  // ✅ Handle Input Change for Questions
-  function handleQuestionChange(index: number, field: keyof Question, value: string | number | string[]) {
+  // Handle changes in question fields.
+  function handleQuestionChange(
+    index: number,
+    field: keyof Question,
+    value: string | number | string[]
+  ) {
     setQuiz((prevQuiz) => {
       const updatedQuestions = [...prevQuiz.questions];
-
       if (field === "points") {
-        updatedQuestions[index] = { ...updatedQuestions[index], [field]: Number(value) }; // ✅ Ensure points are numbers
+        updatedQuestions[index] = {
+          ...updatedQuestions[index],
+          [field]: Number(value),
+        };
       } else if (field === "options" && Array.isArray(value)) {
-        updatedQuestions[index] = { ...updatedQuestions[index], [field]: [...value] };
+        updatedQuestions[index] = {
+          ...updatedQuestions[index],
+          [field]: [...value],
+        };
       } else {
-        updatedQuestions[index] = { ...updatedQuestions[index], [field]: value as string };
+        updatedQuestions[index] = {
+          ...updatedQuestions[index],
+          [field]: value as string,
+        };
       }
-
       return { ...prevQuiz, questions: updatedQuestions };
     });
   }
 
-  // ✅ Handle Options Change for MCQs
+  // Handle option change for a specific question.
   function handleOptionChange(qIndex: number, optIndex: number, value: string) {
     setQuiz((prevQuiz) => {
       const updatedQuestions = [...prevQuiz.questions];
       updatedQuestions[qIndex] = {
         ...updatedQuestions[qIndex],
-        options: updatedQuestions[qIndex].options.map((opt, i) => (i === optIndex ? value : opt)),
+        options: updatedQuestions[qIndex].options.map((opt, i) =>
+          i === optIndex ? value : opt
+        ),
       };
-
       return { ...prevQuiz, questions: updatedQuestions };
     });
   }
+
+  // Create the quiz by sending data to the API.
   async function handleCreateQuiz() {
     if (!quiz.created_by) {
       alert("User ID not found. Try logging in again.");
       return;
     }
 
-    // ✅ Compute total quiz points before sending to API
-    const totalPoints = quiz.questions.reduce((sum: number, q: Question) => sum + (q.points || 0), 0);
+    // Compute total points for the quiz.
+    const totalPoints = quiz.questions.reduce(
+      (sum: number, q: Question) => sum + (q.points || 0),
+      0
+    );
 
     setLoading(true);
     const response = await fetch("/api/quizzes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...quiz, total_points: totalPoints }), // includes quiz.questions
+      body: JSON.stringify({ ...quiz, total_points: totalPoints }),
     });
-    
-
     const data = await response.json();
     setLoading(false);
 
     if (data.success) {
+      // Assume API returns quiz._id, session_join_code, and session_id.
       setQuiz((prevQuiz) => ({
         ...prevQuiz,
         _id: data.quiz._id,
-        join_code: data.session_join_code, // ✅ Store session join code
+        join_code: data.session_join_code,
+        session_id: data.session_id,
       }));
       alert("Quiz Created Successfully!");
+      // Removed badge update logic
     } else {
       alert("Error creating quiz: " + data.error);
     }
-}
-
+  }
 
   return (
-    <div style={{ textAlign: "center", padding: "20px", maxWidth: "600px", margin: "auto" }}>
+    <div
+      style={{
+        textAlign: "center",
+        padding: "20px",
+        maxWidth: "600px",
+        margin: "auto",
+      }}
+    >
       <h1>Create a New Quiz</h1>
       <input
         type="text"
@@ -148,8 +176,6 @@ export default function CreateQuiz() {
         onChange={(e) => handleInputChange(e, "description")}
         style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
       />
-
-      {/* ✅ Added Quiz Duration Input */}
       <input
         type="number"
         placeholder="Quiz Duration (minutes)"
@@ -160,25 +186,33 @@ export default function CreateQuiz() {
 
       <h2>Questions</h2>
       {quiz.questions.map((q, qIndex) => (
-        <div key={qIndex} style={{ border: "1px solid #ccc", padding: "10px", marginBottom: "10px" }}>
+        <div
+          key={qIndex}
+          style={{
+            border: "1px solid #ccc",
+            padding: "10px",
+            marginBottom: "10px",
+          }}
+        >
           <input
             type="text"
             placeholder="Question Text"
             value={q.question_text}
-            onChange={(e) => handleQuestionChange(qIndex, "question_text", e.target.value)}
+            onChange={(e) =>
+              handleQuestionChange(qIndex, "question_text", e.target.value)
+            }
             style={{ width: "100%", padding: "5px" }}
           />
-
           <select
             value={q.question_type}
-            onChange={(e) => handleQuestionChange(qIndex, "question_type", e.target.value)}
+            onChange={(e) =>
+              handleQuestionChange(qIndex, "question_type", e.target.value)
+            }
             style={{ width: "100%", marginTop: "5px" }}
           >
             <option value="MCQ">Multiple Choice</option>
             <option value="Short Answer">Short Answer</option>
           </select>
-
-          {/* Show Options for MCQs */}
           {q.question_type === "MCQ" && (
             <div>
               <h4>Options</h4>
@@ -188,22 +222,27 @@ export default function CreateQuiz() {
                   type="text"
                   placeholder={`Option ${optIndex + 1}`}
                   value={opt}
-                  onChange={(e) => handleOptionChange(qIndex, optIndex, e.target.value)}
-                  style={{ width: "100%", padding: "5px", marginBottom: "5px" }}
+                  onChange={(e) =>
+                    handleOptionChange(qIndex, optIndex, e.target.value)
+                  }
+                  style={{
+                    width: "100%",
+                    padding: "5px",
+                    marginBottom: "5px",
+                  }}
                 />
               ))}
             </div>
           )}
-
           <input
             type="text"
             placeholder="Correct Answer"
             value={q.correct_answer}
-            onChange={(e) => handleQuestionChange(qIndex, "correct_answer", e.target.value)}
+            onChange={(e) =>
+              handleQuestionChange(qIndex, "correct_answer", e.target.value)
+            }
             style={{ width: "100%", padding: "5px", marginTop: "5px" }}
           />
-
-          {/* ✅ Added Points Input (Timer Removed) */}
           <input
             type="number"
             placeholder="Points"
@@ -213,11 +252,9 @@ export default function CreateQuiz() {
           />
         </div>
       ))}
-
       <button onClick={addQuestion} style={{ padding: "10px 20px", margin: "10px 0" }}>
         Add Question
       </button>
-
       <button onClick={handleCreateQuiz} disabled={loading} style={{ padding: "10px 20px" }}>
         {loading ? "Creating..." : "Create Quiz"}
       </button>
@@ -226,7 +263,23 @@ export default function CreateQuiz() {
         <div>
           <h2>Quiz Created!</h2>
           <p>Title: {quiz.title}</p>
-          <p>Session Join Code (For Players): <strong>{quiz.join_code ? quiz.join_code : "Not Available"}</strong></p> 
+          <p>
+            Session Join Code (For Players):{" "}
+            <strong>{quiz.join_code ? quiz.join_code : "Not Available"}</strong>
+          </p>
+          {/* View Leaderboard button for the host */}
+          <button
+            onClick={() => {
+              if (quiz.session_id) {
+                router.push(`/leaderboard?session_id=${quiz.session_id}`);
+              } else {
+                alert("No session ID found!");
+              }
+            }}
+            style={{ padding: "10px 20px", margin: "10px 0" }}
+          >
+            View Leaderboard 🏆
+          </button>
         </div>
       )}
     </div>

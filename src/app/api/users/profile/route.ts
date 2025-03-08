@@ -1,6 +1,6 @@
 import { connect } from "@/dbConfig/dbConfig";
 import User from "@/models/userModel";
-import PlayerQuiz from "@/models/playerQuizModel"; // if needed
+import PlayerQuiz from "@/models/playerQuizModel"; 
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import "@/models/quizModel";
@@ -77,7 +77,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const { username, email, password } = await request.json();
-    // We no longer accept or store 'avatar' in the User model
+    
     const updateData: any = { username, email };
     if (password) updateData.password = password;
 
