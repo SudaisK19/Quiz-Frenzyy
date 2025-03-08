@@ -1,15 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
-@import "tailwindcss/utilities"; /* Optional if needed for utilities */
+
+@import "tailwindcss";
+
+
+
 
 
 html, body {
-  font-family: 'Poppins', sans-serif;
-  font-weight: 400;
+  
   background: linear-gradient(135deg, #121212, #2C003E, #FF4F9E);
-  font-size: 16px;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  overflow: hidden;
+  overflow: auto;
   
 }
 
@@ -17,7 +17,6 @@ html, body {
 main{
   position: relative;
   z-index: 3;
-  min-height: 80vh;
 }
 img {
   max-width: 100%;

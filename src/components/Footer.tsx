@@ -1,6 +1,6 @@
-export default function Footer() {
+export default function Footer() {  // ✅ Ensure it's a default export
   return (
-    <footer className="bg-[#1f2122] text-white py-4 text-center border-t border-pink-500">
+    <footer style={{ backgroundColor: "#f8f9fa", padding: "10px", textAlign: "center", marginTop: "20px" }}>
       <p>© 2024 Quiz Frenzy. All rights reserved.</p>
     </footer>
   );

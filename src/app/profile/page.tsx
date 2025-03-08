@@ -1,93 +1,41 @@
 "use client";
+import React from "react";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { usePathname } from "next/navigation"; // Hook to check URL path
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-
-interface User {
-  _id: string;
-  username: string;
-  email: string;
-  total_points: number;
-  badges: string[];
-}
-
-export default function Profile() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [newData, setNewData] = useState({ username: "", email: "", password: "" });
-  const router = useRouter();
-
-  useEffect(() => {
-    fetch("/api/users/profile", { method: "GET", credentials: "include" })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          setUser(data.user);
-          setNewData({ username: data.user.username, email: data.user.email, password: "" });
-        } else {
-          setError(data.error);
-          router.push("/login");
-        }
-        setLoading(false);
-      })
-      .catch(() => setError("Failed to load profile"));
-  }, []);
-
-  // ✅ Update Profile
-  const handleUpdate = async () => {
-    const res = await fetch("/api/users/profile", {
-      method: "PATCH",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newData),
-    });
-
-    const data = await res.json();
-    if (data.success) {
-      alert("Profile updated successfully!");
-      setUser(data.user);
-    } else {
-      alert("Update failed: " + data.error);
-    }
-  };
-
-  // ✅ Logout Function
-  const handleLogout = async () => {
-    const res = await fetch("/api/users/logout", { method: "POST", credentials: "include" });
-    const data = await res.json();
-    if (data.success) {
-      router.push("/login");
-    } else {
-      alert("Logout failed. Try again.");
-    }
-  };
-
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>{error}</p>;
+const ProfilePage = () => {
+  const pathname = usePathname(); // Get current page URL
 
   return (
-    <div style={{ padding: "20px", maxWidth: "600px", margin: "auto" }}>
-      <h1>Welcome, {user?.username}!</h1>
-      <p><strong>Email:</strong> {user?.email}</p>
+    <>
+      {/* Show Header only if not on login or signup pages */}
+      {!(pathname === "/login" || pathname === "/signup") && <Header />}
+      <div className="bg-red-500 p-6 text-white">Test Tailwind</div>
 
-      <h3>Update Profile</h3>
-      <input type="text" value={newData.username} onChange={(e) => setNewData({ ...newData, username: e.target.value })} />
-      <input type="email" value={newData.email} onChange={(e) => setNewData({ ...newData, email: e.target.value })} />
-      <input type="password" placeholder="New Password" value={newData.password} onChange={(e) => setNewData({ ...newData, password: e.target.value })} />
-      <button onClick={handleUpdate}>Update</button>
+      <button className="bg-blue-500 text-white p-4 rounded">Test Button</button>
 
-      <h3>Badges:</h3>
-      {user?.badges && user.badges.length > 0 ? (
-        <ul>{user.badges.map((badge, index) => <li key={index}>{badge}</li>)}</ul>
-      ) : (<p>No badges yet.</p>)}
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-9/10 max-h-[90vh] bg-[#1f2122] text-white rounded-[23px] p-[30px] overflow-y-auto">
+          hiii
+          <p className="mb-4">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec fermentum
+            turpis vitae elit posuere, at dictum justo malesuada. Duis sed odio sit amet
+            nisi venenatis auctor non a sapien. Proin consequat lacus nec dui cursus,
+            et fermentum magna posuere. Sed nec diam in massa facilisis vehicula.
+          </p>
 
-      {/* ✅ Go to My Collection */}
-      <button onClick={() => router.push("/my-collection")}>Go to My Collection</button>
 
-      <button onClick={handleLogout} style={{ backgroundColor: "red", color: "white", padding: "10px", marginTop: "20px" }}>
-        Logout
-      </button>
-    </div>
+          <button className="mt-4 px-6 py-2 bg-blue-500 hover:bg-blue-600 rounded-full text-white font-bold transition">
+            Update Profile
+          </button>
+        </div>
+      </div>
+
+      {/* Show Footer only if not on login or signup pages */}
+      {!(pathname === "/login" || pathname === "/signup") && <Footer />}
+    </>
   );
-}
+};
+
+export default ProfilePage;

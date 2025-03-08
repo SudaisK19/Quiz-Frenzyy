@@ -33,7 +33,7 @@ export default function LoginPage() {
 
       if (response.status === 200) {
         alert("Login successful!");
-        router.push("/profile");
+        router.push("/");
       }
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
