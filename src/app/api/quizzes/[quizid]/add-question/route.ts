@@ -4,7 +4,8 @@ import { connect } from "@/dbConfig/dbConfig";
 
 connect();
 
-export async function POST(request: NextRequest, { params }: any) {
+export async function POST(request: NextRequest, context: unknown) {
+  const { params } = context as { params: { quizid: string } };
   try {
     const { question_text, question_type, options, correct_answer } = await request.json();
 
@@ -13,7 +14,7 @@ export async function POST(request: NextRequest, { params }: any) {
     }
 
     const newQuestion = new Question({
-      quiz_id: params.quizid, // note: file name is [quizid]
+      quiz_id: params.quizid, // use quizid as in the file path
       question_text,
       question_type,
       options,
