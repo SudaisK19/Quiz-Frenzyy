@@ -8,6 +8,13 @@ interface Quiz {
   description: string;
 }
 
+interface Session {
+  _id: string;
+  join_code: string;
+  start_time: string;
+  end_time: string;
+}
+
 interface UserCollection {
   hosted_quizzes: Quiz[];
   participated_quizzes: Quiz[];
@@ -18,6 +25,9 @@ export default function MyCollection() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [rehostMessage, setRehostMessage] = useState<string>("");
+  const [showSessionsModal, setShowSessionsModal] = useState(false);
+  const [currentQuizSessions, setCurrentQuizSessions] = useState<Session[]>([]);
+  const [currentQuizTitle, setCurrentQuizTitle] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -47,7 +57,7 @@ export default function MyCollection() {
       });
   }, []);
 
-  // Rehost Quiz function
+  // Rehost Quiz function remains unchanged.
   const handleRehostQuiz = async (quizId: string) => {
     try {
       const res = await fetch("/api/quizzes/rehost", {
@@ -63,7 +73,6 @@ export default function MyCollection() {
 
       if (data.success) {
         setRehostMessage(`New session created for quiz ${quizId}! Join code: ${data.join_code}`);
-        // Removed badge update logic
       } else {
         setRehostMessage("Rehost failed: " + data.error);
       }
@@ -71,6 +80,34 @@ export default function MyCollection() {
       console.error("Rehost error:", err);
       setRehostMessage("Rehost failed: " + err);
     }
+  };
+
+  // Updated function to fetch sessions using the new route (/api/quizzes/sessions-list)
+  const handleViewSessions = async (quizId: string, quizTitle: string) => {
+    try {
+      const res = await fetch(`/api/quizzes/sessions-list?quizId=${quizId}`, {
+        method: "GET",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (data.success) {
+        // Expecting an array of sessions from the new route.
+        setCurrentQuizSessions(data.sessions);
+        setCurrentQuizTitle(quizTitle);
+        setShowSessionsModal(true);
+      } else {
+        alert("Failed to fetch sessions: " + data.error);
+      }
+    } catch (err) {
+      console.error("Error fetching sessions:", err);
+      alert("Failed to fetch sessions");
+    }
+  };
+
+  // When a session is selected, navigate to the leaderboard for that session.
+  const handleSelectSession = (sessionId: string) => {
+    setShowSessionsModal(false);
+    router.push(`/leaderboard?session_id=${sessionId}`);
   };
 
   if (loading) return <p>Loading...</p>;
@@ -86,13 +123,24 @@ export default function MyCollection() {
           {collection.hosted_quizzes.map((quiz, index) => (
             <li key={`${quiz._id}-${index}`} style={{ marginBottom: "20px" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <h4>{quiz.title}</h4>
-                <button
-                  onClick={() => handleRehostQuiz(quiz._id)}
-                  style={{ padding: "6px 12px", marginLeft: "10px" }}
-                >
-                  Rehost Quiz
-                </button>
+                <div>
+                  <h4>{quiz.title}</h4>
+                  <p>{quiz.description}</p>
+                </div>
+                <div>
+                  <button
+                    onClick={() => handleRehostQuiz(quiz._id)}
+                    style={{ padding: "6px 12px", marginRight: "10px" }}
+                  >
+                    Rehost Quiz
+                  </button>
+                  <button
+                    onClick={() => handleViewSessions(quiz._id, quiz.title)}
+                    style={{ padding: "6px 12px" }}
+                  >
+                    View Sessions
+                  </button>
+                </div>
               </div>
             </li>
           ))}
@@ -114,6 +162,58 @@ export default function MyCollection() {
         </ul>
       ) : (
         <p>No played quizzes.</p>
+      )}
+
+      {/* Modal for displaying sessions */}
+      {showSessionsModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0,0,0,0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "20px",
+              borderRadius: "8px",
+              maxWidth: "400px",
+              width: "100%",
+            }}
+          >
+            <h3>Sessions for {currentQuizTitle}</h3>
+            {currentQuizSessions.length ? (
+              <ul>
+                {currentQuizSessions.map((session) => (
+                  <li key={session._id} style={{ marginBottom: "10px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span>Join Code: {session.join_code}</span>
+                      <button
+                        onClick={() => handleSelectSession(session._id)}
+                        style={{ padding: "4px 8px" }}
+                      >
+                        View Leaderboard
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No sessions found.</p>
+            )}
+            <button onClick={() => setShowSessionsModal(false)} style={{ marginTop: "10px", padding: "6px 12px" }}>
+              Close
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

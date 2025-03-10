@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Quiz from "@/models/quizModel";
 import Question from "@/models/questionModel";
 import Session from "@/models/sessionModel";
-import UserNew from "@/models/userModel"; // Import the user model
+import UserNew from "@/models/userModel";
 import { connect } from "@/dbConfig/dbConfig";
 import mongoose from "mongoose";
 import jwt, { JwtPayload } from "jsonwebtoken";
@@ -14,6 +14,13 @@ interface DecodedToken extends JwtPayload {
   id?: string;
 }
 
+// Define an interface for the structure of generated questions.
+interface GeneratedQuestion {
+  question_text: string;
+  options: string[];
+  correct_answer: string;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { topic, numQuestions, duration, questionConfigs } = await request.json();
@@ -21,7 +28,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "missing required fields" }, { status: 400 });
     }
 
-    // Strong prompt: tell the AI to generate only multiple choice questions.
     const prompt = `Generate ${numQuestions} quiz questions on the topic "${topic}".
 IMPORTANT: All questions must be strictly multiple choice only. Do not generate any short answer questions.
 Each question must include:
@@ -42,7 +48,7 @@ Do not include any "question_type" field or markdown formatting.`;
         throw new Error("jwt_secret not set in environment");
       }
       decoded = jwt.verify(token, process.env.JWT_SECRET) as DecodedToken;
-    } catch (err) {
+    } catch (_err) {  // Changed parameter name to _err since it's unused
       return NextResponse.json({ error: "invalid or expired token" }, { status: 401 });
     }
     const userId = decoded.id;
@@ -84,7 +90,7 @@ Do not include any "question_type" field or markdown formatting.`;
     let generatedQuestions;
     try {
       generatedQuestions = JSON.parse(generatedOutput);
-    } catch (err) {
+    } catch (_err) {  // Changed parameter name to _err
       try {
         const fixedOutput = `[${generatedOutput.replace(/}\s*{/g, "},{")}]`;
         generatedQuestions = JSON.parse(fixedOutput);
@@ -112,13 +118,13 @@ Do not include any "question_type" field or markdown formatting.`;
 
     console.log("AI generated questions (before filtering):", generatedQuestions);
 
-    const filteredQuestions = generatedQuestions.filter((q: any) =>
+    // Cast generatedQuestions to our defined type and filter only valid MCQs.
+    const filteredQuestions = (generatedQuestions as GeneratedQuestion[]).filter((q) =>
       Array.isArray(q.options) && q.options.length >= 4
     );
 
     console.log("Filtered questions (MCQs only):", filteredQuestions);
 
-    // Create a new quiz document.
     const newQuiz = new Quiz({
       title: `ai quiz on ${topic}`,
       description: `automatically generated quiz about ${topic}`,
@@ -128,7 +134,6 @@ Do not include any "question_type" field or markdown formatting.`;
     });
     await newQuiz.save();
 
-    // Update user's hosted_quizzes using $addToSet
     const updatedUser = await UserNew.findByIdAndUpdate(
       userId,
       { $addToSet: { hosted_quizzes: newQuiz._id } },
@@ -136,13 +141,18 @@ Do not include any "question_type" field or markdown formatting.`;
     );
     console.log("Updated user document:", updatedUser);
 
-    const questionDocs = filteredQuestions.map((q: any, index: number) => {
-      let options = Array.isArray(q.options) && q.options.length >= 4 ? q.options : ["Option A", "Option B", "Option C", "Option D"];
-      let correct_answer = (q.correct_answer && options.includes(q.correct_answer)) ? q.correct_answer : options[0];
+    const questionDocs = filteredQuestions.map((q: GeneratedQuestion, index: number) => {
+      // Use const instead of let for variables that don't change.
+      const options = Array.isArray(q.options) && q.options.length >= 4
+        ? q.options
+        : ["Option A", "Option B", "Option C", "Option D"];
+      const correct_answer = (q.correct_answer && options.includes(q.correct_answer))
+        ? q.correct_answer
+        : options[0];
       return {
         quiz_id: newQuiz._id,
         question_text: q.question_text,
-        question_type: "MCQ", 
+        question_type: "MCQ",
         options: options,
         correct_answer: correct_answer,
         points: questionConfigs[index]?.points || 10,
@@ -152,7 +162,8 @@ Do not include any "question_type" field or markdown formatting.`;
     console.log("Final questionDocs:", questionDocs);
     await Question.insertMany(questionDocs);
 
-    const totalQuizPoints = questionDocs.reduce((sum: number, q: any) => sum + q.points, 0);
+    // Provide a type for the reduce callback object.
+    const totalQuizPoints = questionDocs.reduce((sum: number, q: { points: number }) => sum + q.points, 0);
     newQuiz.total_points = totalQuizPoints;
     await newQuiz.save();
 

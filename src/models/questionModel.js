@@ -11,11 +11,11 @@ const questionSchema = new mongoose.Schema(
     question_type: { type: String, required: true },
     options: { type: [String], required: true },
     correct_answer: { type: String, required: true },
-    points: { type: Number, required: true }, // ✅ Points for each question
+    points: { type: Number, required: true }, 
   },
   {
     timestamps: true,
-    strict: true, // ✅ This ensures extra fields (like 'timer') are not stored
+    strict: true, 
   }
 );
 

@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     await playerQuiz.save();
     console.log("Updated player quiz document:", playerQuiz);
 
-    // Update the user's cumulative total points.
+    
     const user = await UserNew.findById(playerQuiz.player_id);
     if (user) {
       user.total_points += playerQuiz.score;

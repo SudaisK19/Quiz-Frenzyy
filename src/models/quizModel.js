@@ -6,8 +6,8 @@ const quizSchema = new mongoose.Schema(
     description: { type: String, default: "" },
     created_by: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     duration: { type: Number, default: 10 },
-    total_points: { type: Number, default: 0 }, // Keep track of sum of all question points
-    // ... other fields if needed
+    total_points: { type: Number, default: 0 },
+    
   },
   { timestamps: true }
 );

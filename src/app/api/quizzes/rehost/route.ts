@@ -14,7 +14,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
       return NextResponse.json({ error: "Quiz ID is required" }, { status: 400 });
     }
 
-    // Decode token to get user id
+    
     const token = req.cookies.get("authToken")?.value;
     if (!token) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     await newSession.save();
 
-    // Update user's hosted_quizzes using $addToSet to avoid duplicates.
+
     const updatedUser = await UserNew.findByIdAndUpdate(
       userId,
       { $addToSet: { hosted_quizzes: quiz._id } },

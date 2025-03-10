@@ -19,13 +19,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "invalid token" }, { status: 401 });
     }
 
-    // Retrieve the user document and populate hosted_quizzes.
+    
     const user = await UserNew.findById(decoded.id).populate("hosted_quizzes", "title description created_at");
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Also get participated quizzes from PlayerQuiz.
+    
     const playerQuizzes = await PlayerQuiz.find({ player_id: decoded.id })
       .populate("quiz_id", "title description created_at");
     const participatedQuizzes = playerQuizzes.map((pq) => pq.quiz_id);
