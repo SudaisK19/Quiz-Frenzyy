@@ -48,7 +48,7 @@ Do not include any "question_type" field or markdown formatting.`;
         throw new Error("jwt_secret not set in environment");
       }
       decoded = jwt.verify(token, process.env.JWT_SECRET) as DecodedToken;
-    } catch (_err) {  // Changed parameter name to _err since it's unused
+    } catch {
       return NextResponse.json({ error: "invalid or expired token" }, { status: 401 });
     }
     const userId = decoded.id;
@@ -90,7 +90,7 @@ Do not include any "question_type" field or markdown formatting.`;
     let generatedQuestions;
     try {
       generatedQuestions = JSON.parse(generatedOutput);
-    } catch (_err) {  // Changed parameter name to _err
+    } catch {
       try {
         const fixedOutput = `[${generatedOutput.replace(/}\s*{/g, "},{")}]`;
         generatedQuestions = JSON.parse(fixedOutput);
