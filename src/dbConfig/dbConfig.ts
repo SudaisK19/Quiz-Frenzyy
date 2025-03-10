@@ -7,6 +7,7 @@ import dotenv from "dotenv";
 dotenv.config(); // Load environment variables
 
 const MONGO_URI = process.env.MONGO_URI;
+
 if (!MONGO_URI) {
   throw new Error("MONGO_URI is not defined in environment variables.");
 }
@@ -28,7 +29,9 @@ export async function connect() {
     const opts = {
       // Add any specific options if needed, e.g. useNewUrlParser, useUnifiedTopology, etc.
     };
-    cached.promise = mongoose.connect(MONGO_URI, opts).then((mongoose) => {
+
+    // Use a type assertion to ensure MONGO_URI is treated as a string
+    cached.promise = mongoose.connect(MONGO_URI as string, opts).then((mongoose) => {
       return mongoose;
     });
   }
@@ -41,10 +44,7 @@ export async function connect() {
       console.log("MongoDB connected...");
     });
     connection.on("error", (err) => {
-      console.error(
-        "MongoDB connection error. Please make sure MongoDB is running.",
-        err
-      );
+      console.error("MongoDB connection error. Please make sure MongoDB is running.", err);
       process.exit();
     });
 
