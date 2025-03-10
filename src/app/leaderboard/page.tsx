@@ -1,9 +1,9 @@
 "use client";
 export const dynamic = "force-dynamic";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import Image from "next/image"; // Using Next.js Image component for optimization
+import Image from "next/image";
 
 interface Player {
   _id: string;
@@ -16,7 +16,7 @@ interface Player {
   correct?: number;
 }
 
-export default function Leaderboard() {
+function LeaderboardContent() {
   const searchParams = useSearchParams();
   const session_id = searchParams.get("session_id");
 
@@ -112,5 +112,13 @@ export default function Leaderboard() {
         </tbody>
       </table>
     </div>
+  );
+}
+
+export default function Leaderboard() {
+  return (
+    <Suspense fallback={<p>Loading leaderboard...</p>}>
+      <LeaderboardContent />
+    </Suspense>
   );
 }
