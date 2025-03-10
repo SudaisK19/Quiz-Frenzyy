@@ -1,10 +1,9 @@
 "use client";
-
 export const dynamic = "force-dynamic";
 
-
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Image from "next/image";
 
 interface Question {
   _id: string;
@@ -15,17 +14,17 @@ interface Question {
   points: number;
 }
 
-export default function PlayQuiz() {
+function PlayQuizContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const session_id = searchParams.get("session_id");  
+  const player_quiz_id = searchParams.get("player_quiz_id");
+
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(true);
   const [quizDuration, setQuizDuration] = useState<number | null>(null);
-
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const session_id = searchParams.get("session_id");  
-  const player_quiz_id = searchParams.get("player_quiz_id"); 
 
   useEffect(() => {
     async function fetchQuizQuestions() {
@@ -38,13 +37,11 @@ export default function PlayQuiz() {
       console.log("🔍 Fetching questions for session:", session_id);
       try {
         const res = await fetch(`/api/quizzes/session/${session_id}`);
-
         if (!res.ok) {
           console.error("❌ API error:", res.status, res.statusText);
           alert("Error fetching questions. Please try again.");
           return;
         }
-
         const data = await res.json();
         if (data.success) {
           setQuestions(data.questions || []);
@@ -56,7 +53,6 @@ export default function PlayQuiz() {
         console.error("❌ Fetch error:", error);
         alert("Failed to fetch quiz questions.");
       }
-
       setLoading(false);
     }
 
@@ -77,9 +73,7 @@ export default function PlayQuiz() {
       alert("Session ID or Player Quiz ID is missing.");
       return;
     }
-
     console.log("📡 Submitting all answers...");
-
     const answersArray = Object.entries(selectedAnswers).map(([question_id, submitted_answer]) => ({
       player_quiz_id,
       question_id,
@@ -98,7 +92,6 @@ export default function PlayQuiz() {
     });
 
     const data = await response.json();
-
     if (data.success) {
       console.log("✅ Quiz submitted successfully! Redirecting...");
       router.push(`/quiz-complete?player_quiz_id=${player_quiz_id}`);
@@ -201,5 +194,13 @@ export default function PlayQuiz() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function PlayQuiz() {
+  return (
+    <Suspense fallback={<p>Loading quiz...</p>}>
+      <PlayQuizContent />
+    </Suspense>
   );
 }
