@@ -3,7 +3,6 @@ export const dynamic = "force-dynamic";
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Image from "next/image";
 
 interface Question {
   _id: string;
@@ -33,7 +32,6 @@ function PlayQuizContent() {
         router.push("/");
         return;
       }
-
       console.log("🔍 Fetching questions for session:", session_id);
       try {
         const res = await fetch(`/api/quizzes/session/${session_id}`);
@@ -55,7 +53,6 @@ function PlayQuizContent() {
       }
       setLoading(false);
     }
-
     fetchQuizQuestions();
   }, [session_id, player_quiz_id, router]);
 
@@ -79,18 +76,15 @@ function PlayQuizContent() {
       question_id,
       submitted_answer,
     }));
-
     if (answersArray.length === 0) {
       alert("No answers selected. Please answer at least one question before submitting.");
       return;
     }
-
     const response = await fetch(`/api/quizzes/complete`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ player_quiz_id, answers: answersArray }),
     });
-
     const data = await response.json();
     if (data.success) {
       console.log("✅ Quiz submitted successfully! Redirecting...");
