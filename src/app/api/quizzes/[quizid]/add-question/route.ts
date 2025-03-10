@@ -6,7 +6,7 @@ connect();
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { quizid: string } } // changed from quizId to quizid
+  { params }: { params: Record<string, string> }
 ) {
   try {
     const { question_text, question_type, options, correct_answer } = await request.json();
@@ -16,7 +16,7 @@ export async function POST(
     }
 
     const newQuestion = new Question({
-      quiz_id: params.quizid, // using params.quizid
+      quiz_id: params.quizid, // Using params.quizid as defined by the file name [quizid]
       question_text,
       question_type,
       options,
