@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import Image from "next/image";
 
 interface Badge {
   name: string;
@@ -37,8 +38,11 @@ export default function Profile() {
         }
         setLoading(false);
       })
-      .catch(() => setError("Failed to load profile"));
-  }, []);
+      .catch(() => {
+        setError("Failed to load profile");
+        setLoading(false);
+      });
+  }, [router]); // Added 'router' as a dependency
 
   const handleUpdate = async () => {
     const res = await fetch("/api/users/profile", {
@@ -72,7 +76,9 @@ export default function Profile() {
   return (
     <div style={{ padding: "20px", maxWidth: "600px", margin: "auto" }}>
       <h1>Welcome, {user?.username}!</h1>
-      <p><strong>Email:</strong> {user?.email}</p>
+      <p>
+        <strong>Email:</strong> {user?.email}
+      </p>
 
       <h3>Update Profile</h3>
       <input
@@ -98,7 +104,7 @@ export default function Profile() {
         <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
           {user.badges.map((badge, index) => (
             <div key={index} style={{ textAlign: "center" }}>
-              <img src={badge.imageUrl} alt={badge.name} style={{ width: "50px", height: "50px" }} />
+              <Image src={badge.imageUrl} alt={badge.name} width={50} height={50} />
               <p style={{ fontSize: "0.8em" }}>{badge.name}</p>
             </div>
           ))}

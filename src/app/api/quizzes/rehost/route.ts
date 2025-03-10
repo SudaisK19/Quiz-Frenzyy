@@ -7,14 +7,13 @@ import jwt from "jsonwebtoken";
 
 connect();
 
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest) {
   try {
     const { quizId, duration } = await req.json();
     if (!quizId) {
       return NextResponse.json({ error: "Quiz ID is required" }, { status: 400 });
     }
 
-    
     const token = req.cookies.get("authToken")?.value;
     if (!token) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -39,7 +38,6 @@ export async function POST(req: NextRequest, res: NextResponse) {
     });
 
     await newSession.save();
-
 
     const updatedUser = await UserNew.findByIdAndUpdate(
       userId,

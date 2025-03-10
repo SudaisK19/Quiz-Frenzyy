@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import Image from "next/image"; // Using Next.js Image component for optimization
 
 interface Player {
   _id: string;
@@ -27,9 +28,7 @@ export default function Leaderboard() {
       console.log("📡 Fetching leaderboard for session:", session_id);
 
       try {
-        const response = await fetch(
-          `/api/quizzes/leaderboard/${encodeURIComponent(session_id)}`
-        );
+        const response = await fetch(`/api/quizzes/leaderboard/${encodeURIComponent(session_id)}`);
 
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -67,33 +66,25 @@ export default function Leaderboard() {
           <tr>
             <th style={{ border: "1px solid #ccc", padding: "8px" }}>Rank</th>
             <th style={{ border: "1px solid #ccc", padding: "8px" }}>Avatar</th>
-            <th style={{ border: "1px solid #ccc", padding: "8px" }}>
-              Display Name
-            </th>
-            <th style={{ border: "1px solid #ccc", padding: "8px" }}>
-              Original Username
-            </th>
-            <th style={{ border: "1px solid #ccc", padding: "8px" }}>
-              Attempted
-            </th>
+            <th style={{ border: "1px solid #ccc", padding: "8px" }}>Display Name</th>
+            <th style={{ border: "1px solid #ccc", padding: "8px" }}>Original Username</th>
+            <th style={{ border: "1px solid #ccc", padding: "8px" }}>Attempted</th>
             <th style={{ border: "1px solid #ccc", padding: "8px" }}>Correct</th>
-            <th style={{ border: "1px solid #ccc", padding: "8px" }}>
-              Theory Score
-            </th>
+            <th style={{ border: "1px solid #ccc", padding: "8px" }}>Theory Score</th>
           </tr>
         </thead>
         <tbody>
           {players.map((player, index) => (
             <tr key={player._id}>
-              <td style={{ border: "1px solid #ccc", padding: "8px" }}>
-                {index + 1}
-              </td>
+              <td style={{ border: "1px solid #ccc", padding: "8px" }}>{index + 1}</td>
               <td style={{ border: "1px solid #ccc", padding: "8px" }}>
                 {player.avatar ? (
-                  <img
+                  <Image
                     src={player.avatar}
                     alt="Avatar"
-                    style={{ width: "40px", borderRadius: "50%" }}
+                    width={40}
+                    height={40}
+                    style={{ borderRadius: "50%" }}
                   />
                 ) : (
                   "No avatar"
