@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import toast from "react-hot-toast";
 
 export default function QuizComplete() {
   const searchParams = useSearchParams();
@@ -45,6 +44,8 @@ export default function QuizComplete() {
       <h1>🎉 Quiz Completed! 🎉</h1>
       <h2>Your Score: {score ?? "N/A"}</h2>
       {completedAt && <p>Completed at: {completedAt}</p>}
+      {/* Display message from state */}
+      {message && <p>{message}</p>}
       <button onClick={() => router.push("/")} style={{ margin: "10px", padding: "10px 20px" }}>
         Home
       </button>

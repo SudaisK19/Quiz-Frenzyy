@@ -2,36 +2,36 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import Image from "next/image";
 
+interface Badge {
+  name: string;
+  imageUrl: string;
+  description: string;
+}
 
-function showBadgeToast(badge: { name: string; imageUrl: string; description: string }) {
+function showBadgeToast(badge: Badge) {
   toast.custom(
     (t) => (
       <div
         className={`${
           t.visible ? "opacity-100 scale-100" : "opacity-0 scale-95"
         } transform transition-all duration-300 pointer-events-auto flex items-center rounded-sm bg-blue-800 text-white p-1 w-40 shadow-md`}
-        style={{
-          // Ensure the container can't expand beyond 160px
-          width: "160px",
-        }}
+        style={{ width: "160px" }}
       >
-        {/* Force the badge image to be very small (16×16) via inline style */}
-        <img
+        <Image
           src={badge.imageUrl}
           alt={badge.name}
-          style={{
-            width: "16px",
-            height: "16px",
-            marginRight: "6px",
-          }}
+          width={16}
+          height={16}
+          style={{ marginRight: "6px" }}
         />
-
-        {/* Text container with smaller font */}
         <div style={{ lineHeight: "1.1" }}>
-          <p style={{ fontSize: "10px", fontWeight: "bold", marginBottom: "2px" }}>Congrats!</p>
+          <p style={{ fontSize: "10px", fontWeight: "bold", marginBottom: "2px" }}>
+            Congrats!
+          </p>
           <p style={{ fontSize: "9px", marginBottom: "2px" }}>
-            You've earned{" "}
+            You&apos;ve earned{" "}
             <span style={{ fontWeight: "600" }}>{badge.name}</span>
           </p>
           <p style={{ fontSize: "8px" }}>{badge.description}</p>
@@ -40,13 +40,10 @@ function showBadgeToast(badge: { name: string; imageUrl: string; description: st
     ),
     {
       duration: 5000,
-      position: "top-right", // ensures it appears in the top-right corner
+      position: "top-right",
     }
   );
 }
-
-
-
 
 async function updateBadges(userId: string) {
   try {
@@ -57,8 +54,7 @@ async function updateBadges(userId: string) {
     });
     const data = await res.json();
     if (data.success) {
-      data.badges.forEach((badge: { name: string; imageUrl: string; description: string }) => {
-        // Namespace the localStorage key by userId to avoid conflicts from old accounts.
+      data.badges.forEach((badge: Badge) => {
         if (!localStorage.getItem(`badge_shown_${userId}_${badge.name}`)) {
           showBadgeToast(badge);
           localStorage.setItem(`badge_shown_${userId}_${badge.name}`, "true");
@@ -67,18 +63,30 @@ async function updateBadges(userId: string) {
     } else {
       toast.error("Badge update failed.");
     }
-  } catch (err) {
-    console.error("Error updating badges:", err);
+  } catch (error) {
+    console.error("Error updating badges:", error);
     toast.error("Badge update failed.");
   }
+}
+
+interface UserProfile {
+  _id: string;
+  username: string;
+  // add additional properties if needed
+}
+
+interface JoinData {
+  player_quiz_id: string;
+  session_id: string;
+  // add additional properties if needed
 }
 
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [quizCode, setQuizCode] = useState("");
   const [error, setError] = useState("");
-  const [userData, setUserData] = useState<any>(null);
-  const [joinData, setJoinData] = useState<any>(null);
+  const [userData, setUserData] = useState<UserProfile | null>(null);
+  const [joinData, setJoinData] = useState<JoinData | null>(null);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [avatarSeed, setAvatarSeed] = useState(50);
   const [sessionDisplayName, setSessionDisplayName] = useState("");
@@ -90,7 +98,6 @@ export default function Home() {
       .then((data) => {
         setIsLoggedIn(data.success);
         setUserData(data.user);
-        // Call updateBadges only once when home loads, if logged in.
         if (data.success && data.user?._id) {
           updateBadges(data.user._id);
         }
@@ -134,7 +141,10 @@ export default function Home() {
         const errMsg = errorData.error?.toLowerCase() || "";
         if (errMsg.includes("expired")) {
           setError("Session expired. Please rehost the quiz.");
-        } else if (errMsg.includes("already joined") || errMsg.includes("already played")) {
+        } else if (
+          errMsg.includes("already joined") ||
+          errMsg.includes("already played")
+        ) {
           setError("You have already played. Unable to join again.");
         } else {
           setError(errorData.error || "Failed to join quiz.");
@@ -149,9 +159,14 @@ export default function Home() {
       } else {
         setError("Invalid quiz code. Please try again.");
       }
-    } catch (error: any) {
-      console.error("Error joining quiz:", error);
-      setError(error.message || "Something went wrong.");
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error("Error joining quiz:", error);
+        setError(error.message || "Something went wrong.");
+      } else {
+        console.error("Error joining quiz:", error);
+        setError("Something went wrong.");
+      }
     }
   }
 
@@ -165,21 +180,28 @@ export default function Home() {
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          playerQuizId: joinData.player_quiz_id,
+          playerQuizId: joinData?.player_quiz_id,
           avatar: avatarUrl,
-          displayName: sessionDisplayName || userData.username,
+          displayName: sessionDisplayName || userData?.username,
         }),
       });
       const updatedData = await res.json();
       if (updatedData.success) {
         setShowAvatarModal(false);
-        router.push(`/play-quiz?session_id=${joinData.session_id}&player_quiz_id=${joinData.player_quiz_id}`);
+        router.push(
+          `/play-quiz?session_id=${joinData?.session_id}&player_quiz_id=${joinData?.player_quiz_id}`
+        );
       } else {
         setError("Failed to update session details: " + updatedData.error);
       }
-    } catch (err: any) {
-      console.error("Error updating session details:", err);
-      setError("Failed to update session details");
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error("Error updating session details:", error);
+        setError("Failed to update session details");
+      } else {
+        console.error("Error updating session details:", error);
+        setError("Failed to update session details");
+      }
     }
   }
 
@@ -193,7 +215,10 @@ export default function Home() {
   return (
     <div style={{ textAlign: "center", padding: "40px" }}>
       <h1>Welcome to Quiz Frenzy 🎉</h1>
-      <p>Your ultimate quiz platform. Test your knowledge, host quizzes, and challenge friends!</p>
+      <p>
+        Your ultimate quiz platform. Test your knowledge, host quizzes, and
+        challenge friends!
+      </p>
 
       <div style={{ marginTop: "20px" }}>
         <h2>Join a Quiz</h2>
@@ -202,7 +227,11 @@ export default function Home() {
           placeholder="Enter Quiz Code"
           value={quizCode}
           onChange={(e) => setQuizCode(e.target.value.trim().toUpperCase())}
-          style={{ padding: "10px", width: "200px", marginRight: "10px" }}
+          style={{
+            padding: "10px",
+            width: "200px",
+            marginRight: "10px",
+          }}
         />
         <button onClick={handleJoinQuiz} style={{ padding: "10px 20px" }}>
           Join
@@ -247,7 +276,10 @@ export default function Home() {
       {!isLoggedIn && (
         <div style={{ marginTop: "30px" }}>
           <h3>Login or Sign Up to Start Playing!</h3>
-          <button onClick={() => router.push("/login")} style={{ padding: "10px 20px", marginRight: "10px" }}>
+          <button
+            onClick={() => router.push("/login")}
+            style={{ padding: "10px 20px", marginRight: "10px" }}
+          >
             Login
           </button>
           <button onClick={() => router.push("/signup")} style={{ padding: "10px 20px" }}>
@@ -279,15 +311,34 @@ export default function Home() {
             zIndex: 1000,
           }}
         >
-          <div style={{ backgroundColor: "white", padding: "20px", borderRadius: "8px", textAlign: "center", width: "300px" }}>
-            <h2>Select Your Avatar & Session Name</h2>
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "20px",
+              borderRadius: "8px",
+              textAlign: "center",
+              width: "300px",
+            }}
+          >
+            <h2>Select Your Avatar &amp; Session Name</h2>
             <p>Welcome, {userData?.username}!</p>
-            <img
-              src={`https://api.dicebear.com/6.x/bottts/svg?seed=${encodeURIComponent(avatarSeed.toString())}`}
+            <Image
+              src={`https://api.dicebear.com/6.x/bottts/svg?seed=${encodeURIComponent(
+                avatarSeed.toString()
+              )}`}
               alt="Avatar"
-              style={{ width: "100px", height: "100px", marginBottom: "10px" }}
+              width={100}
+              height={100}
+              style={{ marginBottom: "10px" }}
             />
-            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "10px" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: "10px",
+              }}
+            >
               <button style={{ padding: "6px 12px" }} onClick={handleLeftArrow}>
                 ◀
               </button>
@@ -301,7 +352,13 @@ export default function Home() {
               placeholder="Enter Display Name"
               value={sessionDisplayName}
               onChange={(e) => setSessionDisplayName(e.target.value)}
-              style={{ padding: "12px", width: "100%", marginTop: "10px", border: "1px solid #ccc", borderRadius: "4px" }}
+              style={{
+                padding: "12px",
+                width: "100%",
+                marginTop: "10px",
+                border: "1px solid #ccc",
+                borderRadius: "4px",
+              }}
             />
             <button onClick={handleConfirmAvatar} style={{ padding: "10px 20px", marginTop: "10px" }}>
               Confirm

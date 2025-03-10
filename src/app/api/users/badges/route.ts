@@ -1,4 +1,3 @@
-
 import { NextRequest, NextResponse } from 'next/server'
 import UserNew from '@/models/userModel'
 import PlayerQuizNew from '@/models/playerQuizModel'
@@ -109,7 +108,7 @@ export async function POST(req: NextRequest) {
     await user.save()
 
     return NextResponse.json({ success: true, badges: newBadges })
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'server error' }, { status: 500 })
   }
 }

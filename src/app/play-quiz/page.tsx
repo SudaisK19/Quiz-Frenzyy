@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -57,9 +58,9 @@ export default function PlayQuiz() {
     }
 
     fetchQuizQuestions();
-  }, [session_id, player_quiz_id]);
+  }, [session_id, player_quiz_id, router]);
 
-  // ✅ Store selected answers without submitting immediately
+  // Store selected answers without submitting immediately
   function handleAnswerChange(questionId: string, answer: string) {
     setSelectedAnswers((prev) => ({
       ...prev,
@@ -67,7 +68,7 @@ export default function PlayQuiz() {
     }));
   }
 
-  // ✅ Submit all answers at once
+  // Submit all answers at once
   async function submitQuiz() {
     if (!session_id || !player_quiz_id) {
       alert("Session ID or Player Quiz ID is missing.");
@@ -114,7 +115,6 @@ export default function PlayQuiz() {
       <h2>Quiz Duration: {quizDuration} minutes</h2>
       <h2>{currentQuestion.question_text}</h2>
 
-      {/* ✅ Handle MCQ & Short Answer questions */}
       {currentQuestion.question_type === "MCQ" ? (
         currentQuestion.options.map((option, index) => (
           <button
@@ -150,7 +150,6 @@ export default function PlayQuiz() {
         />
       )}
 
-      {/* ✅ Navigation Buttons */}
       <div style={{ marginTop: "20px" }}>
         <button
           onClick={() => setCurrentQuestionIndex(currentQuestionIndex - 1)}
@@ -182,7 +181,6 @@ export default function PlayQuiz() {
           Next
         </button>
 
-        {/* ✅ Submit Quiz Button (Enabled only at the last question) */}
         {currentQuestionIndex + 1 === questions.length && (
           <button
             onClick={submitQuiz}

@@ -1,12 +1,17 @@
 import { connect } from "@/dbConfig/dbConfig";
 import User from "@/models/userModel";
-import PlayerQuiz from "@/models/playerQuizModel"; 
+// Removed unused import: import PlayerQuiz from "@/models/playerQuizModel";
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import "@/models/quizModel";
 
-
 connect();
+
+type UpdateData = {
+  username?: string;
+  email?: string;
+  password?: string;
+};
 
 export async function GET(request: NextRequest) {
   try {
@@ -40,13 +45,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "user not found" }, { status: 404 });
     }
 
-    // Optionally fetch participated quizzes, if needed
-    // const playerQuizzes = await PlayerQuiz.find({ player_id: decoded.id })
-    //   .populate("quiz_id", "title description created_at");
-    // const participatedQuizzes = playerQuizzes.map((pq) => pq.quiz_id);
-
     return NextResponse.json(
-      { success: true, user /*, participated_quizzes */ },
+      { success: true, user },
       { status: 200 }
     );
   } catch (error) {
@@ -78,7 +78,7 @@ export async function PATCH(request: NextRequest) {
 
     const { username, email, password } = await request.json();
     
-    const updateData: any = { username, email };
+    const updateData: UpdateData = { username, email };
     if (password) updateData.password = password;
 
     const updatedUser = await User.findByIdAndUpdate(

@@ -7,6 +7,15 @@ import { connect } from "@/dbConfig/dbConfig";
 
 connect();
 
+// Define the expected structure for a question
+interface QuestionInput {
+  question_text: string;
+  question_type: string;
+  options: string[];
+  correct_answer: string;
+  points: number;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { title, description, created_by, duration, total_points, questions } = await request.json();
@@ -27,7 +36,7 @@ export async function POST(request: NextRequest) {
     );
 
     if (Array.isArray(questions) && questions.length > 0) {
-      const qs = questions.map((q: any) => ({
+      const qs = (questions as QuestionInput[]).map((q) => ({
         quiz_id: quiz._id,
         question_text: q.question_text,
         question_type: q.question_type,
