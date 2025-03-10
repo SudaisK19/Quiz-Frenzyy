@@ -1,4 +1,11 @@
 "use client";
+
+
+export const dynamic = "force-dynamic";
+
+// ... rest of your imports and code
+
+
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image"; // Using Next.js Image component for optimization
