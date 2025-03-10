@@ -6,7 +6,7 @@ connect();
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { quizId: string } }
+  { params }: { params: { quizid: string } } // changed from quizId to quizid
 ) {
   try {
     const { question_text, question_type, options, correct_answer } = await request.json();
@@ -16,7 +16,7 @@ export async function POST(
     }
 
     const newQuestion = new Question({
-      quiz_id: params.quizId,
+      quiz_id: params.quizid, // using params.quizid
       question_text,
       question_type,
       options,
@@ -24,7 +24,10 @@ export async function POST(
     });
     await newQuestion.save();
 
-    return NextResponse.json({ success: true, message: "question added successfully" }, { status: 201 });
+    return NextResponse.json(
+      { success: true, message: "question added successfully" },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("error adding question:", error);
     return NextResponse.json({ error: "internal server error" }, { status: 500 });
