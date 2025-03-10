@@ -1,10 +1,10 @@
 "use client";
 export const dynamic = "force-dynamic";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function QuizComplete() {
+function QuizCompleteContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const player_quiz_id = searchParams.get("player_quiz_id");
@@ -46,7 +46,6 @@ export default function QuizComplete() {
       <h1>🎉 Quiz Completed! 🎉</h1>
       <h2>Your Score: {score ?? "N/A"}</h2>
       {completedAt && <p>Completed at: {completedAt}</p>}
-      {/* Display message from state */}
       {message && <p>{message}</p>}
       <button onClick={() => router.push("/")} style={{ margin: "10px", padding: "10px 20px" }}>
         Home
@@ -64,5 +63,13 @@ export default function QuizComplete() {
         View Leaderboard 🏆
       </button>
     </div>
+  );
+}
+
+export default function QuizComplete() {
+  return (
+    <Suspense fallback={<p>Loading quiz results...</p>}>
+      <QuizCompleteContent />
+    </Suspense>
   );
 }
