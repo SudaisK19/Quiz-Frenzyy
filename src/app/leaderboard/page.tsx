@@ -30,7 +30,10 @@ function LeaderboardContent() {
       console.log("📡 Fetching leaderboard for session:", session_id);
 
       try {
-        const response = await fetch(`/api/quizzes/leaderboard/${encodeURIComponent(session_id)}`);
+        const response = await fetch(
+          `/api/quizzes/leaderboard/${encodeURIComponent(session_id)}`,
+          { cache: "no-store" }
+        );
 
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);

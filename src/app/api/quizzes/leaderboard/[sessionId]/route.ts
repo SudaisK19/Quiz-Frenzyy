@@ -13,7 +13,10 @@ export async function GET(
     const { sessionId } = await context.params;
 
     if (!sessionId) {
-      return NextResponse.json({ error: "session id is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "session id is required" },
+        { status: 400 }
+      );
     }
 
     console.log("fetching leaderboard for session:", sessionId);
@@ -46,10 +49,18 @@ export async function GET(
 
     return NextResponse.json(
       { success: true, leaderboard: leaderboardWithCounts },
-      { status: 200 }
+      {
+        status: 200,
+        headers: {
+          "Cache-Control": "no-store",
+        },
+      }
     );
   } catch (error) {
     console.error("error fetching leaderboard:", error);
-    return NextResponse.json({ error: "internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "internal server error" },
+      { status: 500 }
+    );
   }
 }

@@ -139,15 +139,14 @@ export default function CreateQuiz() {
     setLoading(false);
 
     if (data.success) {
-      // Assume API returns quiz._id, session_join_code, and session_id.
+      // UPDATED: Access nested session fields from data.session
       setQuiz((prevQuiz) => ({
         ...prevQuiz,
         _id: data.quiz._id,
-        join_code: data.session_join_code,
-        session_id: data.session_id,
+        join_code: data.session.join_code,   // <-- CHANGED
+        session_id: data.session.sessionId,  // <-- CHANGED
       }));
       alert("Quiz Created Successfully!");
-      // Removed badge update logic
     } else {
       alert("Error creating quiz: " + data.error);
     }
