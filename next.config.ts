@@ -6,10 +6,10 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "api.dicebear.com",
-        // Use a broader pattern to allow query params
         pathname: "/**",
       },
     ],
+    dangerouslyAllowSVG: true,
   },
 };
 

@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import Image from "next/image";
+// Removed: import Image from "next/image";
 
 interface Badge {
   name: string;
@@ -19,7 +19,7 @@ function showBadgeToast(badge: Badge) {
         } transform transition-all duration-300 pointer-events-auto flex items-center rounded-sm bg-blue-800 text-white p-1 w-40 shadow-md`}
         style={{ width: "160px" }}
       >
-        <Image
+        <img
           src={badge.imageUrl}
           alt={badge.name}
           width={16}
@@ -72,13 +72,11 @@ async function updateBadges(userId: string) {
 interface UserProfile {
   _id: string;
   username: string;
-  // add additional properties if needed
 }
 
 interface JoinData {
   player_quiz_id: string;
   session_id: string;
-  // add additional properties if needed
 }
 
 export default function Home() {
@@ -322,7 +320,8 @@ export default function Home() {
           >
             <h2>Select Your Avatar &amp; Session Name</h2>
             <p>Welcome, {userData?.username}!</p>
-            <Image
+            {/* Replace <Image> with <img> */}
+            <img
               src={`https://api.dicebear.com/6.x/bottts/svg?seed=${encodeURIComponent(
                 avatarSeed.toString()
               )}`}
@@ -368,4 +367,4 @@ export default function Home() {
       )}
     </div>
   );
-}
+}   

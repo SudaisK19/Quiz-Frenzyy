@@ -1,9 +1,9 @@
 "use client";
+/* eslint-disable @next/next/no-img-element */
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
-import Image from "next/image";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface Player {
   _id: string;
@@ -50,7 +50,6 @@ function LeaderboardContent() {
 
     fetchLeaderboard();
 
-    // Optionally auto-refresh every 10 seconds
     const interval = setInterval(fetchLeaderboard, 10000);
     return () => clearInterval(interval);
   }, [session_id]);
@@ -84,7 +83,7 @@ function LeaderboardContent() {
               <td style={{ border: "1px solid #ccc", padding: "8px" }}>{index + 1}</td>
               <td style={{ border: "1px solid #ccc", padding: "8px" }}>
                 {player.avatar ? (
-                  <Image
+                  <img
                     src={player.avatar}
                     alt="Avatar"
                     width={40}

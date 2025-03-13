@@ -8,17 +8,25 @@ const questionSchema = new mongoose.Schema(
       required: true,
     },
     question_text: { type: String, required: true },
-    question_type: { type: String, required: true },
+    question_type: {
+      type: String,
+      required: true,
+      enum: ["MCQ", "Short Answer", "Image", "Ranking"],
+    },
+    media_url: { type: String }, 
     options: { type: [String], required: true },
-    correct_answer: { type: String, required: true },
-    points: { type: Number, required: true }, 
+    // Use Mixed so that correct_answer can be a string (for MCQ/Image/Short Answer)
+    // or an array (for Ranking, or multiple acceptable answers)
+    correct_answer: { type: mongoose.Schema.Types.Mixed, required: true },
+    hint: { type: String },
+    points: { type: Number, required: true },
   },
   {
     timestamps: true,
-    strict: true, 
+    strict: true,
   }
 );
 
-const Question =
-  mongoose.models.Question || mongoose.model("Question", questionSchema);
-export default Question;
+const QuestionNews =
+  mongoose.models.QuestionNews || mongoose.model("QuestionNews", questionSchema);
+export default QuestionNews;

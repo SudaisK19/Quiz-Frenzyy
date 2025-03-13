@@ -1,18 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import Quiz from "@/models/quizModel";
-import Question from "@/models/questionModel";
+import Question from "@/models/questionModel"; // Ensure this is your updated model
 import Session from "@/models/sessionModel";
 import UserNew from "@/models/userModel";
 import { connect } from "@/dbConfig/dbConfig";
 
 connect();
 
-// Define the expected structure for a question
 interface QuestionInput {
   question_text: string;
   question_type: string;
+  media_url?: string;
   options: string[];
-  correct_answer: string;
+  // Only one field for the correct answer (can be string or array)
+  correct_answer: string | string[];
+  hint?: string;
   points: number;
 }
 
@@ -36,15 +38,18 @@ export async function POST(request: NextRequest) {
     );
 
     if (Array.isArray(questions) && questions.length > 0) {
-      const qs = (questions as QuestionInput[]).map((q) => ({
+      const formattedQuestions = questions.map((q: QuestionInput) => ({
         quiz_id: quiz._id,
         question_text: q.question_text,
         question_type: q.question_type,
+        media_url: q.media_url || null,
         options: q.options,
-        correct_answer: q.correct_answer,
+        correct_answer: q.correct_answer,  // Only using this field now.
+        hint: q.hint || null,
         points: q.points,
       }));
-      await Question.insertMany(qs);
+
+      await Question.insertMany(formattedQuestions);
     }
 
     const agg = await Question.aggregate([
@@ -72,7 +77,7 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    console.error("error creating quiz:", error);
-    return NextResponse.json({ error: "server error" }, { status: 500 });
+    console.error("Error creating quiz:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

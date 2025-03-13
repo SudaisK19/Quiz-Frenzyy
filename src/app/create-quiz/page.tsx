@@ -4,10 +4,14 @@ import { useRouter } from "next/navigation";
 
 interface Question {
   question_text: string;
-  question_type: string;
+  question_type: "MCQ" | "Short Answer" | "Image" | "Ranking";
   options: string[];
-  correct_answer: string;
+  // For MCQ and Short Answer, this is a string (or comma‐separated acceptable answers).
+  // For Ranking, the correct order will be the order in which options are entered.
+  correct_answer: string | string[];
+  // For Image questions, store a single image URL
   media_url?: string;
+  hint?: string;
   points: number;
 }
 
@@ -57,8 +61,17 @@ export default function CreateQuiz() {
           options: ["", "", "", ""],
           correct_answer: "",
           points: 10,
+          media_url: "", // For image questions
         },
       ],
+    }));
+  }
+
+  // Remove a question.
+  function removeQuestion(index: number) {
+    setQuiz((prevQuiz) => ({
+      ...prevQuiz,
+      questions: prevQuiz.questions.filter((_, i) => i !== index),
     }));
   }
 
@@ -106,14 +119,38 @@ export default function CreateQuiz() {
   function handleOptionChange(qIndex: number, optIndex: number, value: string) {
     setQuiz((prevQuiz) => {
       const updatedQuestions = [...prevQuiz.questions];
-      updatedQuestions[qIndex] = {
-        ...updatedQuestions[qIndex],
-        options: updatedQuestions[qIndex].options.map((opt, i) =>
-          i === optIndex ? value : opt
-        ),
-      };
+      updatedQuestions[qIndex].options[optIndex] = value;
       return { ...prevQuiz, questions: updatedQuestions };
     });
+  }
+
+  // Handle file upload for Image questions (one image per question)
+  async function handleFileUpload(
+    event: React.ChangeEvent<HTMLInputElement>,
+    qIndex: number
+  ) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+      const response = await fetch("/api/upload-image", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json();
+      if (data.success) {
+        // Set the media_url for the question (a single image URL)
+        handleQuestionChange(qIndex, "media_url", data.imageUrl);
+      } else {
+        alert("Failed to upload image");
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      alert("Image upload failed.");
+    }
   }
 
   // Create the quiz by sending data to the API.
@@ -122,6 +159,22 @@ export default function CreateQuiz() {
       alert("User ID not found. Try logging in again.");
       return;
     }
+    // For Ranking questions, the correct answer is simply the order of options.
+    quiz.questions.forEach((q) => {
+      if (q.question_type === "Ranking") {
+        q.correct_answer = [...q.options];
+      }
+    });
+
+    // For Short Answer questions, convert the comma-separated string into an array if needed.
+    quiz.questions.forEach((q) => {
+      if (q.question_type === "Short Answer" && typeof q.correct_answer === "string") {
+        q.correct_answer = q.correct_answer
+          .split(",")
+          .map((ans) => ans.trim())
+          .filter((ans) => ans);
+      }
+    });
 
     // Compute total points for the quiz.
     const totalPoints = quiz.questions.reduce(
@@ -139,12 +192,11 @@ export default function CreateQuiz() {
     setLoading(false);
 
     if (data.success) {
-      // UPDATED: Access nested session fields from data.session
       setQuiz((prevQuiz) => ({
         ...prevQuiz,
         _id: data.quiz._id,
-        join_code: data.session.join_code,   // <-- CHANGED
-        session_id: data.session.sessionId,  // <-- CHANGED
+        join_code: data.session.join_code,
+        session_id: data.session.sessionId,
       }));
       alert("Quiz Created Successfully!");
     } else {
@@ -153,14 +205,7 @@ export default function CreateQuiz() {
   }
 
   return (
-    <div
-      style={{
-        textAlign: "center",
-        padding: "20px",
-        maxWidth: "600px",
-        margin: "auto",
-      }}
-    >
+    <div style={{ textAlign: "center", padding: "20px", maxWidth: "600px", margin: "auto" }}>
       <h1>Create a New Quiz</h1>
       <input
         type="text"
@@ -185,63 +230,109 @@ export default function CreateQuiz() {
 
       <h2>Questions</h2>
       {quiz.questions.map((q, qIndex) => (
-        <div
-          key={qIndex}
-          style={{
-            border: "1px solid #ccc",
-            padding: "10px",
-            marginBottom: "10px",
-          }}
-        >
+        <div key={qIndex} style={{ border: "1px solid #ccc", padding: "10px", marginBottom: "10px" }}>
           <input
             type="text"
             placeholder="Question Text"
             value={q.question_text}
-            onChange={(e) =>
-              handleQuestionChange(qIndex, "question_text", e.target.value)
-            }
+            onChange={(e) => handleQuestionChange(qIndex, "question_text", e.target.value)}
             style={{ width: "100%", padding: "5px" }}
           />
           <select
             value={q.question_type}
-            onChange={(e) =>
-              handleQuestionChange(qIndex, "question_type", e.target.value)
-            }
+            onChange={(e) => handleQuestionChange(qIndex, "question_type", e.target.value)}
             style={{ width: "100%", marginTop: "5px" }}
           >
             <option value="MCQ">Multiple Choice</option>
             <option value="Short Answer">Short Answer</option>
+            <option value="Image">Image</option>
+            <option value="Ranking">Ranking</option>
           </select>
-          {q.question_type === "MCQ" && (
+
+          {/* For Image type: show a file upload input */}
+          {q.question_type === "Image" && (
             <div>
-              <h4>Options</h4>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleFileUpload(e, qIndex)}
+                style={{ width: "100%", padding: "5px", marginBottom: "5px" }}
+              />
+              {q.media_url && (
+                <img src={q.media_url} alt="Uploaded" style={{ width: "100px", height: "100px" }} />
+              )}
+            </div>
+          )}
+
+          {/* For MCQ, Ranking, and Image types, display options.
+              For Ranking, the placeholder indicates the rank */}
+          {(q.question_type === "MCQ" ||
+            q.question_type === "Ranking" ||
+            q.question_type === "Image") && (
+            <div>
+              <h4>
+                {q.question_type === "Ranking"
+                  ? "Enter Options in Correct Order (This order is the correct ranking)"
+                  : "Options"}
+              </h4>
               {q.options.map((opt, optIndex) => (
                 <input
                   key={optIndex}
                   type="text"
-                  placeholder={`Option ${optIndex + 1}`}
-                  value={opt}
-                  onChange={(e) =>
-                    handleOptionChange(qIndex, optIndex, e.target.value)
+                  placeholder={
+                    q.question_type === "Ranking"
+                      ? `Rank ${optIndex + 1} option`
+                      : `Option ${optIndex + 1}`
                   }
-                  style={{
-                    width: "100%",
-                    padding: "5px",
-                    marginBottom: "5px",
-                  }}
+                  value={opt}
+                  onChange={(e) => handleOptionChange(qIndex, optIndex, e.target.value)}
+                  style={{ width: "100%", padding: "5px", marginBottom: "5px" }}
                 />
               ))}
             </div>
           )}
-          <input
-            type="text"
-            placeholder="Correct Answer"
-            value={q.correct_answer}
-            onChange={(e) =>
-              handleQuestionChange(qIndex, "correct_answer", e.target.value)
-            }
-            style={{ width: "100%", padding: "5px", marginTop: "5px" }}
-          />
+
+          {/* For Short Answer questions */}
+          {q.question_type === "Short Answer" && (
+            <div>
+              <input
+                type="text"
+                placeholder="Hint for players (optional)"
+                value={q.hint || ""}
+                onChange={(e) => handleQuestionChange(qIndex, "hint", e.target.value)}
+                style={{ width: "100%", padding: "5px", marginBottom: "5px" }}
+              />
+              <input
+                type="text"
+                placeholder="Acceptable Answers (comma separated)"
+                value={
+                  Array.isArray(q.correct_answer)
+                    ? (q.correct_answer as string[]).join(", ")
+                    : (q.correct_answer as string)
+                }
+                onChange={(e) => {
+                  // Store the raw string; conversion happens in handleCreateQuiz
+                  handleQuestionChange(qIndex, "correct_answer", e.target.value);
+                }}
+                style={{ width: "100%", padding: "5px", marginBottom: "5px" }}
+              />
+            </div>
+          )}
+
+          {/* For MCQ and Image types (non-Short Answer and non-Ranking), use a text input to enter the correct answer */}
+          {(q.question_type === "MCQ" || q.question_type === "Image") && (
+            <div>
+              <h4>Enter Correct Answer</h4>
+              <input
+                type="text"
+                placeholder="Correct Answer"
+                value={q.correct_answer as string}
+                onChange={(e) => handleQuestionChange(qIndex, "correct_answer", e.target.value)}
+                style={{ width: "100%", padding: "5px", marginBottom: "5px" }}
+              />
+            </div>
+          )}
+
           <input
             type="number"
             placeholder="Points"
@@ -249,6 +340,19 @@ export default function CreateQuiz() {
             onChange={(e) => handleQuestionChange(qIndex, "points", e.target.value)}
             style={{ width: "100%", padding: "5px", marginTop: "5px" }}
           />
+          <button
+            onClick={() => removeQuestion(qIndex)}
+            style={{
+              backgroundColor: "red",
+              color: "white",
+              padding: "5px 10px",
+              marginTop: "10px",
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
+            Remove Question
+          </button>
         </div>
       ))}
       <button onClick={addQuestion} style={{ padding: "10px 20px", margin: "10px 0" }}>
@@ -266,7 +370,6 @@ export default function CreateQuiz() {
             Session Join Code (For Players):{" "}
             <strong>{quiz.join_code ? quiz.join_code : "Not Available"}</strong>
           </p>
-          {/* View Leaderboard button for the host */}
           <button
             onClick={() => {
               if (quiz.session_id) {
