@@ -1,5 +1,7 @@
 "use client";
-import { useState, useEffect } from "react";
+export const dynamic = "force-dynamic";
+
+import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import type { DropResult } from "@hello-pangea/dnd";
@@ -13,7 +15,8 @@ interface Question {
   media_url?: string; // for image questions
 }
 
-export default function PlayQuiz() {
+// The main quiz logic is here
+function PlayQuizContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const session_id = searchParams.get("session_id");
@@ -56,25 +59,27 @@ export default function PlayQuiz() {
     fetchQuizQuestions();
   }, [session_id, player_quiz_id, router]);
 
+  // DRAG & DROP for Ranking
   const handleDragEnd = (result: DropResult): void => {
-    // Early return if there's no valid drop destination
+    // If no valid drop destination, just return
     if (!result.destination) return;
   
     const questionId = questions[currentQuestionIndex]._id;
     setRankingAnswers((prev) => {
       const newOrder = [...(prev[questionId] || questions[currentQuestionIndex].options)];
   
-      // Remove item from source index
+      // Remove the dragged item from its original position
       const [movedItem] = newOrder.splice(result.source.index, 1);
   
-      // Insert at destination index, using `!` to assure TypeScript it's not null
+      // Insert it at the new position
       newOrder.splice(result.destination!.index, 0, movedItem);
   
       return { ...prev, [questionId]: newOrder };
     });
   };
+  
 
-  // ========== SUBMIT ALL ANSWERS ==========
+  // Submit all answers
   async function submitQuiz() {
     if (!session_id || !player_quiz_id) {
       alert("Session or Player Quiz ID missing!");
@@ -125,12 +130,10 @@ export default function PlayQuiz() {
 
   const currentQuestion = questions[currentQuestionIndex];
 
-  // Helper for selecting answer for MCQ, Short Answer, Image
   function handleAnswerChange(questionId: string, answer: string) {
     setSelectedAnswers((prev) => ({ ...prev, [questionId]: answer }));
   }
 
-  // Render current question based on its type
   function renderQuestion(question: Question) {
     switch (question.question_type) {
       case "Ranking":
@@ -292,5 +295,14 @@ export default function PlayQuiz() {
         )}
       </div>
     </div>
+  );
+}
+
+// Wrap the content component in a Suspense boundary
+export default function PlayQuiz() {
+  return (
+    <Suspense fallback={<p>Loading quiz...</p>}>
+      <PlayQuizContent />
+    </Suspense>
   );
 }
