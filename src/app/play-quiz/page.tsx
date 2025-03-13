@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import type { DropResult } from "@hello-pangea/dnd";
 
 interface Question {
   _id: string;
@@ -47,7 +48,7 @@ export default function PlayQuiz() {
         } else {
           alert("No questions found for this quiz.");
         }
-      } catch (error) {
+      } catch {
         alert("Failed to fetch quiz questions.");
       }
       setLoading(false);
@@ -55,14 +56,20 @@ export default function PlayQuiz() {
     fetchQuizQuestions();
   }, [session_id, player_quiz_id, router]);
 
-  // ========== DRAG & DROP FOR RANKING ==========
-  const handleDragEnd = (result: any) => {
+  const handleDragEnd = (result: DropResult): void => {
+    // Early return if there's no valid drop destination
     if (!result.destination) return;
+  
     const questionId = questions[currentQuestionIndex]._id;
     setRankingAnswers((prev) => {
       const newOrder = [...(prev[questionId] || questions[currentQuestionIndex].options)];
+  
+      // Remove item from source index
       const [movedItem] = newOrder.splice(result.source.index, 1);
-      newOrder.splice(result.destination.index, 0, movedItem);
+  
+      // Insert at destination index, using `!` to assure TypeScript it's not null
+      newOrder.splice(result.destination!.index, 0, movedItem);
+  
       return { ...prev, [questionId]: newOrder };
     });
   };
@@ -108,7 +115,7 @@ export default function PlayQuiz() {
       } else {
         alert("Error submitting quiz.");
       }
-    } catch (error) {
+    } catch {
       alert("Failed to submit answers.");
     }
   }
@@ -131,7 +138,11 @@ export default function PlayQuiz() {
           <DragDropContext onDragEnd={handleDragEnd}>
             <Droppable droppableId="rankingOptions">
               {(provided) => (
-                <div {...provided.droppableProps} ref={provided.innerRef} style={{ width: "300px", margin: "auto" }}>
+                <div
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  style={{ width: "300px", margin: "auto" }}
+                >
                   {(rankingAnswers[question._id] || question.options).map((option, index) => (
                     <Draggable key={String(index)} draggableId={String(index)} index={index}>
                       {(provided, snapshot) => (

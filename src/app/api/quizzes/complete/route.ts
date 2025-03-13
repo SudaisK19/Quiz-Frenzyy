@@ -29,39 +29,34 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Process each answer submitted by the player
     const answerDocs = await Promise.all(
-      answers.map(async (ans: { question_id: string; submitted_answer: any }) => {
+      answers.map(async (ans: { question_id: string; submitted_answer: string | string[] }) => {
         const question = await Question.findById(ans.question_id);
         if (!question) {
           throw new Error(`Question not found for id: ${ans.question_id}`);
         }
-
         let is_correct = false;
         const submitted = ans.submitted_answer;
 
         if (typeof question.correct_answer === "string") {
-          // MCQ, Image, or single-answer Short Answer
           if (typeof submitted === "string") {
             is_correct =
               question.correct_answer.trim().toLowerCase() ===
               submitted.trim().toLowerCase();
           }
         } else if (Array.isArray(question.correct_answer)) {
-          // Ranking or multiple-answers Short Answer
           if (question.question_type === "Ranking") {
-            // Expect array for submitted
             if (Array.isArray(submitted)) {
-              const correctOrder = (question.correct_answer as string[]).map((x: string) =>
-                x.trim().toLowerCase()
+              const correctOrder = (question.correct_answer as string[]).map(
+                (x: string) => x.trim().toLowerCase()
               );
-              const submittedOrder = (submitted as string[]).map((x: string) =>
-                x.trim().toLowerCase()
+              const submittedOrder = (submitted as string[]).map(
+                (x: string) => x.trim().toLowerCase()
               );
-              is_correct = JSON.stringify(correctOrder) === JSON.stringify(submittedOrder);
+              is_correct =
+                JSON.stringify(correctOrder) === JSON.stringify(submittedOrder);
             }
           } else {
-            // Multiple acceptable answers for Short Answer
             if (typeof submitted === "string") {
               is_correct = (question.correct_answer as string[]).some(
                 (acc: string) =>
@@ -70,7 +65,6 @@ export async function POST(request: NextRequest) {
             }
           }
         } else {
-          // Fallback: unexpected type
           is_correct = false;
         }
 
@@ -89,10 +83,8 @@ export async function POST(request: NextRequest) {
       })
     );
 
-    // Insert all answers
     await Answer.insertMany(answerDocs);
 
-    // Calculate total score
     const totalScore = await Answer.aggregate([
       { $match: { player_quiz_id: new mongoose.Types.ObjectId(player_quiz_id) } },
       { $group: { _id: null, total: { $sum: "$points" } } },
@@ -104,7 +96,6 @@ export async function POST(request: NextRequest) {
     await playerQuiz.save();
     console.log("Updated player quiz document:", playerQuiz);
 
-    // Update user's total points
     const user = await UserNew.findById(playerQuiz.player_id);
     if (user) {
       user.total_points += playerQuiz.score;
