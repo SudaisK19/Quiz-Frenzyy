@@ -1,165 +1,101 @@
 "use client";
+export const dynamic = "force-dynamic";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
-export default function QuizComplete() {
+function QuizCompleteContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const player_quiz_id = searchParams.get("player_quiz_id");
 
   const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [score, setScore] = useState<number | null>(null);
   const [completedAt, setCompletedAt] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchQuizResults() {
-      if (!player_quiz_id) {
+      if (!player_quiz_id || player_quiz_id === "test123") {
+        // Fake test data for testing
+        setMessage("Test Mode: Fake quiz results.");
+        setSessionId("test-session-123");
+        setScore(95); // Fake Score
+        setCompletedAt(new Date().toLocaleString());
         setLoading(false);
         return;
       }
 
+      // Fetch real quiz data
       const response = await fetch(`/api/player-quiz/${player_quiz_id}`);
       const data = await response.json();
       setLoading(false);
 
       if (data.success) {
+        setMessage("Quiz completed successfully!");
         setSessionId(data.session_id ? data.session_id.toString() : null);
         setScore(data.score);
         setCompletedAt(new Date(data.completed_at).toLocaleString());
+      } else {
+        setMessage("Error fetching quiz results.");
       }
     }
-
     fetchQuizResults();
   }, [player_quiz_id]);
 
-  if (loading) return <p style={styles.loading}>Fetching your results...</p>;
+  if (loading) return <p>Fetching your results...</p>;
 
   return (
-    <div style={styles.container}>
-      {/* Styled Card for Results */}
-      <div style={styles.card}>
-        <h1 style={styles.heading}>🎉 Quiz Completed! 🎉</h1>
-        <h2 style={styles.score}>Your Score: {score ?? "N/A"}</h2>
-        {completedAt && <p style={styles.date}>Completed at: {completedAt}</p>}
+    <>
+      <Header />
+      <div className="flex justify-center items-center min-h-screen px-4 py-6">
+        <div className="bg-[#242424] p-6 sm:p-10 rounded-[30px] shadow-lg w-full max-w-md sm:max-w-lg md:max-w-xl text-center">
+          <div className="flex-1 bg-[#333436] rounded-[30px] p-6 sm:p-10">
+            <h1 className="text-white text-3xl sm:text-4xl">Quiz Completed!</h1>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#ec5f80] mt-4">
+              Your Score: {score ?? "N/A"}
+            </h2>
+            {completedAt && <p className="text-gray-400 mt-2">Completed at: {completedAt}</p>}
+            {message && <p className="text-gray-400 mt-2">{message}</p>}
 
-        <div style={styles.buttonContainer}>
-          <button onClick={() => router.push("/")} style={styles.button}>
-            Home
-          </button>
+            <div className="mt-6 flex flex-col gap-2">
+              <button
+                onClick={() => {
+                  if (sessionId) {
+                    router.push(`/leaderboard?session_id=${sessionId}`);
+                  } else {
+                    alert("No session ID found!");
+                  }
+                }}
+                className="bg-pink-500 hover:bg-pink-600 text-white py-3 px-6 rounded-full shadow-md transition duration-300 block mx-auto mt-6 w-[90%] sm:w-4/5 md:w-2/3"
+              >
+                View Leaderboard
+              </button>
 
-          <button
-            onClick={() => {
-              if (sessionId) {
-                router.push(`/leaderboard?session_id=${sessionId}`);
-              } else {
-                alert("No session ID found!");
-              }
-            }}
-            style={styles.button}
-          >
-            View Leaderboard 🏆
-          </button>
+              <button
+                onClick={() => router.push("/")}
+                className="bg-pink-500 hover:bg-pink-600 text-white py-3 px-6 rounded-full shadow-md transition duration-300 block mx-auto mt-2 w-[90%] sm:w-4/5 md:w-2/3"
+              >
+                Return to Home
+              </button>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+      <Footer />
+
+    </>
+    
   );
 }
 
-// **💡 Styles (Matching Cyborg Gaming)**
-const styles = {
-  container: {
-    margin: 0,
-    padding: 0,
-    fontFamily: "Arial, sans-serif",
-    background: "linear-gradient(135deg, #121212, #2C003E, #FF4F9E)", 
-    backgroundSize: "cover",
-    backgroundRepeat: "no-repeat",
-    backgroundPosition: "center",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    height: "100vh", // Full height of viewport
-    width: "100vw", // Full width
-    position: "relative" as const,
-    overflow: "hidden",
-  },
-
-  box: {
-    width: "90%",  // Makes it responsive
-    maxWidth: "400px", 
-    padding: "40px",
-    background: "#191919",
-    textAlign: "center" as const,
-    boxShadow: "0 0 20px rgba(255, 79, 158, 0.7)", 
-    borderRadius: "10px",
-    position: "relative" as const,
-    zIndex: 2,
-  },
-
-  card: {
-    background: "rgba(25, 25, 25, 0.95)", // Dark semi-transparent card
-    padding: "40px",
-    textAlign: "center" as const,
-    borderRadius: "10px",
-    boxShadow:
-      "0px 0px 15px rgba(255, 79, 158, 0.7), 0px 0px 10px rgba(255, 79, 158, 0.5)",
-    width: "350px",
-  } as const,
-
-  heading: {
-    color: "white",
-    fontSize: "1.5rem",
-    fontWeight: "bold",
-    textTransform: "uppercase",
-  } as const,
-
-  text: {
-    fontSize: "1rem",
-    color: "#FF4F9E",
-    marginTop: "10px",
-  } as const,
-
-  score: {
-    fontSize: "2rem",
-    fontWeight: "bold",
-    color: "#FF4F9E",
-    margin: "10px 0",
-  } as const,
-
-  date: {
-    color: "#CCCCCC",
-    fontSize: "1rem",
-    marginBottom: "20px",
-  } as const,
-
-  buttonContainer: {
-    display: "flex",
-    flexDirection: "column" as const,
-    gap: "15px",
-  } as const,
-
-  button: {
-    width: "100%",
-    border: "0",
-    background: "#FF4F9E",
-    padding: "14px",
-    outline: "none",
-    color: "white",
-    borderRadius: "24px",
-    cursor: "pointer",
-    transition: "0.25s",
-    fontSize: "1.2rem",
-    fontWeight: "bold",
-  } as const,
-
-
-  loading: {
-    color: "white",
-    textAlign: "center" as const,
-    fontSize: "1.2rem",
-    marginTop: "50px",
-  } as const,
-};
-
+export default function QuizComplete() {
+  return (
+    <Suspense fallback={<p>Loading quiz results...</p>}>
+      <QuizCompleteContent />
+    </Suspense>
+  );
+}

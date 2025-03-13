@@ -1,7 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import dynamic from "next/dynamic";
+import Image from "next/image";
+import toast from "react-hot-toast";
+
+// Dynamically import Lottie with SSR disabled
+const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
+
+
+const text: string = "QUIZ FRENZY";
+
 
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -120,88 +133,157 @@ export default function Home() {
     setAvatarSeed((prev) => (prev >= 100 ? 0 : prev + 1));
   }
 
+  const letterVariants = {
+    initial: { y: 0 }, // Start position
+    animate: (i: number) => ({  // Custom animation for each letter
+      y: [-5, 0, -5], // Bounce up and down
+      transition: {
+        duration: 0.6,
+        repeat: Infinity, // Keeps bouncing forever
+        ease: "easeInOut",
+        delay: i * 0.1, // Delay each letter based on index
+      },
+    }),
+  };
+
+
+  const AnimatedLottie = () => {
+    const [animationData, setAnimationData] = useState(null);
+
+    useEffect(() => {
+      fetch("/animation/brain.json") // Load from public folder
+        .then((response) => response.json())
+        .then((data) => setAnimationData(data))
+        .catch((error) => console.error("Error loading Lottie animation:", error));
+    }, []);
+
+    if (!animationData) return <p>Loading animation...</p>; // Prevents errors
+
+    return (
+      <div className="flex justify-center items-center w-full max-w-[350px] max-h-[350px] overflow-hidden">
+        {/* Limiting max width & height */}
+        <div className="w-[120px] h-[120px] sm:w-[180px] sm:h-[180px] md:w-[200px] md:h-[200px] lg:w-[250px] lg:h-[250px]">
+          <Lottie animationData={animationData} loop={true} className="w-full h-full" />
+        </div>
+      </div>
+    );
+  };
+
+
+
+
+
   return (
-    <div style={{ textAlign: "center", padding: "40px" }}>
-      <h1>Welcome to Quiz Frenzy 🎉</h1>
-      <p>
-        Your ultimate quiz platform. Test your knowledge, host quizzes, and challenge friends!
-      </p>
+    <>
+      <Header />
+      <div className="flex justify-center items-center p-6 min-h-[80vh]">
+        <div className="bg-[#242424] p-10 rounded-[30px] shadow-lg flex flex-col w-full max-w-7xl min-h-[80vh] mx-auto my-10 relative">
 
-      <div style={{ marginTop: "20px" }}>
-        <h2>Join a Quiz</h2>
-        <input
-          type="text"
-          placeholder="Enter Quiz Code"
-          value={quizCode}
-          onChange={(e) => setQuizCode(e.target.value.trim().toUpperCase())}
-          style={{
-            padding: "10px",
-            width: "200px",
-            marginRight: "10px",
-          }}
-        />
-        <button onClick={handleJoinQuiz} style={{ padding: "10px 20px" }}>
-          Join
-        </button>
-        {error && <p style={{ color: "red" }}>{error}</p>}
-      </div>
+          {/*  Main Content Wrapper (Lighter Grey Container) */}
+          <div className="flex-1 bg-[#333436] rounded-[30px] p-10 flex flex-col justify-between items-center relative">
 
-      <div style={{ marginTop: "20px" }}>
-        <h2>Create a Quiz</h2>
-        <button
-          onClick={() => {
-            if (!isLoggedIn) {
-              alert("Please log in to create a quiz.");
-              router.push("/login");
-              return;
-            }
-            router.push("/create-quiz");
-          }}
-          style={{ padding: "10px 20px" }}
-        >
-          Create Now
-        </button>
-      </div>
+            {/*  Top-Left Div (Now properly inside the lighter grey container) */}
 
-      <div style={{ marginTop: "20px" }}>
-        <h2>Generate a Quiz with AI</h2>
-        <button
-          onClick={() => {
-            if (!isLoggedIn) {
-              alert("Please log in to generate a quiz.");
-              router.push("/login");
-              return;
-            }
-            router.push("/ai-quiz");
-          }}
-          style={{ padding: "10px 20px" }}
-        >
-          Generate
-        </button>
-      </div>
+            <div className="w-full flex flex-col md:flex-row items-center justify-between bg-gradient-to-br from-[#2a2a2a] via-[#4a1063] to-[#ff85b6] p-8 rounded-2xl shadow-lg text-center md:text-left">
 
-      {!isLoggedIn && (
-        <div style={{ marginTop: "30px" }}>
-          <h3>Login or Sign Up to Start Playing!</h3>
-          <button
-            onClick={() => router.push("/login")}
-            style={{ padding: "10px 20px", marginRight: "10px" }}
-          >
-            Login
-          </button>
-          <button onClick={() => router.push("/signup")} style={{ padding: "10px 20px" }}>
-            Sign Up
-          </button>
+              <div className="w-full md:w-1/2 flex flex-col items-start justify-center">
+                <p className="text-white text-2xl font-semibold mb-2">Welcome to</p>
+                <h3 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-pink-600 flex flex-wrap sm:flex-nowrap justify-center md:justify-start leading-tight tracking-wide whitespace-nowrap">
+                  {text.split("").map((letter, index) => (
+                    <motion.span
+                      key={index}
+                      variants={letterVariants}
+                      initial="initial"
+                      animate="animate"
+                      custom={index}
+                      className="inline-block mx-1"
+                    >
+                      {letter}
+                    </motion.span>
+                  ))}
+                </h3>
+
+                <p className="text-gray-300 text-sm mt-2">The ultimate quiz experience!</p>
+              </div>
+              <div className="w-full md:w-1/2 flex justify-center md:justify-end mt-6 md:mt-0 max-h-[350px] md:pl-6 lg:pl-12">
+                <AnimatedLottie />
+              </div>
+
+            </div>
+
+            {/*  Bottom Buttons Section (Auto-aligned) */}
+            <section className="w-full flex justify-center items-center mt-10">
+              <div className="bg-[#1e1e1e] p-6 rounded-xl text-center shadow-lg w-full max-w-6xl">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full justify-center items-stretch">
+
+                  {/* 🔹 AI Quiz */}
+                  <div className="bg-[#242424] p-6 rounded-xl text-center shadow-md w-full h-full flex flex-col items-center justify-between">
+                    <Image src="/images/generate.png" alt="AI Quiz" width={80} height={80} />
+                    <p className="text-white text-sm flex-1 flex items-center justify-center">Let AI generate a unique quiz for you!</p>
+                    <button onClick={() => {
+                      if (!isLoggedIn) {
+                        alert("Please log in to generate a quiz.");
+                        router.push("/login");
+                        return;
+                      }
+                      router.push("/ai-quiz");
+                    }} className="w-full max-w-[250px] sm:max-w-[220px] md:max-w-[200px] lg:max-w-[250px] relative flex justify-center items-center px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-3 text-[#ff3c83] font-bold uppercase tracking-wider border-2 border-[#ff3c83] rounded-full overflow-hidden transition-all duration-150 ease-in hover:text-white hover:border-white before:absolute before:top-0 before:left-1/2 before:right-1/2 before:bottom-0 before:bg-gradient-to-r before:from-[#fd297a] before:to-[#9424f0] before:opacity-0 before:transition-all before:duration-150 before:ease-in hover:before:left-0 hover:before:right-0 hover:before:opacity-100">
+                      <span className="relative z-10 text-xs sm:text-sm md:text-base lg:text-lg leading-none">
+                        AI Quiz
+                      </span>
+                    </button>
+
+                  </div>
+
+                  {/* 🔹 Join Quiz */}
+                  <div className="bg-[#242424] p-6 rounded-xl text-center shadow-md w-full h-full flex flex-col items-center justify-between">
+                    <Image src="/images/join.png" alt="Join Quiz" width={80} height={80} />
+                    
+                    <input
+                      type="text"
+                      placeholder="Enter Quiz Code"
+                      value={quizCode} // ✅ FIXED: Now binds correctly to state
+                      onChange={(e) => setQuizCode(e.target.value.trim().toUpperCase())}
+                      className="w-full max-w-[250px] sm:max-w-[220px] md:max-w-[200px] lg:max-w-[250px] p-2 sm:p-3 md:p-4 mb-4 rounded-full bg-[#1e1e1e] text-white placeholder-white text-xs sm:text-sm md:text-base placeholder-gray-400 border border-[#ff3c83] focus:outline-none focus:ring-2 focus:ring-[#ec5f80]"
+                    />
+
+                    <button onClick={handleJoinQuiz} className="w-full max-w-[250px] sm:max-w-[220px] md:max-w-[200px] lg:max-w-[250px] relative flex justify-center items-center px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-3 text-[#ff3c83] font-bold uppercase tracking-wider border-2 border-[#ff3c83] rounded-full overflow-hidden transition-all duration-150 ease-in hover:text-white hover:border-white before:absolute before:top-0 before:left-1/2 before:right-1/2 before:bottom-0 before:bg-gradient-to-r before:from-[#fd297a] before:to-[#9424f0] before:opacity-0 before:transition-all before:duration-150 before:ease-in hover:before:left-0 hover:before:right-0 hover:before:opacity-100">
+                      <span className="relative z-10 text-xs sm:text-sm md:text-base lg:text-lg leading-none">
+                        Join
+                      </span>
+                    </button>
+                  </div>
+
+                  {/* 🔹 Create Quiz */}
+                  <div className="bg-[#242424] p-6 rounded-xl text-center shadow-md w-full h-full flex flex-col items-center justify-between">
+                    <Image src="/images/createquiz.png" alt="Create Quiz" width={80} height={80} />
+                    <p className="text-white text-sm flex-1 flex items-center justify-center">Make your own quiz & challenge friends!</p>
+                    <button onClick={() => {
+                      if (!isLoggedIn) {
+                        alert("Please log in to create a quiz.");
+                        router.push("/login");
+                        return;
+                      }
+                      router.push("/create-quiz");
+                    }} className="w-full max-w-[250px] sm:max-w-[220px] md:max-w-[200px] lg:max-w-[250px] relative flex justify-center items-center px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-3 text-[#ff3c83] font-bold uppercase tracking-wider border-2 border-[#ff3c83] rounded-full overflow-hidden transition-all duration-150 ease-in hover:text-white hover:border-white before:absolute before:top-0 before:left-1/2 before:right-1/2 before:bottom-0 before:bg-gradient-to-r before:from-[#fd297a] before:to-[#9424f0] before:opacity-0 before:transition-all before:duration-150 before:ease-in hover:before:left-0 hover:before:right-0 hover:before:opacity-100">
+                      <span className="relative z-10 text-xs sm:text-sm md:text-base lg:text-lg leading-none">
+                        Create
+                      </span>
+                    </button>
+
+
+                  </div>
+
+                </div>
+              </div>
+            </section>
+            
+          </div>
         </div>
-      )}
+      </div>
 
-      {isLoggedIn && (
-        <div style={{ marginTop: "30px" }}>
-          <button onClick={() => router.push("/profile")} style={{ padding: "10px 20px" }}>
-            View Profile
-          </button>
-        </div>
-      )}
+
+
 
       {showAvatarModal && (
         <div
@@ -271,6 +353,8 @@ export default function Home() {
           </div>
         </div>
       )}
-    </div>
+
+      <Footer />
+    </>
   );
 }

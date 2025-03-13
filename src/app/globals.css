@@ -3,25 +3,22 @@
 @import "tailwindcss";
 
 
-
-
-
 html, body {
-  
   background: linear-gradient(135deg, #121212, #2C003E, #FF4F9E);
   overflow: auto;
+  overflow-x:hidden;
+  font-family: "Poppins", sans-serif;
+  
   
 }
+
 
 
 main{
   position: relative;
   z-index: 3;
 }
-img {
-  max-width: 100%;
-  overflow: hidden;
-}
+
 
 
 /* Falling Robots Animation */
@@ -34,7 +31,7 @@ img {
     opacity: 0.9; /* Fully visible until near the bottom */
   }
   100% {
-    transform: translateY(110vh); /* Moves past the bottom smoothly */
+    transform: translateY(calc(100vh + 100%));
     opacity: 0.7; /* Gradually disappears */
   }
 }

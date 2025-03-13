@@ -1,13 +1,11 @@
 "use client";
-
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-// Only points are configurable now.
 interface QuestionConfig {
   points: number;
 }
 
-// Interface for returned quiz/session details
 interface QuizData {
   quizId: string;
   sessionId: string;
@@ -17,42 +15,36 @@ interface QuizData {
 
 export default function AIQuizPage() {
   const [topic, setTopic] = useState("");
-  const [duration, setDuration] = useState(10); // Quiz duration in minutes
+  const [duration, setDuration] = useState(10);
   const [numQuestions, setNumQuestions] = useState(5);
   const [questionConfigs, setQuestionConfigs] = useState<QuestionConfig[]>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [quizData, setQuizData] = useState<QuizData | null>(null);
+  const router = useRouter();
 
-  // When numQuestions changes, update questionConfigs accordingly
   useEffect(() => {
     setQuestionConfigs((prev) => {
       const newConfigs = [...prev];
       if (newConfigs.length < numQuestions) {
-        // Add default configurations for additional questions
         for (let i = newConfigs.length; i < numQuestions; i++) {
           newConfigs.push({ points: 10 });
         }
       } else if (newConfigs.length > numQuestions) {
-        // Truncate the array if there are too many
         newConfigs.length = numQuestions;
       }
       return newConfigs;
     });
   }, [numQuestions]);
 
-  // Handle quiz generation
   async function handleGenerateQuiz() {
     try {
       setLoading(true);
       setMessage("Generating quiz via AI...");
-
       const response = await fetch("/api/ai-quiz/generate", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include", // Ensures cookies are sent
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           topic,
           numQuestions,
@@ -60,19 +52,17 @@ export default function AIQuizPage() {
           questionConfigs,
         }),
       });
-
       const data = await response.json();
       setLoading(false);
-
       if (data.success) {
         setMessage("Quiz generated successfully!");
-        // Store the returned quiz/session data in state
         setQuizData({
           quizId: data.quizId,
           sessionId: data.sessionId,
           join_code: data.join_code,
           message: data.message,
         });
+        // Removed badge update logic
       } else {
         setMessage(`Error: ${data.error || "Failed to generate quiz"}`);
       }
@@ -86,11 +76,9 @@ export default function AIQuizPage() {
   return (
     <div style={{ textAlign: "center", padding: "20px" }}>
       <h1>Generate AI-Powered MCQ Quiz</h1>
-
       <p style={{ fontStyle: "italic" }}>
         Note: All questions will be <strong>multiple choice</strong>.
       </p>
-
       <div style={{ margin: "20px 0" }}>
         <input
           type="text"
@@ -100,7 +88,6 @@ export default function AIQuizPage() {
           style={{ width: "300px", padding: "8px" }}
         />
       </div>
-
       <div style={{ margin: "20px 0" }}>
         <label>
           Quiz Duration (minutes):{" "}
@@ -113,7 +100,6 @@ export default function AIQuizPage() {
           />
         </label>
       </div>
-
       <div style={{ margin: "20px 0" }}>
         <label>
           Number of Questions:{" "}
@@ -127,8 +113,6 @@ export default function AIQuizPage() {
           />
         </label>
       </div>
-
-      {/* Only points are configurable per question */}
       <div
         style={{
           margin: "20px auto",
@@ -173,13 +157,10 @@ export default function AIQuizPage() {
           </div>
         ))}
       </div>
-
       <button onClick={handleGenerateQuiz} disabled={loading} style={{ padding: "10px 20px" }}>
         {loading ? "Generating..." : "Generate AI MCQ Quiz"}
       </button>
-
       {message && <p style={{ marginTop: "20px" }}>{message}</p>}
-
       {quizData && (
         <div style={{ marginTop: "20px", border: "1px solid #ccc", padding: "20px", borderRadius: "4px" }}>
           <h2>Quiz Created!</h2>
@@ -190,6 +171,18 @@ export default function AIQuizPage() {
             <strong>Session Join Code (For Players):</strong>{" "}
             {quizData.join_code ? quizData.join_code : "Not Available"}
           </p>
+          <button
+            onClick={() => {
+              if (quizData.sessionId) {
+                router.push(`/leaderboard?session_id=${quizData.sessionId}`);
+              } else {
+                alert("No session ID found!");
+              }
+            }}
+            style={{ padding: "10px 20px", marginTop: "10px" }}
+          >
+            View Leaderboard 🏆
+          </button>
         </div>
       )}
     </div>

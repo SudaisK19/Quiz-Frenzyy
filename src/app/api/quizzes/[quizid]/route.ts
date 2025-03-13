@@ -5,12 +5,10 @@ import { connect } from "@/dbConfig/dbConfig";
 
 connect();
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { quizId: string } }
-) {
+export async function GET(request: NextRequest, context: unknown) {
+  const { params } = context as { params: { quizid: string } };
   try {
-    const quiz = await Quiz.findById(params.quizId);
+    const quiz = await Quiz.findById(params.quizid);
     if (!quiz) {
       return NextResponse.json({ error: "quiz not found" }, { status: 404 });
     }
@@ -21,37 +19,36 @@ export async function GET(
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { quizId: string } }
-) {
+export async function DELETE(request: NextRequest, context: unknown) {
+  const { params } = context as { params: { quizid: string } };
   try {
-    const deletedQuiz = await Quiz.findByIdAndDelete(params.quizId);
+    const deletedQuiz = await Quiz.findByIdAndDelete(params.quizid);
     if (!deletedQuiz) {
       return NextResponse.json({ error: "quiz not found" }, { status: 404 });
     }
-    await Question.deleteMany({ quiz_id: params.quizId });
-    return NextResponse.json({ success: true, message: "quiz and questions deleted" }, { status: 200 });
+    await Question.deleteMany({ quiz_id: params.quizid });
+    return NextResponse.json(
+      { success: true, message: "quiz and questions deleted" },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("error deleting quiz:", error);
     return NextResponse.json({ error: "internal server error" }, { status: 500 });
   }
 }
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { quizId: string } }
-) {
+export async function PATCH(request: NextRequest, context: unknown) {
+  const { params } = context as { params: { quizid: string } };
   try {
     const { title, description, duration } = await request.json();
 
     const totalQuizPoints = await Question.aggregate([
-      { $match: { quiz_id: params.quizId } },
+      { $match: { quiz_id: params.quizid } },
       { $group: { _id: null, total: { $sum: "$points" } } },
     ]);
 
     const updatedQuiz = await Quiz.findByIdAndUpdate(
-      params.quizId,
+      params.quizid,
       {
         title,
         description,

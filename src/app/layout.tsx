@@ -1,6 +1,8 @@
 import React from "react";
 import "./globals.css";
 import Image from "next/image";
+import { Toaster } from "react-hot-toast"; // Import the Toaster
+
 
 const generateRobots = () => {
   const robots = [];
@@ -43,13 +45,17 @@ const generateRobots = () => {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>
-        {/* Background Falling Robots */}
-        {generateRobots()}
-        {/* Page Content */}
-        <main >
-        {children}
-        </main>
+      <body className="relative min-h-screen w-full">
+        {/* Background Floating Robots (Not Responsive) */}
+        <div >
+          {generateRobots()} {/* Floating robots stay the same */}
+        </div>
+
+        {/* Main Content */}
+        <main>{children}</main>
+
+        {/* Toast Notifications */}
+        <Toaster position="top-right" />
       </body>
     </html>
   );

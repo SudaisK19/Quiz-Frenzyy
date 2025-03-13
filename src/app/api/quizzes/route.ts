@@ -1,77 +1,83 @@
 import { NextRequest, NextResponse } from "next/server";
 import Quiz from "@/models/quizModel";
-import Question from "@/models/questionModel";
+import Question from "@/models/questionModel"; // Ensure this is your updated model
 import Session from "@/models/sessionModel";
+import UserNew from "@/models/userModel";
 import { connect } from "@/dbConfig/dbConfig";
-import crypto from "crypto";
 
 connect();
 
-// ✅ Function to generate a unique join code
-function generateJoinCode(): string {
-    return crypto.randomBytes(3).toString("hex").toUpperCase();
+interface QuestionInput {
+  question_text: string;
+  question_type: string;
+  media_url?: string;
+  options: string[];
+  // Only one field for the correct answer (can be string or array)
+  correct_answer: string | string[];
+  hint?: string;
+  points: number;
 }
 
 export async function POST(request: NextRequest) {
-    try {
-        const { title, description, created_by, duration, questions } = await request.json();
+  try {
+    const { title, description, created_by, duration, total_points, questions } = await request.json();
 
-        if (!title || !created_by || duration === undefined) {
-            return NextResponse.json({ error: "Title, creator ID, and duration are required" }, { status: 400 });
-        }
+    const quiz = new Quiz({
+      title,
+      description,
+      created_by,
+      duration,
+      total_points: total_points || 0,
+    });
+    await quiz.save();
 
-        // ✅ Convert duration to a number and apply default value
-        const quizDuration = Number(duration) || 10; // Default 10 minutes
+    await UserNew.findByIdAndUpdate(
+      created_by,
+      { $addToSet: { hosted_quizzes: quiz._id } },
+      { new: true }
+    );
 
-        // ✅ Calculate total quiz points (sum of all question points)
-        const totalPoints = questions.reduce((sum: number, q: { points: number }) => sum + (q.points || 0), 0);
+    if (Array.isArray(questions) && questions.length > 0) {
+      const formattedQuestions = questions.map((q: QuestionInput) => ({
+        quiz_id: quiz._id,
+        question_text: q.question_text,
+        question_type: q.question_type,
+        media_url: q.media_url || null,
+        options: q.options,
+        correct_answer: q.correct_answer,  // Only using this field now.
+        hint: q.hint || null,
+        points: q.points,
+      }));
 
-
-        // ✅ Create the Quiz with total points
-        const newQuiz = new Quiz({
-            title,
-            description,
-            created_by,
-            duration: quizDuration,
-            total_points: totalPoints, // ✅ Store total points
-        });
-
-        const savedQuiz = await newQuiz.save();
-
-        // ✅ Save Questions
-        let savedQuestions = [];
-        if (questions && Array.isArray(questions) && questions.length > 0) {
-            savedQuestions = await Question.insertMany(
-                questions.map((q) => ({
-                    ...q,
-                    quiz_id: savedQuiz._id
-                }))
-            );
-        }
-
-        // ✅ Generate a unique session join code
-        let sessionJoinCode = generateJoinCode();
-        while (await Session.findOne({ join_code: sessionJoinCode })) {
-            sessionJoinCode = generateJoinCode();
-        }
-
-        // ✅ Create a new session for this quiz
-        const newSession = new Session({
-            quiz_id: savedQuiz._id,
-            join_code: sessionJoinCode,
-            start_time: new Date() // ✅ Ensure start_time is correctly stored
-        });
-        const savedSession = await newSession.save();
-
-        return NextResponse.json({
-            success: true,
-            quiz: savedQuiz,
-            questions: savedQuestions,
-            session_join_code: savedSession.join_code, // ✅ Return session join code
-        }, { status: 201 });
-
-    } catch (error) {
-        console.error("❌ Error creating quiz:", error);
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+      await Question.insertMany(formattedQuestions);
     }
+
+    const agg = await Question.aggregate([
+      { $match: { quiz_id: quiz._id } },
+      { $group: { _id: null, total: { $sum: "$points" } } },
+    ]);
+    quiz.total_points = agg[0]?.total || 0;
+    await quiz.save();
+
+    const start = new Date();
+    const end = new Date(start.getTime() + quiz.duration * 60000);
+    const joinCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+
+    const session = new Session({
+      quiz_id: quiz._id,
+      start_time: start,
+      end_time: end,
+      is_active: true,
+      join_code: joinCode,
+    });
+    await session.save();
+
+    return NextResponse.json(
+      { success: true, quiz, session: { sessionId: session._id, join_code: session.join_code } },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error("Error creating quiz:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
 }

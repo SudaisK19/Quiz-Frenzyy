@@ -5,11 +5,11 @@ import { connect } from "@/dbConfig/dbConfig";
 connect();
 
 export async function PATCH(request: NextRequest) {
-  console.log("PATCH /api/player-quiz-settings was called!");
+  console.log("PATCH /api/player-quiz-settings was called!"); // debug ke liye
   try {
-    // Read the JSON body
+
     const body = await request.json();
-    // Log the entire body for debugging
+    
     console.log("PATCH body:", body);
 
     const { playerQuizId, avatar, displayName } = body;
@@ -18,14 +18,14 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "playerQuizId is required" }, { status: 400 });
     }
 
-    // Attempt to update the PlayerQuiz document
+    
     const updatedPlayerQuiz = await PlayerQuiz.findByIdAndUpdate(
       playerQuizId,
       { avatar, displayName },
       { new: true, runValidators: true }
     );
 
-    console.log("Updated doc:", updatedPlayerQuiz);
+   
 
     if (!updatedPlayerQuiz) {
       return NextResponse.json({ error: "Player quiz not found" }, { status: 404 });

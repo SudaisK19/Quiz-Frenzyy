@@ -2,20 +2,24 @@ import { connect } from "@/dbConfig/dbConfig";
 import User from "@/models/userModel";
 import { NextRequest, NextResponse } from "next/server";
 
-connect(); // Ensure MongoDB connection
+connect();
 
 export async function POST(request: NextRequest) {
   try {
     const reqBody = await request.json();
-    const { username, email, password }: { username: string; email: string; password: string } = reqBody;
+    const { username, email, password } = reqBody as {
+      username: string;
+      email: string;
+      password: string;
+    };
 
     if (!username || !email || !password) {
-      return NextResponse.json({ error: "All fields are required." }, { status: 400 });
+      return NextResponse.json({ error: "all fields are required" }, { status: 400 });
     }
 
     const user = await User.findOne({ email });
     if (user) {
-      return NextResponse.json({ error: "User already exists." }, { status: 400 });
+      return NextResponse.json({ error: "user already exists" }, { status: 400 });
     }
 
     const newUser = new User({
@@ -27,12 +31,12 @@ export async function POST(request: NextRequest) {
     const savedUser = await newUser.save();
 
     return NextResponse.json(
-      { message: "User created successfully.", success: true, user: savedUser },
+      { message: "user created successfully", success: true, user: savedUser },
       { status: 201 }
     );
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error("Error in signup route:", error.message);
+      console.error("error in signup route:", error.message);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
   }

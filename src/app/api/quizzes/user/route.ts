@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import Quiz from "@/models/quizModel";
 import PlayerQuiz from "@/models/playerQuizModel";
+import UserNew from "@/models/userModel";
 import { connect } from "@/dbConfig/dbConfig";
 import jwt from "jsonwebtoken";
 
@@ -18,16 +18,21 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "invalid token" }, { status: 401 });
     }
 
-    const hostedQuizzes = await Quiz.find({ created_by: decoded.id })
-      .select("title description created_at");
+    const user = await UserNew.findById(decoded.id).populate("hosted_quizzes", "title description created_at");
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
 
     const playerQuizzes = await PlayerQuiz.find({ player_id: decoded.id })
       .populate("quiz_id", "title description created_at");
-
     const participatedQuizzes = playerQuizzes.map((pq) => pq.quiz_id);
 
     return NextResponse.json(
-      { success: true, hosted_quizzes: hostedQuizzes, participated_quizzes: participatedQuizzes },
+      {
+        success: true,
+        hosted_quizzes: user.hosted_quizzes,
+        participated_quizzes: participatedQuizzes,
+      },
       { status: 200 }
     );
   } catch (error) {

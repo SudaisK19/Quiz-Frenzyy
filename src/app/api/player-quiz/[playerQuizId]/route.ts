@@ -23,7 +23,7 @@ export async function GET(
       return NextResponse.json({ error: "player quiz not found" }, { status: 404 });
     }
 
-    // return session_id along with other details
+    
     return NextResponse.json(
       {
         success: true,

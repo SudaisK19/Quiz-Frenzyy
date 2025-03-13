@@ -39,10 +39,10 @@ export async function GET(
       return NextResponse.json({ error: "no questions available for this quiz" }, { status: 404 });
     }
 
-    // Use Lodash's shuffle to randomize the order of questions
+
     questions = shuffle(questions);
 
-    // For each MCQ, use Lodash's shuffle to randomize the options
+
     questions = questions.map((question) => {
       if (question.question_type === "MCQ" && question.options && question.options.length) {
         question.options = shuffle(question.options);

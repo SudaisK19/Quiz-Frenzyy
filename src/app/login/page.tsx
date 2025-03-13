@@ -48,32 +48,42 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={styles.container}>
+    <div className="flex justify-center items-center min-h-screen w-screen p-4">
       {/* Login Box */}
-      <form style={styles.box} onSubmit={handleSubmit}>
-        <h1 style={styles.heading}>Login</h1>
+      <form
+        onSubmit={handleSubmit}
+        className="w-[300px] max-w-md p-8 md:p-10 bg-[#191919] text-center shadow-lg shadow-blue-500/30 rounded-lg relative z-10"
+      >
+        <h1 className="text-white uppercase font-semibold text-2xl">Login</h1>
+        
         <input
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          style={styles.input}
+          className="bg-transparent border-2 border-pink-500 text-white p-3 w-full md:w-3/4 mx-auto block rounded-full text-center outline-none transition-all duration-300 focus:border-pink-400 mt-6"
         />
+        
         <input
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          style={styles.input}
+          className="bg-transparent border-2 border-pink-500 text-white p-3 w-full md:w-3/4 mx-auto block rounded-full text-center outline-none transition-all duration-300 focus:border-pink-400 mt-4"
         />
-        <button type="submit" style={styles.button}>
+        
+        <button
+          type="submit"
+          className="bg-pink-500 hover:bg-pink-600 text-white  py-3 px-8 rounded-full shadow-md transition duration-300 block mx-auto mt-6 w-full md:w-3/4"
+        >
           Login
         </button>
-        <p style={styles.text}>
+
+        <p className="mt-4 text-pink-500 text-sm">
           Don&apos;t have an account?{" "}
-          <Link href="/signup" style={styles.link}>
+          <Link href="/signup" className="text-pink-500 font-bold hover:underline">
             Signup here
           </Link>
         </p>
@@ -81,76 +91,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
-// **💡 Styles**
-const styles = {
-  container: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    height: "100vh", // Ensures full-screen height
-    width: "100vw",  // Ensures full-screen width
-  } as const,
-
-  box: {
-    width: "300px",
-    padding: "40px",
-    background: "#191919",
-    textAlign: "center" as const,
-    boxShadow:
-      "-1px 92px 99px -62px rgba(3, 107, 255, 0.27), 0 1px 6px 0 rgba(10, 48, 255, 0.48)",
-    borderRadius: "5px",
-    position: "relative" as const,
-    zIndex: 2,
-  },
-
-  heading: {
-    color: "white",
-    textTransform: "uppercase",
-    fontWeight: "500",
-  } as const,
-
-  input: {
-    background: "none",
-    display: "block",
-    margin: "20px auto",
-    textAlign: "center" as const,
-    border: "2px solid #FF4F9E", // 💡 Matches Pink from CYBORG theme
-    padding: "14px 10px",
-    width: "200px",
-    outline: "none",
-    color: "white",
-    borderRadius: "24px",
-    transition: "0.25s",
-  } as const,
-
-  button: {
-    border: "0",
-    background: "#FF4F9E",
-    display: "block",
-    margin: "20px auto",
-    textAlign: "center" as const,
-    padding: "14px 40px",
-    outline: "none",
-    color: "white",
-    borderRadius: "24px",
-    cursor: "pointer",
-    transition: "0.25s",
-  } as const,
-
-  text: {
-    marginTop: "10px",
-    fontSize: "1rem",
-    color: "#FF4F9E",
-  } as const,
-
-  link: {
-    color: "#FF4F9E",
-    textDecoration: "none",
-    fontWeight: "bold",
-  } as const,
-
-  
-
-  
-};
