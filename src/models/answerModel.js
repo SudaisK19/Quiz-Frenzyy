@@ -4,7 +4,7 @@ const answerSchema = new mongoose.Schema(
   {
     player_quiz_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "PlayerQuizNew",
+      ref: "PlayerQuizNews",
       required: true,
     },
     question_id:

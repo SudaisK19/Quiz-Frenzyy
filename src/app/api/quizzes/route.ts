@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
         question_type: q.question_type,
         media_url: q.media_url || null,
         options: q.options,
-        correct_answer: q.correct_answer,  // Only using this field now.
+        correct_answer: q.correct_answer,  
         hint: q.hint || null,
         points: q.points,
       }));

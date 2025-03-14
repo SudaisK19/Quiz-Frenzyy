@@ -7,6 +7,7 @@ const playerQuizSchema = new mongoose.Schema({
   score: { type: Number, default: 0 },
   start_time: { type: Date, default: Date.now },
   completed_at: { type: Date },
+  
   displayName: { type: String, default: "" },
   avatar: { type: String, default: "" },
 }, { timestamps: true });

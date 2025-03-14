@@ -5,42 +5,10 @@ import { connect } from "@/dbConfig/dbConfig";
 
 connect();
 
-export async function GET(request: NextRequest, context: unknown) {
-  const { params } = context as { params: { quizid: string } };
-  try {
-    const quiz = await Quiz.findById(params.quizid);
-    if (!quiz) {
-      return NextResponse.json({ error: "quiz not found" }, { status: 404 });
-    }
-    return NextResponse.json({ success: true, quiz }, { status: 200 });
-  } catch (error) {
-    console.error("error fetching quiz:", error);
-    return NextResponse.json({ error: "internal server error" }, { status: 500 });
-  }
-}
-
-export async function DELETE(request: NextRequest, context: unknown) {
-  const { params } = context as { params: { quizid: string } };
-  try {
-    const deletedQuiz = await Quiz.findByIdAndDelete(params.quizid);
-    if (!deletedQuiz) {
-      return NextResponse.json({ error: "quiz not found" }, { status: 404 });
-    }
-    await Question.deleteMany({ quiz_id: params.quizid });
-    return NextResponse.json(
-      { success: true, message: "quiz and questions deleted" },
-      { status: 200 }
-    );
-  } catch (error) {
-    console.error("error deleting quiz:", error);
-    return NextResponse.json({ error: "internal server error" }, { status: 500 });
-  }
-}
-
 export async function PATCH(request: NextRequest, context: unknown) {
   const { params } = context as { params: { quizid: string } };
   try {
-    const { title, description, duration } = await request.json();
+    const { title, description, duration, questions } = await request.json();
 
     const totalQuizPoints = await Question.aggregate([
       { $match: { quiz_id: params.quizid } },
@@ -59,12 +27,27 @@ export async function PATCH(request: NextRequest, context: unknown) {
     );
 
     if (!updatedQuiz) {
-      return NextResponse.json({ error: "quiz not found" }, { status: 404 });
+      return NextResponse.json({ error: "Quiz not found" }, { status: 404 });
+    }
+
+    if (Array.isArray(questions) && questions.length > 0) {
+      for (const q of questions) {
+        await Question.findByIdAndUpdate(q._id, {
+          question_text: q.question_text,
+          question_type: q.question_type,
+          media_url: q.media_url || null,
+          options: q.options,
+          correct_answer: q.correct_answer,
+          correct_answers: q.correct_answers || [],
+          hint: q.hint || null,
+          points: q.points,
+        });
+      }
     }
 
     return NextResponse.json({ success: true, quiz: updatedQuiz }, { status: 200 });
   } catch (error) {
-    console.error("error updating quiz:", error);
-    return NextResponse.json({ error: "internal server error" }, { status: 500 });
+    console.error("Error updating quiz:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
