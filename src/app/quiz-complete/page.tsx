@@ -46,7 +46,6 @@ function QuizCompleteContent() {
     fetchQuizResults();
   }, [player_quiz_id]);
 
-  if (loading) return <p>Fetching your results...</p>;
 
   return (
     <>

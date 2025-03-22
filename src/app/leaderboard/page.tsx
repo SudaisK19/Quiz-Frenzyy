@@ -53,7 +53,6 @@ function LeaderboardContent() {
     return () => clearInterval(interval);
   }, [session_id]);
 
-  if (loading) return <p className="text-white">Loading leaderboard...</p>;
 
   // ✅ Sort players by score (descending)
   const sortedPlayers = [...players].sort((a, b) => b.score - a.score);

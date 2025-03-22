@@ -11,11 +11,11 @@ export async function POST(request: NextRequest) {
 
     const user = await User.findOne({ email });
     if (!user) {
-      return NextResponse.json({ error: "user not found" }, { status: 404 });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     if (password !== user.password) {
-      return NextResponse.json({ error: "invalid email or password" }, { status: 401 });
+      return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
     }
 
     if (!process.env.JWT_SECRET) {
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
-    const response = NextResponse.json({ message: "login successful", success: true }, { status: 200 });
+    const response = NextResponse.json({ message: "Login Successful", success: true }, { status: 200 });
     response.cookies.set({
       name: "authToken",
       value: token,
@@ -37,6 +37,6 @@ export async function POST(request: NextRequest) {
     return response;
   } catch (error) {
     console.error("error during login:", error);
-    return NextResponse.json({ error: "login failed" }, { status: 500 });
+    return NextResponse.json({ error: "Login Failed" }, { status: 500 });
   }
 }

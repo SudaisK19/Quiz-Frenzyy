@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
   try {
     const { topic, numQuestions, duration, questionConfigs } = await request.json();
     if (!topic || !numQuestions) {
-      return NextResponse.json({ error: "missing required fields" }, { status: 400 });
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
     const prompt = `Generate ${numQuestions} quiz questions on the topic "${topic}".
@@ -39,7 +39,7 @@ Do not include any "question_type" field or markdown formatting.`;
 
     const tokenCookie = request.cookies.get("authToken");
     if (!tokenCookie || !tokenCookie.value) {
-      return NextResponse.json({ error: "user is not authenticated" }, { status: 401 });
+      return NextResponse.json({ error: "User is not authenticated" }, { status: 401 });
     }
     const token = tokenCookie.value;
     let decoded: DecodedToken;
@@ -49,16 +49,16 @@ Do not include any "question_type" field or markdown formatting.`;
       }
       decoded = jwt.verify(token, process.env.JWT_SECRET) as DecodedToken;
     } catch {
-      return NextResponse.json({ error: "invalid or expired token" }, { status: 401 });
+      return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 });
     }
     const userId = decoded.id;
     if (!userId) {
-      return NextResponse.json({ error: "could not determine user from token" }, { status: 401 });
+      return NextResponse.json({ error: "Could not determine user from token" }, { status: 401 });
     }
 
     const githubToken = process.env.GITHUB_TOKEN;
     if (!githubToken) {
-      return NextResponse.json({ error: "github token not configured" }, { status: 500 });
+      return NextResponse.json({ error: "Github token not configured" }, { status: 500 });
     }
 
     const client = new OpenAI({
@@ -80,7 +80,7 @@ Do not include any "question_type" field or markdown formatting.`;
     let generatedOutput = aiResponse.choices[0]?.message?.content;
     if (!generatedOutput) {
       console.error("No content returned by the AI model");
-      return NextResponse.json({ error: "no ai output returned" }, { status: 500 });
+      return NextResponse.json({ error: "No ai output returned" }, { status: 500 });
     }
     generatedOutput = generatedOutput
       .replace(/```json\s*([\s\S]*?)```/, "$1")
@@ -103,11 +103,11 @@ Do not include any "question_type" field or markdown formatting.`;
             generatedQuestions = JSON.parse(joined);
           } catch (err3) {
             console.error("Error parsing extracted JSON objects:", err3, joined);
-            return NextResponse.json({ error: "failed to parse generated questions" }, { status: 500 });
+            return NextResponse.json({ error: "Failed to parse generated questions" }, { status: 500 });
           }
         } else {
           console.error("Error parsing model output:", err2, generatedOutput);
-          return NextResponse.json({ error: "failed to parse generated questions" }, { status: 500 });
+          return NextResponse.json({ error: "Failed to parse generated questions" }, { status: 500 });
         }
       }
     }
@@ -189,6 +189,6 @@ Do not include any "question_type" field or markdown formatting.`;
     );
   } catch (error) {
     console.error("Error generating AI quiz:", error);
-    return NextResponse.json({ error: "internal server error" }, { status: 500 });
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

@@ -117,7 +117,6 @@ export default function MyCollection() {
     router.push(`/leaderboard?session_id=${sessionId}`);
   };
 
-  if (loading) return <p className="text-white text-center">Loading...</p>;
 
   return (
     <>

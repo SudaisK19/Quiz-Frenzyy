@@ -10,7 +10,7 @@ export async function POST(request: NextRequest, context: unknown) {
     const { question_text, question_type, options, correct_answer } = await request.json();
 
     if (!question_text || !correct_answer) {
-      return NextResponse.json({ error: "missing required fields" }, { status: 400 });
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
     const newQuestion = new Question({
@@ -23,11 +23,11 @@ export async function POST(request: NextRequest, context: unknown) {
     await newQuestion.save();
 
     return NextResponse.json(
-      { success: true, message: "question added successfully" },
+      { success: true, message: "Question added successfully" },
       { status: 201 }
     );
   } catch (error) {
     console.error("error adding question:", error);
-    return NextResponse.json({ error: "internal server error" }, { status: 500 });
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

@@ -1,6 +1,7 @@
 import React from "react";
 import "./globals.css";
 import Image from "next/image";
+import PageLoader from "@/components/PageLoader";
 import { Toaster } from "react-hot-toast"; // Import the Toaster
 
 
@@ -46,6 +47,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className="relative min-h-screen w-full">
+
+        <PageLoader /> 
         {/* Background Floating Robots (Not Responsive) */}
         <div >
           {generateRobots()} {/* Floating robots stay the same */}

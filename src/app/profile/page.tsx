@@ -70,7 +70,6 @@ const handleUpdate = async () => {
 };
 
 
-  if (loading) return <p className="text-white">Loading...</p>;
 
   return (
     <>

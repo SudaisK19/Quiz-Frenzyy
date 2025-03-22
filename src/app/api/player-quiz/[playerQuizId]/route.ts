@@ -13,14 +13,14 @@ export async function GET(
     const { playerQuizId } = resolvedParams;
 
     if (!playerQuizId) {
-      return NextResponse.json({ error: "player quiz id is required" }, { status: 400 });
+      return NextResponse.json({ error: "Player Quiz Id is required" }, { status: 400 });
     }
 
     console.log("fetching player quiz:", playerQuizId);
 
     const playerQuiz = await PlayerQuiz.findById(playerQuizId);
     if (!playerQuiz) {
-      return NextResponse.json({ error: "player quiz not found" }, { status: 404 });
+      return NextResponse.json({ error: "Player quiz not found" }, { status: 404 });
     }
 
     
@@ -35,6 +35,6 @@ export async function GET(
     );
   } catch (error) {
     console.error("error fetching player quiz:", error);
-    return NextResponse.json({ error: "internal server error" }, { status: 500 });
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

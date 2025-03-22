@@ -53,19 +53,7 @@ export default function SignupPage() {
     <div className="flex justify-center items-center min-h-screen w-screen p-4">
       <div className="w-[300px] max-w-md p-3 md:p-3 bg-[#191919] text-center shadow-lg shadow-blue-500/30 rounded-lg relative z-10">
         
-        {/* ✅ Success Message */}
-        {successMessage && (
-          <p className="text-green-500  p-3  text-center mb-4">
-            {successMessage}
-          </p>
-        )}
-
-        {/* ✅ Error Message */}
-        {errorMessage && (
-          <p className="text-red-500  p-3 text-center mb-4">
-            {errorMessage}
-          </p>
-        )}
+        
 
         <h1 className="text-white uppercase mt-3 text-3xl">Sign Up</h1>
         
@@ -96,10 +84,24 @@ export default function SignupPage() {
             required
             className="bg-transparent border-2 border-pink-500 text-white p-3 w-full md:w-3/4 mx-auto block rounded-full text-center outline-none transition-all duration-300 focus:border-pink-400 mt-4"
           />
+
+          {/* ✅ Success Message */}
+          {successMessage && (
+            <p className="text-green-500    text-center mt-3">
+              {successMessage}
+            </p>
+          )}
+
+          {/* ✅ Error Message */}
+          {errorMessage && (
+            <p className="text-red-500   text-center mt-3">
+              {errorMessage}
+            </p>
+          )}
           
           <button
             type="submit"
-            className="w-full md:w-3/4 mx-auto block relative flex justify-center items-center mt-10 px-4 py-3 text-[#ff3c83] tracking-wider border-2 border-[#ff3c83] rounded-full overflow-hidden transition-all duration-150 ease-in hover:text-white hover:border-white before:absolute before:top-0 before:left-1/2 before:right-1/2 before:bottom-0 before:bg-gradient-to-r before:from-[#fd297a] before:to-[#9424f0] before:opacity-0 before:transition-all before:duration-150 before:ease-in hover:before:left-0 hover:before:right-0 hover:before:opacity-100"
+            className="w-full md:w-3/4 mx-auto block relative flex justify-center items-center mt-4 px-4 py-3 text-[#ff3c83] tracking-wider border-2 border-[#ff3c83] rounded-full overflow-hidden transition-all duration-150 ease-in hover:text-white hover:border-white before:absolute before:top-0 before:left-1/2 before:right-1/2 before:bottom-0 before:bg-gradient-to-r before:from-[#fd297a] before:to-[#9424f0] before:opacity-0 before:transition-all before:duration-150 before:ease-in hover:before:left-0 hover:before:right-0 hover:before:opacity-100"
           >
             <span className="relative z-10 text-sm sm:text-base md:text-lg leading-none">
                 Sign Up

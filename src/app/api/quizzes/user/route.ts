@@ -10,12 +10,12 @@ export async function GET(request: NextRequest) {
   try {
     const token = request.cookies.get("authToken")?.value;
     if (!token) {
-      return NextResponse.json({ error: "unauthorized access" }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string };
     if (!decoded || !decoded.id) {
-      return NextResponse.json({ error: "invalid token" }, { status: 401 });
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
     const user = await UserNew.findById(decoded.id).populate("hosted_quizzes", "title description created_at");
@@ -37,6 +37,6 @@ export async function GET(request: NextRequest) {
     );
   } catch (error) {
     console.error("error fetching user quizzes:", error);
-    return NextResponse.json({ error: "internal server error" }, { status: 500 });
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
