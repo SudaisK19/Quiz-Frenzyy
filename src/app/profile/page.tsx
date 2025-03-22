@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Image from "next/image";
+import toast from "react-hot-toast"; 
 
 
 
@@ -49,26 +50,27 @@ export default function Profile() {
   }, []);
 
   //  Update Profile Function
-  const handleUpdate = async () => {
-    const res = await fetch("/api/users/profile", {
-      method: "PATCH",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newData),
-    });
 
-    const data = await res.json();
-    if (data.success) {
-      alert("Profile updated successfully!");
-      setUser(data.user);
-      setEditMode(false); 
-    } else {
-      alert("Update failed: " + data.error);
-    }
-  };
+const handleUpdate = async () => {
+  const res = await fetch("/api/users/profile", {
+    method: "PATCH",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(newData),
+  });
+
+  const data = await res.json();
+  if (data.success) {
+    toast.success("Profile updated successfully!"); // ✅ Toast message
+    setUser(data.user);
+    setEditMode(false);
+  } else {
+    toast.error("Update failed: " + data.error); // ✅ Toast message
+  }
+};
+
 
   if (loading) return <p className="text-white">Loading...</p>;
-  if (error) return <p className="text-red-500">{error}</p>;
 
   return (
     <>
@@ -77,6 +79,8 @@ export default function Profile() {
         <div className="bg-[#242424] p-10 rounded-[30px] shadow-lg flex flex-col md:flex-row w-11/12 md:w-9/10 min-h-[80vh] mx-auto my-10">
           {/* User Info */}
           <div className="flex-1 bg-[#333436] rounded-[30px] p-10">
+            {error && <p className="text-center text-red-500 mt-4">{error}</p>}
+
             <div className="flex items-center gap-2">
               <h2 className="text-white text-xl sm:text-2xl md:text-3xl  break-words">
                 {user?.username}

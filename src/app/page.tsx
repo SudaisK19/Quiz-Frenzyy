@@ -19,26 +19,12 @@ import toast from "react-hot-toast";
 const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
 const animationCache = { data: null }; // ✅ Store animation globally
 
-
-
-
-
-
-
-
 const text: string = "QUIZ FRENZY";
-
-
-
-
 interface Badge {
   name: string;
   imageUrl: string;
   description: string;
 }
-
-
-
 
 function showBadgeToast(badge: Badge) {
   toast.custom(
@@ -70,9 +56,6 @@ function showBadgeToast(badge: Badge) {
   );
 }
 
-
-
-
 async function updateBadges(userId: string) {
   try {
     const res = await fetch("/api/users/badges", {
@@ -97,28 +80,15 @@ async function updateBadges(userId: string) {
   }
 }
 
-
-
-
 interface UserProfile {
   _id: string;
   username: string;
 }
 
-
-
-
 interface JoinData {
   player_quiz_id: string;
   session_id: string;
 }
-
-
-
-
-
-
-
 
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -130,14 +100,7 @@ export default function Home() {
   const [avatarSeed, setAvatarSeed] = useState(50);
   const [sessionDisplayName, setSessionDisplayName] = useState("");
 
-
-
-
   const router = useRouter();
-
-
-
-
   useEffect(() => {
     fetch("/api/users/profile", { method: "GET", credentials: "include" })
       .then((res) => res.json())
@@ -152,11 +115,9 @@ export default function Home() {
   }, []);
 
 
-
-
   async function handleJoinQuiz() {
     if (!isLoggedIn) {
-      alert("Please log in to join a quiz.");
+      toast.error("Please log in to join a quiz.");
       router.push("/login");
       return;
     }
@@ -167,9 +128,6 @@ export default function Home() {
     setError("");
     console.log("Joining quiz with code:", quizCode);
 
-
-
-
     try {
       const userResponse = await fetch("/api/users/profile", {
         method: "GET",
@@ -177,11 +135,9 @@ export default function Home() {
       });
       const userData = await userResponse.json();
       if (!userData.success || !userData.user?._id) {
-        setError("User authentication required.");
+        toast.error("User authentication required.");
         return;
       }
-
-
 
 
       const joinResponse = await fetch(`/api/quizzes/join/${quizCode}`, {
@@ -203,10 +159,6 @@ export default function Home() {
         }
         return;
       }
-
-
-
-
       const data = await joinResponse.json();
       if (data.success) {
         setJoinData(data);
@@ -221,15 +173,10 @@ export default function Home() {
   }
 
 
-
-
   async function handleConfirmAvatar() {
     const avatarUrl = `https://api.dicebear.com/6.x/bottts/svg?seed=${encodeURIComponent(
       avatarSeed.toString()
     )}`;
-
-
-
 
     try {
       const res = await fetch("/api/player-quiz-settings", {
@@ -249,8 +196,7 @@ export default function Home() {
           `/play-quiz?session_id=${joinData.session_id}&player_quiz_id=${joinData.player_quiz_id}`
         );
       } else {
-        setError("Failed to update session details: " + updatedData.error);
-      }
+        toast.error("Failed to update session details: " + updatedData.error);      }
     } catch (err: any) {
       console.error("Error updating session details:", err);
       setError("Failed to update session details");
@@ -405,10 +351,10 @@ export default function Home() {
                     <p className="text-white text-sm flex-1 flex items-center justify-center">Let AI generate a unique quiz for you!</p>
                     <button onClick={() => {
                       if (!isLoggedIn) {
-                        alert("Please log in to generate a quiz.");
+                        toast.error("Please log in to generate a quiz.");
                         router.push("/login");
                         return;
-                      }
+                      }                      
                       router.push("/ai-quiz");
                     }} className="w-full max-w-[250px] sm:max-w-[220px] md:max-w-[200px] lg:max-w-[250px] relative flex justify-center items-center px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-3 text-[#ff3c83] font-bold uppercase tracking-wider border-2 border-[#ff3c83] rounded-full overflow-hidden transition-all duration-150 ease-in hover:text-white hover:border-white before:absolute before:top-0 before:left-1/2 before:right-1/2 before:bottom-0 before:bg-gradient-to-r before:from-[#fd297a] before:to-[#9424f0] before:opacity-0 before:transition-all before:duration-150 before:ease-in hover:before:left-0 hover:before:right-0 hover:before:opacity-100">
                       <span className="relative z-10 text-xs sm:text-sm md:text-base lg:text-lg leading-none">
@@ -456,10 +402,11 @@ export default function Home() {
                     <p className="text-white text-sm flex-1 flex items-center justify-center">Make your own quiz & challenge friends!</p>
                     <button onClick={() => {
                       if (!isLoggedIn) {
-                        alert("Please log in to create a quiz.");
+                        toast.error("Please log in to create a quiz.");
                         router.push("/login");
                         return;
                       }
+                      
                       router.push("/create-quiz");
                     }} className="w-full max-w-[250px] sm:max-w-[220px] md:max-w-[200px] lg:max-w-[250px] relative flex justify-center items-center px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-3 text-[#ff3c83] font-bold uppercase tracking-wider border-2 border-[#ff3c83] rounded-full overflow-hidden transition-all duration-150 ease-in hover:text-white hover:border-white before:absolute before:top-0 before:left-1/2 before:right-1/2 before:bottom-0 before:bg-gradient-to-r before:from-[#fd297a] before:to-[#9424f0] before:opacity-0 before:transition-all before:duration-150 before:ease-in hover:before:left-0 hover:before:right-0 hover:before:opacity-100">
                       <span className="relative z-10 text-xs sm:text-sm md:text-base lg:text-lg leading-none">

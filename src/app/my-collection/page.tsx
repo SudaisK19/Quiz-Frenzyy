@@ -96,18 +96,21 @@ export default function MyCollection() {
         credentials: "include",
       });
       const data = await res.json();
+      
       if (data.success) {
         setCurrentQuizSessions(data.sessions);
         setCurrentQuizTitle(quizTitle);
         setShowSessionsModal(true);
+        setError(null); // ✅ Clear any previous errors
       } else {
-        alert("Failed to fetch sessions: " + data.error);
+        setError(data.error || "Failed to fetch sessions."); // ✅ Show error in UI
       }
     } catch (err) {
       console.error("Error fetching sessions:", err);
-      alert("Failed to fetch sessions");
+      setError("Failed to fetch sessions. Please try again."); // ✅ User-friendly error message
     }
   };
+  
 
   const handleSelectSession = (sessionId: string) => {
     setShowSessionsModal(false);
@@ -115,7 +118,6 @@ export default function MyCollection() {
   };
 
   if (loading) return <p className="text-white text-center">Loading...</p>;
-  if (error) return <p className="text-red-500 text-center">{error}</p>;
 
   return (
     <>
@@ -125,6 +127,8 @@ export default function MyCollection() {
           
           {/* 🔹 Hosted Quizzes */}
           <div className="bg-[#333436] rounded-[20px] p-6 mb-6">
+            {error && <p className="text-red-500 text-center mt-4">{error}</p>}
+
             <h2 className="text-4xl sm:text-4xl text-white mb-6 ml-2">
               Hosted <span className="text-pink-400">Quizzes</span>
             </h2>

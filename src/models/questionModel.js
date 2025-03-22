@@ -15,8 +15,7 @@ const questionSchema = new mongoose.Schema(
     },
     media_url: { type: String }, 
     options: { type: [String], required: true },
-    // Use Mixed so that correct_answer can be a string (for MCQ/Image/Short Answer)
-    // or an array (for Ranking, or multiple acceptable answers)
+    
     correct_answer: { type: mongoose.Schema.Types.Mixed, required: true },
     hint: { type: String },
     points: { type: Number, required: true },

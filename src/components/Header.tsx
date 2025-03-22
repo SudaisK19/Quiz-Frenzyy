@@ -58,15 +58,23 @@ export default function Header() {
             {/* Profile Button with Hover Animation */}
             <button
               onClick={() => router.push("/profile")}
-              className="flex items-center px-4 py-2 bg-[#1e1e1e] rounded-full text-gray-400 hover:text-[#ec5f80] transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105"
+              className="flex items-center px-4 py-2 bg-[#1e1e1e] rounded-full text-gray-400 
+             hover:text-[#ec5f80] transition-all duration-300 shadow-md hover:shadow-lg 
+             hover:scale-105 group" // Ensures hover effect applies to children
             >
-              <Image
-                src= "/images/profilepic.png" // Use user's profile if available
-                alt="Profile"
-                width={32} // Set actual width
-                height={32} // Set actual height
-                className="w-6 sm:w-8 h-6 sm:h-8 rounded-full border-2 border-gray-600 hover:border-[#ec5f80] transition-all duration-300"
-              />
+              {/* Wrapped Image inside a div that will be affected by hover */}
+              <div className="flex items-center">
+                <Image
+                  src="/images/profilepic.png"
+                  alt="Profile"
+                  width={32}
+                  height={32}
+                  className="w-6 sm:w-8 h-6 sm:h-8 rounded-full border-2 border-gray-600 
+                 transition-all duration-300 group-hover:border-[#ec5f80]" // Ensures border changes on hover
+                />
+              </div>
+
+              {/* Profile text */}
               <span className="ml-2 text-sm sm:text-base md:text-lg">Profile</span>
             </button>
 
@@ -113,97 +121,76 @@ export default function Header() {
 
       {/* ✅ Mobile Navigation Menu */}
       {/* ✅ Mobile Navigation Menu */}
-{menuOpen && (
-  <div className="absolute top-16 left-0 w-full z-[100] bg-[#1e1e1e] flex flex-col items-center py-5 space-y-4 md:hidden">
-    <button
-      onClick={() => {
-        router.push("/");
-        setMenuOpen(false);
-      }}
-      className="text-sm sm:text-base md:text-lg text-gray-400 hover:text-[#ec5f80] transition-all duration-300"
-    >
-      Home
-    </button>
+      {menuOpen && (
+        <div className="absolute top-16 left-0 w-full z-[100] bg-[#1e1e1e] flex flex-col items-center py-5 space-y-4 md:hidden">
+          <button
+            onClick={() => {
+              router.push("/");
+              setMenuOpen(false);
+            }}
+            className="text-sm sm:text-base md:text-lg text-gray-400 hover:text-[#ec5f80] transition-all duration-300"
+          >
+            Home
+          </button>
 
-    {isLoggedIn ? (
-      <>
-        <button
-          onClick={() => {
-            router.push("/my-collection");
-            setMenuOpen(false);
-          }}
-          className="text-sm sm:text-base md:text-lg text-gray-400 hover:text-[#ec5f80] transition-all duration-300"
-        >
-          My Collection
-        </button>
+          {isLoggedIn ? (
+            <>
+              <button
+                onClick={() => {
+                  router.push("/my-collection");
+                  setMenuOpen(false);
+                }}
+                className="text-sm sm:text-base md:text-lg text-gray-400 hover:text-[#ec5f80] transition-all duration-300"
+              >
+                My Collection
+              </button>
 
-        <button
-          onClick={() => router.push("/profile")}
-          className="flex items-center px-4 py-2 bg-[#1e1e1e] rounded-full text-gray-400 
-                    hover:text-[#ec5f80] transition-all duration-300 shadow-md hover:shadow-lg 
-                    hover:scale-105 group" // Ensures hover effect applies to children
-        >
-          {/* Wrapped Image inside a div that will be affected by hover */}
-          <div className="flex items-center border-2 border-gray-600 rounded-full 
-                          transition-all duration-300 group-hover:border-[#ec5f80]">
-            <Image
-              src="/images/profilepic.png"
-              alt="Profile"
-              width={32}
-              height={32}
-              className="w-6 sm:w-8 h-6 sm:h-8 rounded-full"
-            />
-          </div>
+              <button
+                onClick={() => {
+                  router.push("/profile");
+                  setMenuOpen(false);
+                }}
+                className="text-sm sm:text-base md:text-lg text-gray-400 hover:text-[#ec5f80] transition-all duration-300"
+              >
+                Profile
+              </button>
 
-          {/* Profile text */}
-          <span className="ml-2 text-sm sm:text-base md:text-lg">Profile</span>
-        </button>
+              <button
+                onClick={() => {
+                  handleLogout();
+                  setMenuOpen(false);
+                }}
+                className="text-sm sm:text-base md:text-lg text-gray-400 hover:text-[#ec5f80] transition-all duration-300"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => {
+                  router.push("/login");
+                  setMenuOpen(false);
+                }}
+                className="text-sm sm:text-base md:text-lg text-gray-400 hover:text-[#ec5f80] transition-all duration-300"
+              >
+                Login
+              </button>
 
-
- 
-
-
-        <button
-          onClick={() => {
-            handleLogout();
-            setMenuOpen(false);
-          }}
-          className="text-sm sm:text-base md:text-lg text-gray-400 hover:text-[#ec5f80] transition-all duration-300"
-        >
-          Logout
-        </button>
-      </>
-    ) : (
-      <>
-        <button
-          onClick={() => {
-            router.push("/login");
-            setMenuOpen(false);
-          }}
-          className="text-sm sm:text-base md:text-lg text-gray-400 hover:text-[#ec5f80] transition-all duration-300"
-        >
-          Login
-        </button>
-
-        <button
-          onClick={() => {
-            router.push("/signup");
-            setMenuOpen(false);
-          }}
-          className="text-sm sm:text-base md:text-lg text-gray-400 hover:text-[#ec5f80] transition-all duration-300"
-        >
-          Sign Up
-        </button>
-      </>
-    )}
-  </div>
-)}
+              <button
+                onClick={() => {
+                  router.push("/signup");
+                  setMenuOpen(false);
+                }}
+                className="text-sm sm:text-base md:text-lg text-gray-400 hover:text-[#ec5f80] transition-all duration-300"
+              >
+                Sign Up
+              </button>
+            </>
+          )}
+        </div>
+      )}
 
     </header>
   );
 }
-
-
-
-
-

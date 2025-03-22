@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Image from "next/image";
+import toast from "react-hot-toast"; // Make sure this is imported
 
 
 interface Question {
@@ -39,6 +40,8 @@ export default function CreateQuiz() {
     questions: [],
   });
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const router = useRouter();
 
   // Fetch logged-in user and set created_by field.
@@ -129,6 +132,7 @@ export default function CreateQuiz() {
   }
 
   // Handle file upload for Image questions (one image per question)
+
   async function handleFileUpload(
     event: React.ChangeEvent<HTMLInputElement>,
     qIndex: number
@@ -144,36 +148,45 @@ export default function CreateQuiz() {
         method: "POST",
         body: formData,
       });
+
       const data = await response.json();
       if (data.success) {
-        // Set the media_url for the question (a single image URL)
+        //  Set the media_url for the question (a single image URL)
         handleQuestionChange(qIndex, "media_url", data.imageUrl);
+
+        //  Show success toast
+        toast.success("Image uploaded successfully!");
       } else {
-        alert("Failed to upload image");
+        //  Show error toast
+        toast.error("Failed to upload image.");
       }
     } catch (error) {
       console.error("Error uploading image:", error);
-      alert("Image upload failed.");
+      
+      // Show error toast
+      toast.error("Image upload failed.");
     }
   }
 
+
   // Create the quiz by sending data to the API.
+
   async function handleCreateQuiz() {
     if (!quiz.created_by) {
-      alert("User ID not found. Try logging in again.");
+      setMessage("User ID not found. Try logging in again.");
       return;
     }
-    // For Ranking questions, the correct answer is simply the order of options.
+  
+    //  Ensure Ranking questions have the correct order as answers
     quiz.questions.forEach((q) => {
       if (q.question_type === "Ranking") {
         q.correct_answer = [...q.options];
       }
     });
-
+  
     let isValid = true;
-
-
-    // For Short Answer questions, convert the comma-separated string into an array if needed.
+  
+    // ✅ Validation for Short Answer, MCQ, and Image questions
     quiz.questions.forEach((q, qIndex) => {
       if (q.question_type === "Short Answer" && typeof q.correct_answer === "string") {
         q.correct_answer = q.correct_answer
@@ -181,54 +194,50 @@ export default function CreateQuiz() {
           .map((ans) => ans.trim())
           .filter((ans) => ans);
       }
-    
+  
       if (q.question_type === "MCQ" || q.question_type === "Image") {
         // Extract all options (assuming q.options is an array of strings)
         const options = q.options.map((opt) => opt.trim().toLowerCase());
         const correctAnswer = typeof q.correct_answer === "string" ? q.correct_answer.trim().toLowerCase() : "";
-    
-        // Check if the correct answer is in the options list
+  
+        // ❌ Check if the correct answer is valid
         if (!options.includes(correctAnswer)) {
-          alert(`Error: Question ${qIndex + 1} has an invalid correct answer!`);
+          setMessage(`Error: Question ${qIndex + 1} has an invalid correct answer!`);
           isValid = false;
         }
       }
     });
-    
-
-
   
-
-    if (!isValid) return;
-
-
-    // Compute total points for the quiz.
+    if (!isValid) return; // ❌ Prevent quiz creation if validation fails
+  
+    // ✅ Compute total quiz points
     const totalPoints = quiz.questions.reduce(
       (sum: number, q: Question) => sum + (q.points || 0),
       0
     );
-
+  
     setLoading(true);
     const response = await fetch("/api/quizzes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...quiz, total_points: totalPoints }),
     });
+  
     const data = await response.json();
     setLoading(false);
-
-    if (data.success) {
+  
+    if (!data.success) {
+      setMessage(`Error creating quiz: ${data.error}`); 
+    } else {
       setQuiz((prevQuiz) => ({
         ...prevQuiz,
         _id: data.quiz._id,
         join_code: data.session.join_code,
         session_id: data.session.sessionId,
       }));
-      alert("Quiz Created Successfully!");
-    } else {
-      alert("Error creating quiz: " + data.error);
     }
   }
+  
 
   return (
     <>
@@ -463,6 +472,9 @@ export default function CreateQuiz() {
               >
                 <span className="relative z-10">{loading ? "Creating..." : " Create Quiz"}</span>
               </button>
+
+              {/* ✅ Error Message */}
+              {message && <p className="text-center text-red-500 mt-4">{message}</p>}
             </div>
 
             {/* ✅ Quiz Created Message */}
@@ -480,7 +492,7 @@ export default function CreateQuiz() {
                     if (quiz.session_id) {
                       router.push(`/leaderboard?session_id=${quiz.session_id}`);
                     } else {
-                      alert("No session ID found!");
+                      setMessage("No session ID found!");
                     }
                   }}
                   className="mx-auto mt-4 w-[80%] sm:w-3/4 md:w-2/3 block relative flex justify-center items-center px-4 py-3 
@@ -490,9 +502,10 @@ export default function CreateQuiz() {
                   before:bg-gradient-to-r before:from-[#fd297a] before:to-[#9424f0] before:opacity-0 
                   before:transition-all before:duration-150 before:ease-in 
                   hover:before:left-0 hover:before:right-0 hover:before:opacity-100"
-                >
+                  >
                   <span className="relative z-10">View Leaderboard</span>
                 </button>
+
               </div>
             )}
 
