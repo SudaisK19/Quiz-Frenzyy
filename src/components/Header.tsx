@@ -138,14 +138,30 @@ export default function Header() {
         </button>
 
         <button
-          onClick={() => {
-            router.push("/profile");
-            setMenuOpen(false);
-          }}
-          className="text-sm sm:text-base md:text-lg text-gray-400 hover:text-[#ec5f80] transition-all duration-300"
+          onClick={() => router.push("/profile")}
+          className="flex items-center px-4 py-2 bg-[#1e1e1e] rounded-full text-gray-400 
+                    hover:text-[#ec5f80] transition-all duration-300 shadow-md hover:shadow-lg 
+                    hover:scale-105 group" // Ensures hover effect applies to children
         >
-          Profile
+          {/* Wrapped Image inside a div that will be affected by hover */}
+          <div className="flex items-center border-2 border-gray-600 rounded-full 
+                          transition-all duration-300 group-hover:border-[#ec5f80]">
+            <Image
+              src="/images/profilepic.png"
+              alt="Profile"
+              width={32}
+              height={32}
+              className="w-6 sm:w-8 h-6 sm:h-8 rounded-full"
+            />
+          </div>
+
+          {/* Profile text */}
+          <span className="ml-2 text-sm sm:text-base md:text-lg">Profile</span>
         </button>
+
+
+ 
+
 
         <button
           onClick={() => {
@@ -186,3 +202,8 @@ export default function Header() {
     </header>
   );
 }
+
+
+
+
+

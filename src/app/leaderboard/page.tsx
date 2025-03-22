@@ -27,19 +27,8 @@ function LeaderboardContent() {
 
   useEffect(() => {
     async function fetchLeaderboard() {
-      if (!session_id || session_id === "test123") {
-        console.log("📡 Test Mode: Using fake leaderboard data.");
-
-        const fakeData: Player[] = [
-          { _id: "1", displayName: "Alice", avatar: "/avatars/alice.png", originalUsername: "alice123", score: 95, completed_at: "2025-03-12", attempted: 10, correct: 9 },
-          { _id: "2", displayName: "Bob", avatar: "/avatars/bob.png", originalUsername: "bob_the_gamer", score: 90, completed_at: "2025-03-12", attempted: 10, correct: 8 },
-          { _id: "3", displayName: "Charlie", avatar: "/avatars/charlie.png", originalUsername: "charlie_king", score: 99, completed_at: "2025-03-12", attempted: 10, correct: 8 },
-          { _id: "4", displayName: "David", avatar: "/avatars/david.png", originalUsername: "david_gamer", score: 85, completed_at: "2025-03-12", attempted: 10, correct: 7 },
-          { _id: "5", displayName: "Eve", avatar: "/avatars/eve.png", originalUsername: "eve_winner", score: 80, completed_at: "2025-03-12", attempted: 10, correct: 6 },
-        ];
-
-        setPlayers(fakeData);
-        setLoading(false);
+      if (!session_id ) {
+       
         return;
       }
 

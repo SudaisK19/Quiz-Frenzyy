@@ -92,10 +92,13 @@ export default function Profile() {
             {/* Update Profile Section */}
             <button
               onClick={() => setEditMode(!editMode)}
-              className="mt-4 px-6 py-2 border border-[#ec5f80] text-[#ec5f80] rounded-full transition hover:bg-white hover:text-[#ec5f80] w-full md:w-auto"
+              className="w-1/5 md:w-1/5  relative flex justify-center items-center mt-10 px-2 py-3 text-[#ff3c83] tracking-wider border-2 border-[#ff3c83] rounded-full overflow-hidden transition-all duration-150 ease-in hover:text-white hover:border-white before:absolute before:top-0 before:left-1/2 before:right-1/2 before:bottom-0 before:bg-gradient-to-r before:from-[#fd297a] before:to-[#9424f0] before:opacity-0 before:transition-all before:duration-150 before:ease-in hover:before:left-0 hover:before:right-0 hover:before:opacity-100"
             >
-              {editMode ? "Cancel" : "Update Profile"}
+              <span className="relative z-10 text-sm sm:text-base md:text-md leading-none">
+                {editMode ? "Cancel" : "Update Profile"}
+              </span>
             </button>
+
 
             {editMode && (
               <div className="mt-4 bg-[#242424] p-6 rounded-lg shadow-md">
@@ -123,8 +126,7 @@ export default function Profile() {
 
                 <button
                   onClick={handleUpdate}
-                  className="px-4 py-2 bg-[#ec5f80] text-white rounded-lg hover:bg-pink-600 transition w-full md:w-auto"
-                >
+                  className="mt-4 px-4 py-2 border border-[#ec5f80] text-[#ec5f80] rounded-full transition hover:bg-white hover:text-[#ec5f80] w-full md:w-auto">
                   Change
                 </button>
               </div>
@@ -187,10 +189,11 @@ export default function Profile() {
               onClick={() => {
                 fetch("/api/users/logout", { method: "POST", credentials: "include" }).then(() => router.push("/login"));
               }}
-              className="mt-4 px-6 py-2 border border-[#ec5f80] text-[#ec5f80] rounded-full transition hover:bg-pink-600 hover:text-white block mx-auto w-full md:w-auto"
+              className="mt-5 px-6 py-2 w-auto mx-auto block border border-[#ec5f80] text-[#ec5f80] rounded-full transition hover:bg-white hover:text-[#ec5f80]"
             >
               Logout
             </button>
+
           </div>
         </div>
       </div>

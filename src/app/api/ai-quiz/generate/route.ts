@@ -126,8 +126,8 @@ Do not include any "question_type" field or markdown formatting.`;
     console.log("Filtered questions (MCQs only):", filteredQuestions);
 
     const newQuiz = new Quiz({
-      title: `ai quiz on ${topic}`,
-      description: `automatically generated quiz about ${topic}`,
+      title: `AI Quiz on ${topic}`,
+      description: `Automatically generated quiz on ${topic}`,
       created_by: new mongoose.Types.ObjectId(userId),
       duration: duration || 10,
       total_points: 0,
@@ -183,7 +183,7 @@ Do not include any "question_type" field or markdown formatting.`;
         quizId: newQuiz._id,
         sessionId: newSession._id,
         join_code: newSession.join_code,
-        message: "ai quiz generated successfully",
+        message: "AI Quiz generated successfully",
       },
       { status: 201 }
     );

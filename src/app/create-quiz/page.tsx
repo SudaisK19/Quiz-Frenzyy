@@ -1,15 +1,15 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+
 
 interface Question {
   question_text: string;
   question_type: "MCQ" | "Short Answer" | "Image" | "Ranking";
   options: string[];
-  // For MCQ and Short Answer, this is a string (or comma‐separated acceptable answers).
-  // For Ranking, the correct order will be the order in which options are entered.
   correct_answer: string | string[];
-  // For Image questions, store a single image URL
   media_url?: string;
   hint?: string;
   points: number;
@@ -34,10 +34,10 @@ export default function CreateQuiz() {
     duration: 10,
     questions: [],
   });
+
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  // Fetch logged-in user and set created_by field.
   useEffect(() => {
     fetch("/api/users/profile", { method: "GET", credentials: "include" })
       .then((res) => res.json())
@@ -49,7 +49,6 @@ export default function CreateQuiz() {
       .catch(() => console.error("Failed to fetch user profile"));
   }, []);
 
-  // Add a new empty question.
   function addQuestion() {
     setQuiz((prevQuiz) => ({
       ...prevQuiz,
@@ -61,13 +60,12 @@ export default function CreateQuiz() {
           options: ["", "", "", ""],
           correct_answer: "",
           points: 10,
-          media_url: "", // For image questions
+          media_url: "",
         },
       ],
     }));
   }
 
-  // Remove a question.
   function removeQuestion(index: number) {
     setQuiz((prevQuiz) => ({
       ...prevQuiz,
@@ -75,7 +73,6 @@ export default function CreateQuiz() {
     }));
   }
 
-  // Handle change in quiz details.
   function handleInputChange(
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
     field: keyof Quiz
@@ -87,7 +84,6 @@ export default function CreateQuiz() {
     }));
   }
 
-  // Handle changes in question fields.
   function handleQuestionChange(
     index: number,
     field: keyof Question,
@@ -95,25 +91,14 @@ export default function CreateQuiz() {
   ) {
     setQuiz((prevQuiz) => {
       const updatedQuestions = [...prevQuiz.questions];
-      if (field === "points") {
-        updatedQuestions[index] = {
-          ...updatedQuestions[index],
-          [field]: Number(value),
-        };
-      } else if (field === "options" && Array.isArray(value)) {
-        updatedQuestions[index] = {
-          ...updatedQuestions[index],
-          [field]: [...value],
-        };
-      } else {
-        updatedQuestions[index] = {
-          ...updatedQuestions[index],
-          [field]: value as string,
-        };
-      }
+      updatedQuestions[index] = {
+        ...updatedQuestions[index],
+        [field]: value,
+      };
       return { ...prevQuiz, questions: updatedQuestions };
     });
   }
+
 
   // Handle option change for a specific question.
   function handleOptionChange(qIndex: number, optIndex: number, value: string) {
@@ -124,7 +109,8 @@ export default function CreateQuiz() {
     });
   }
 
-  // Handle file upload for Image questions (one image per question)
+
+
   async function handleFileUpload(
     event: React.ChangeEvent<HTMLInputElement>,
     qIndex: number
@@ -153,237 +139,235 @@ export default function CreateQuiz() {
     }
   }
 
-  // Create the quiz by sending data to the API.
   async function handleCreateQuiz() {
-    if (!quiz.created_by) {
-      alert("User ID not found. Try logging in again.");
-      return;
-    }
-    // For Ranking questions, the correct answer is simply the order of options.
-    quiz.questions.forEach((q) => {
-      if (q.question_type === "Ranking") {
-        q.correct_answer = [...q.options];
-      }
-    });
-
-    // For Short Answer questions, convert the comma-separated string into an array if needed.
-    quiz.questions.forEach((q) => {
-      if (q.question_type === "Short Answer" && typeof q.correct_answer === "string") {
-        q.correct_answer = q.correct_answer
-          .split(",")
-          .map((ans) => ans.trim())
-          .filter((ans) => ans);
-      }
-    });
-
-    // Compute total points for the quiz.
-    const totalPoints = quiz.questions.reduce(
-      (sum: number, q: Question) => sum + (q.points || 0),
-      0
-    );
-
     setLoading(true);
+
+    const totalPoints = quiz.questions.reduce((sum, q) => sum + (q.points || 0), 0);
+
     const response = await fetch("/api/quizzes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...quiz, total_points: totalPoints }),
     });
+
     const data = await response.json();
     setLoading(false);
 
     if (data.success) {
-      setQuiz((prevQuiz) => ({
-        ...prevQuiz,
-        _id: data.quiz._id,
-        join_code: data.session.join_code,
-        session_id: data.session.sessionId,
-      }));
-      alert("Quiz Created Successfully!");
+      router.push(`/quiz/${data.quiz._id}`);
     } else {
       alert("Error creating quiz: " + data.error);
     }
   }
 
   return (
-    <div style={{ textAlign: "center", padding: "20px", maxWidth: "600px", margin: "auto" }}>
-      <h1>Create a New Quiz</h1>
-      <input
-        type="text"
-        placeholder="Quiz Title"
-        value={quiz.title}
-        onChange={(e) => handleInputChange(e, "title")}
-        style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
-      />
-      <textarea
-        placeholder="Quiz Description"
-        value={quiz.description}
-        onChange={(e) => handleInputChange(e, "description")}
-        style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
-      />
-      <input
-        type="number"
-        placeholder="Quiz Duration (minutes)"
-        value={quiz.duration}
-        onChange={(e) => handleInputChange(e, "duration")}
-        style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
-      />
+    <>
+      <Header/>
+      <div className="flex justify-center items-center min-h-screen px-4 py-6">
+        <div className="bg-[#242424] p-6 sm:p-10 rounded-[30px] shadow-lg w-full max-w-md sm:max-w-lg md:max-w-xl text-center">
+          <div className="flex-1 bg-[#333436] rounded-[30px] p-6 sm:p-10">
+            <h1 className="text-4xl text-white text-center mb-6">
+              Create <span className="text-[#ec5f80]">Your Own</span> Quiz
+            </h1>
+            {/* Quiz Title */}
+            <input
+              type="text"
+              placeholder="Quiz Title"
+              value={quiz.title}
+              onChange={(e) => handleInputChange(e, "title")}
+              className="w-full text-center p-1 sm:p-2 md:p-2 mb-4 rounded-full bg-[#1e1e1e] 
+              text-white text-xs sm:text-sm md:text-base 
+              placeholder-gray-400 border border-[#ff3c83] truncate 
+              focus:outline-none focus:ring-2 focus:ring-[#ec5f80]"
+            />
+            
 
-      <h2>Questions</h2>
-      {quiz.questions.map((q, qIndex) => (
-        <div key={qIndex} style={{ border: "1px solid #ccc", padding: "10px", marginBottom: "10px" }}>
-          <input
-            type="text"
-            placeholder="Question Text"
-            value={q.question_text}
-            onChange={(e) => handleQuestionChange(qIndex, "question_text", e.target.value)}
-            style={{ width: "100%", padding: "5px" }}
-          />
-          <select
-            value={q.question_type}
-            onChange={(e) => handleQuestionChange(qIndex, "question_type", e.target.value)}
-            style={{ width: "100%", marginTop: "5px" }}
-          >
-            <option value="MCQ">Multiple Choice</option>
-            <option value="Short Answer">Short Answer</option>
-            <option value="Image">Image</option>
-            <option value="Ranking">Ranking</option>
-          </select>
+            {/* Quiz Description */}
+            <textarea
+              placeholder="Quiz Description"
+              value={quiz.description}
+              onChange={(e) => handleInputChange(e, "description")}
+              className="w-full text-center p-1 sm:p-2 md:p-2 mb-2 rounded-full bg-[#1e1e1e] 
+              text-white text-xs sm:text-sm md:text-base 
+              placeholder-gray-400 border border-[#ff3c83] truncate 
+              focus:outline-none focus:ring-2 focus:ring-[#ec5f80]"
+            />
 
-          {/* For Image type: show a file upload input */}
-          {q.question_type === "Image" && (
+            {/* Quiz Duration */}
             <div>
+              <label className="block text-gray-400 text-sm sm:text-base">Duration (mins)</label>
               <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => handleFileUpload(e, qIndex)}
-                style={{ width: "100%", padding: "5px", marginBottom: "5px" }}
+                type="number"
+                min={1}
+                value={quiz.duration}
+                onChange={(e) => handleInputChange(e, "duration")}
+                className="w-full text-center p-1 sm:p-2 rounded-full bg-[#1e1e1e] 
+                text-white  text-xs sm:text-sm md:text-base 
+                placeholder-gray-400 border border-[#ff3c83] 
+                focus:outline-none focus:ring-2 focus:ring-[#ec5f80]"
               />
-              {q.media_url && (
-                <img src={q.media_url} alt="Uploaded" style={{ width: "100px", height: "100px" }} />
-              )}
             </div>
-          )}
 
-          {/* For MCQ, Ranking, and Image types, display options.
-              For Ranking, the placeholder indicates the rank */}
-          {(q.question_type === "MCQ" ||
-            q.question_type === "Ranking" ||
-            q.question_type === "Image") && (
-            <div>
-              <h4>
-                {q.question_type === "Ranking"
-                  ? "Enter Options in Correct Order (This order is the correct ranking)"
-                  : "Options"}
-              </h4>
-              {q.options.map((opt, optIndex) => (
+            {/*Questions */}
+            {quiz.questions.map((q, qIndex) => (
+              <div key={qIndex} className="bg-[#242424] p-4 rounded-lg mt-4">
+                <h3 className="text-[#ec5f80] text-lg">Question {qIndex + 1}</h3>
+
+                {/* Question Text Input */}
                 <input
-                  key={optIndex}
                   type="text"
-                  placeholder={
-                    q.question_type === "Ranking"
-                      ? `Rank ${optIndex + 1} option`
-                      : `Option ${optIndex + 1}`
-                  }
-                  value={opt}
-                  onChange={(e) => handleOptionChange(qIndex, optIndex, e.target.value)}
-                  style={{ width: "100%", padding: "5px", marginBottom: "5px" }}
+                  placeholder="Question Text"
+                  value={q.question_text}
+                  onChange={(e) => handleQuestionChange(qIndex, "question_text", e.target.value)}
+                  className="w-full p-2 rounded bg-[#1e1e1e] text-white 
+                            placeholder-gray-400 border border-[#ec5f80]
+                            focus:ring-2 focus:ring-[#ec5f80] focus:outline-none mt-2"
                 />
-              ))}
-            </div>
-          )}
 
-          {/* For Short Answer questions */}
-          {q.question_type === "Short Answer" && (
-            <div>
-              <input
-                type="text"
-                placeholder="Hint for players (optional)"
-                value={q.hint || ""}
-                onChange={(e) => handleQuestionChange(qIndex, "hint", e.target.value)}
-                style={{ width: "100%", padding: "5px", marginBottom: "5px" }}
-              />
-              <input
-                type="text"
-                placeholder="Acceptable Answers (comma separated)"
-                value={
-                  Array.isArray(q.correct_answer)
-                    ? (q.correct_answer as string[]).join(", ")
-                    : (q.correct_answer as string)
-                }
-                onChange={(e) => {
-                  // Store the raw string; conversion happens in handleCreateQuiz
-                  handleQuestionChange(qIndex, "correct_answer", e.target.value);
-                }}
-                style={{ width: "100%", padding: "5px", marginBottom: "5px" }}
-              />
-            </div>
-          )}
+                {/* Question Type Select */}
+                <select
+                  value={q.question_type}
+                  onChange={(e) => handleQuestionChange(qIndex, "question_type", e.target.value)}
+                  className="w-full p-2 rounded bg-[#1e1e1e] text-white 
+                            border border-[#ec5f80] focus:ring-2 focus:ring-[#ec5f80] 
+                            focus:outline-none mt-2"
+                >
+                  <option value="MCQ">Multiple Choice</option>
+                  <option value="Short Answer">Short Answer</option>
+                  <option value="Image">Image</option>
+                  <option value="Ranking">Ranking</option>
+                </select>
 
-          {/* For MCQ and Image types (non-Short Answer and non-Ranking), use a text input to enter the correct answer */}
-          {(q.question_type === "MCQ" || q.question_type === "Image") && (
-            <div>
-              <h4>Enter Correct Answer</h4>
-              <input
-                type="text"
-                placeholder="Correct Answer"
-                value={q.correct_answer as string}
-                onChange={(e) => handleQuestionChange(qIndex, "correct_answer", e.target.value)}
-                style={{ width: "100%", padding: "5px", marginBottom: "5px" }}
-              />
-            </div>
-          )}
+                {/* Image Upload */}
+                {q.question_type === "Image" && (
+                  <div className="mt-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleFileUpload(e, qIndex)}
+                      className="w-full p-2 rounded bg-[#1e1e1e] text-white border border-[#ec5f80]"
+                    />
+                    {q.media_url && (
+                      <img src={q.media_url} alt="Uploaded" className="mt-2 rounded-lg w-24 h-24" />
+                    )}
+                  </div>
+                )}
 
-          <input
-            type="number"
-            placeholder="Points"
-            value={q.points}
-            onChange={(e) => handleQuestionChange(qIndex, "points", e.target.value)}
-            style={{ width: "100%", padding: "5px", marginTop: "5px" }}
-          />
-          <button
-            onClick={() => removeQuestion(qIndex)}
-            style={{
-              backgroundColor: "red",
-              color: "white",
-              padding: "5px 10px",
-              marginTop: "10px",
-              border: "none",
-              cursor: "pointer",
-            }}
-          >
-            Remove Question
-          </button>
+                {/* Options for MCQ, Ranking, Image */}
+                {(q.question_type === "MCQ" || q.question_type === "Ranking" || q.question_type === "Image") && (
+                  <div className="mt-2">
+                    <h4 className="text-[#ec5f80] text-md">
+                      {q.question_type === "Ranking"
+                        ? "Enter Options in Correct Order (Ranking)"
+                        : "Options"}
+                    </h4>
+                    {q.options.map((opt, optIndex) => (
+                      <input
+                        key={optIndex}
+                        type="text"
+                        placeholder={
+                          q.question_type === "Ranking"
+                            ? `Rank ${optIndex + 1} option`
+                            : `Option ${optIndex + 1}`
+                        }
+                        value={opt}
+                        onChange={(e) => handleOptionChange(qIndex, optIndex, e.target.value)}
+                        className="w-full p-2 rounded bg-[#1e1e1e] text-white 
+                                  placeholder-gray-400 border border-[#ec5f80]
+                                  focus:ring-2 focus:ring-[#ec5f80] focus:outline-none mt-2"
+                      />
+                    ))}
+                  </div>
+                )}
+
+                {/* Short Answer Inputs */}
+                {q.question_type === "Short Answer" && (
+                  <div className="mt-2">
+                    <input
+                      type="text"
+                      placeholder="Hint for players (optional)"
+                      value={q.hint || ""}
+                      onChange={(e) => handleQuestionChange(qIndex, "hint", e.target.value)}
+                      className="w-full p-2 rounded bg-[#1e1e1e] text-white 
+                                placeholder-gray-400 border border-[#ec5f80]
+                                focus:ring-2 focus:ring-[#ec5f80] focus:outline-none mt-2"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Acceptable Answers (comma separated)"
+                      value={
+                        Array.isArray(q.correct_answer)
+                          ? (q.correct_answer as string[]).join(", ")
+                          : (q.correct_answer as string)
+                      }
+                      onChange={(e) => handleQuestionChange(qIndex, "correct_answer", e.target.value)}
+                      className="w-full p-2 rounded bg-[#1e1e1e] text-white 
+                                placeholder-gray-400 border border-[#ec5f80]
+                                focus:ring-2 focus:ring-[#ec5f80] focus:outline-none mt-2"
+                    />
+                  </div>
+                )}
+
+                {/* Correct Answer Input for MCQ & Image */}
+                {(q.question_type === "MCQ" || q.question_type === "Image") && (
+                  <div className="mt-2">
+                    <h4 className="text-[#ec5f80] text-md">Enter Correct Answer</h4>
+                    <input
+                      type="text"
+                      placeholder="Correct Answer"
+                      value={q.correct_answer as string}
+                      onChange={(e) => handleQuestionChange(qIndex, "correct_answer", e.target.value)}
+                      className="w-full p-2 rounded bg-[#1e1e1e] text-white 
+                                placeholder-gray-400 border border-[#ec5f80]
+                                focus:ring-2 focus:ring-[#ec5f80] focus:outline-none mt-2"
+                    />
+                  </div>
+                )}
+
+                {/* Points Input */}
+                <input
+                  type="number"
+                  placeholder="Points"
+                  value={q.points}
+                  onChange={(e) => handleQuestionChange(qIndex, "points", e.target.value)}
+                  className="w-full p-2 rounded bg-[#1e1e1e] text-white 
+                            placeholder-gray-400 border border-[#ec5f80]
+                            focus:ring-2 focus:ring-[#ec5f80] focus:outline-none mt-2"
+                />
+
+                {/* Remove Question Button */}
+                <button
+                  onClick={() => removeQuestion(qIndex)}
+                  className="w-full bg-red-600 text-white p-2 rounded mt-4 
+                            hover:bg-red-700 transition-all duration-200"
+                >
+                  Remove Question
+                </button>
+              </div>
+            ))}
+
+
+            <button
+              onClick={addQuestion}
+              className="w-full px-4 py-2 bg-pink-500 hover:bg-pink-400 transition rounded text-white font-semibold mb-4"
+            >
+              + Add Question
+            </button>
+
+            {/* Create Quiz Button */}
+            <button
+              onClick={handleCreateQuiz}
+              disabled={loading}
+              className="w-full px-4 py-2 bg-green-600 hover:bg-green-500 transition rounded text-white font-bold"
+            >
+              {loading ? "Creating..." : "Create Quiz"}
+            </button>
+            
+          </div>
         </div>
-      ))}
-      <button onClick={addQuestion} style={{ padding: "10px 20px", margin: "10px 0" }}>
-        Add Question
-      </button>
-      <button onClick={handleCreateQuiz} disabled={loading} style={{ padding: "10px 20px" }}>
-        {loading ? "Creating..." : "Create Quiz"}
-      </button>
-
-      {quiz._id && (
-        <div>
-          <h2>Quiz Created!</h2>
-          <p>Title: {quiz.title}</p>
-          <p>
-            Session Join Code (For Players):{" "}
-            <strong>{quiz.join_code ? quiz.join_code : "Not Available"}</strong>
-          </p>
-          <button
-            onClick={() => {
-              if (quiz.session_id) {
-                router.push(`/leaderboard?session_id=${quiz.session_id}`);
-              } else {
-                alert("No session ID found!");
-              }
-            }}
-            style={{ padding: "10px 20px", margin: "10px 0" }}
-          >
-            View Leaderboard 🏆
-          </button>
-        </div>
-      )}
-    </div>
+      </div>
+      <Footer/>    
+    </>
+    
   );
 }

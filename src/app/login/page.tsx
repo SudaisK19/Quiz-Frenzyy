@@ -52,9 +52,9 @@ export default function LoginPage() {
       {/* Login Box */}
       <form
         onSubmit={handleSubmit}
-        className="w-[300px] max-w-md p-8 md:p-10 bg-[#191919] text-center shadow-lg shadow-blue-500/30 rounded-lg relative z-10"
+        className="w-[300px] max-w-md p-3 md:p-3 bg-[#191919] text-center shadow-lg shadow-blue-500/30 rounded-lg relative z-10"
       >
-        <h1 className="text-white uppercase font-semibold text-2xl">Login</h1>
+        <h1 className="text-white uppercase mt-3 text-3xl">Login</h1>
         
         <input
           type="email"
@@ -76,14 +76,17 @@ export default function LoginPage() {
         
         <button
           type="submit"
-          className="bg-pink-500 hover:bg-pink-600 text-white  py-3 px-8 rounded-full shadow-md transition duration-300 block mx-auto mt-6 w-full md:w-3/4"
-        >
-          Login
+          className="w-full md:w-3/4 mx-auto block relative flex justify-center items-center mt-10 px-4 py-3 text-[#ff3c83] tracking-wider border-2 border-[#ff3c83] rounded-full overflow-hidden transition-all duration-150 ease-in hover:text-white hover:border-white before:absolute before:top-0 before:left-1/2 before:right-1/2 before:bottom-0 before:bg-gradient-to-r before:from-[#fd297a] before:to-[#9424f0] before:opacity-0 before:transition-all before:duration-150 before:ease-in hover:before:left-0 hover:before:right-0 hover:before:opacity-100"
+          >
+            <span className="relative z-10 text-sm sm:text-base md:text-lg leading-none">
+              Login
+            </span>
         </button>
 
         <p className="mt-4 text-pink-500 text-sm">
           Don&apos;t have an account?{" "}
-          <Link href="/signup" className="text-pink-500 font-bold hover:underline">
+        </p>
+        <p><Link href="/signup" className="text-pink-500 font-bold hover:underline">
             Signup here
           </Link>
         </p>
