@@ -136,7 +136,7 @@ export default function AIQuizPage() {
 
             {/* ✅ Question Configs (Now Scrollable) */}
             <div className="mt-6 bg-[#1e1e1e] p-4 rounded-lg max-h-[300px] overflow-y-auto">
-              <h3 className="text-[#ec5f80] text-xl">Configure Each Question</h3>
+              <h3 className="text-[#ec5f80] text-xl">Configure Each Question's Points</h3>
               <div className="space-y-3 mt-4">
                 {questionConfigs.map((config, index) => (
                   <div key={index} className="flex items-center justify-between bg-[#242424] p-3 rounded-lg">

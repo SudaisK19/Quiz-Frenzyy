@@ -3,13 +3,17 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import Image from "next/image";
 
 
 interface Question {
   question_text: string;
-  question_type: "MCQ" | "Short Answer" | "Image" | "Ranking";
+  question_type: "Choose type"|"MCQ" | "Short Answer" | "Image" | "Ranking";
   options: string[];
+  // For MCQ and Short Answer, this is a string (or comma‐separated acceptable answers).
+  // For Ranking, the correct order will be the order in which options are entered.
   correct_answer: string | string[];
+  // For Image questions, store a single image URL
   media_url?: string;
   hint?: string;
   points: number;
@@ -34,10 +38,10 @@ export default function CreateQuiz() {
     duration: 10,
     questions: [],
   });
-
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  // Fetch logged-in user and set created_by field.
   useEffect(() => {
     fetch("/api/users/profile", { method: "GET", credentials: "include" })
       .then((res) => res.json())
@@ -49,6 +53,7 @@ export default function CreateQuiz() {
       .catch(() => console.error("Failed to fetch user profile"));
   }, []);
 
+  // Add a new empty question.
   function addQuestion() {
     setQuiz((prevQuiz) => ({
       ...prevQuiz,
@@ -56,16 +61,17 @@ export default function CreateQuiz() {
         ...prevQuiz.questions,
         {
           question_text: "",
-          question_type: "MCQ",
+          question_type: "Choose type",
           options: ["", "", "", ""],
           correct_answer: "",
           points: 10,
-          media_url: "",
+          media_url: "", // For image questions
         },
       ],
     }));
   }
 
+  // Remove a question.
   function removeQuestion(index: number) {
     setQuiz((prevQuiz) => ({
       ...prevQuiz,
@@ -73,6 +79,7 @@ export default function CreateQuiz() {
     }));
   }
 
+  // Handle change in quiz details.
   function handleInputChange(
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
     field: keyof Quiz
@@ -84,6 +91,7 @@ export default function CreateQuiz() {
     }));
   }
 
+  // Handle changes in question fields.
   function handleQuestionChange(
     index: number,
     field: keyof Question,
@@ -91,14 +99,25 @@ export default function CreateQuiz() {
   ) {
     setQuiz((prevQuiz) => {
       const updatedQuestions = [...prevQuiz.questions];
-      updatedQuestions[index] = {
-        ...updatedQuestions[index],
-        [field]: value,
-      };
+      if (field === "points") {
+        updatedQuestions[index] = {
+          ...updatedQuestions[index],
+          [field]: Number(value),
+        };
+      } else if (field === "options" && Array.isArray(value)) {
+        updatedQuestions[index] = {
+          ...updatedQuestions[index],
+          [field]: [...value],
+        };
+      } else {
+        updatedQuestions[index] = {
+          ...updatedQuestions[index],
+          [field]: value as string,
+        };
+      }
       return { ...prevQuiz, questions: updatedQuestions };
     });
   }
-
 
   // Handle option change for a specific question.
   function handleOptionChange(qIndex: number, optIndex: number, value: string) {
@@ -109,8 +128,7 @@ export default function CreateQuiz() {
     });
   }
 
-
-
+  // Handle file upload for Image questions (one image per question)
   async function handleFileUpload(
     event: React.ChangeEvent<HTMLInputElement>,
     qIndex: number
@@ -139,22 +157,74 @@ export default function CreateQuiz() {
     }
   }
 
+  // Create the quiz by sending data to the API.
   async function handleCreateQuiz() {
+    if (!quiz.created_by) {
+      alert("User ID not found. Try logging in again.");
+      return;
+    }
+    // For Ranking questions, the correct answer is simply the order of options.
+    quiz.questions.forEach((q) => {
+      if (q.question_type === "Ranking") {
+        q.correct_answer = [...q.options];
+      }
+    });
+
+    let isValid = true;
+
+
+    // For Short Answer questions, convert the comma-separated string into an array if needed.
+    quiz.questions.forEach((q, qIndex) => {
+      if (q.question_type === "Short Answer" && typeof q.correct_answer === "string") {
+        q.correct_answer = q.correct_answer
+          .split(",")
+          .map((ans) => ans.trim())
+          .filter((ans) => ans);
+      }
+    
+      if (q.question_type === "MCQ" || q.question_type === "Image") {
+        // Extract all options (assuming q.options is an array of strings)
+        const options = q.options.map((opt) => opt.trim().toLowerCase());
+        const correctAnswer = typeof q.correct_answer === "string" ? q.correct_answer.trim().toLowerCase() : "";
+    
+        // Check if the correct answer is in the options list
+        if (!options.includes(correctAnswer)) {
+          alert(`Error: Question ${qIndex + 1} has an invalid correct answer!`);
+          isValid = false;
+        }
+      }
+    });
+    
+
+
+  
+
+    if (!isValid) return;
+
+
+    // Compute total points for the quiz.
+    const totalPoints = quiz.questions.reduce(
+      (sum: number, q: Question) => sum + (q.points || 0),
+      0
+    );
+
     setLoading(true);
-
-    const totalPoints = quiz.questions.reduce((sum, q) => sum + (q.points || 0), 0);
-
     const response = await fetch("/api/quizzes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...quiz, total_points: totalPoints }),
     });
-
     const data = await response.json();
     setLoading(false);
 
     if (data.success) {
-      router.push(`/quiz/${data.quiz._id}`);
+      setQuiz((prevQuiz) => ({
+        ...prevQuiz,
+        _id: data.quiz._id,
+        join_code: data.session.join_code,
+        session_id: data.session.sessionId,
+      }));
+      alert("Quiz Created Successfully!");
     } else {
       alert("Error creating quiz: " + data.error);
     }
@@ -219,7 +289,7 @@ export default function CreateQuiz() {
                   placeholder="Question Text"
                   value={q.question_text}
                   onChange={(e) => handleQuestionChange(qIndex, "question_text", e.target.value)}
-                  className="w-full p-2 rounded bg-[#1e1e1e] text-white 
+                  className="w-full p-2 rounded-full bg-[#1e1e1e] text-white 
                             placeholder-gray-400 border border-[#ec5f80]
                             focus:ring-2 focus:ring-[#ec5f80] focus:outline-none mt-2"
                 />
@@ -228,10 +298,11 @@ export default function CreateQuiz() {
                 <select
                   value={q.question_type}
                   onChange={(e) => handleQuestionChange(qIndex, "question_type", e.target.value)}
-                  className="w-full p-2 rounded bg-[#1e1e1e] text-white 
+                  className="w-full p-2 rounded-full bg-[#1e1e1e] text-white 
                             border border-[#ec5f80] focus:ring-2 focus:ring-[#ec5f80] 
                             focus:outline-none mt-2"
                 >
+                  <option value="Choose type">Choose type</option>
                   <option value="MCQ">Multiple Choice</option>
                   <option value="Short Answer">Short Answer</option>
                   <option value="Image">Image</option>
@@ -240,18 +311,31 @@ export default function CreateQuiz() {
 
                 {/* Image Upload */}
                 {q.question_type === "Image" && (
-                  <div className="mt-2">
+                  <div className="mt-2 flex flex-col items-center gap-3">
+                    {/* Styled File Input */}
                     <input
                       type="file"
                       accept="image/*"
                       onChange={(e) => handleFileUpload(e, qIndex)}
-                      className="w-full p-2 rounded bg-[#1e1e1e] text-white border border-[#ec5f80]"
+                      className="file:cursor-pointer file:hover:text-[#ec5f80] file:text-[#ec5f80] file:font-medium file:px-4 file:py-2 
+                                file:rounded-full  file:hover:bg-white  transition-all file:border file:border-[#ec5f80]
+                                text-gray-300 w-auto  px-3 py-2 "
                     />
+
+                    {/* Image Preview */}
                     {q.media_url && (
-                      <img src={q.media_url} alt="Uploaded" className="mt-2 rounded-lg w-24 h-24" />
+                      <Image 
+                        src={q.media_url} 
+                        alt="Uploaded Image" 
+                        width={100} 
+                        height={100} 
+                        className="rounded-lg border-2 border-[#ec5f80] shadow-lg"
+                      />
                     )}
                   </div>
                 )}
+
+
 
                 {/* Options for MCQ, Ranking, Image */}
                 {(q.question_type === "MCQ" || q.question_type === "Ranking" || q.question_type === "Image") && (
@@ -272,7 +356,7 @@ export default function CreateQuiz() {
                         }
                         value={opt}
                         onChange={(e) => handleOptionChange(qIndex, optIndex, e.target.value)}
-                        className="w-full p-2 rounded bg-[#1e1e1e] text-white 
+                        className="w-full p-2 rounded-full bg-[#1e1e1e] text-white 
                                   placeholder-gray-400 border border-[#ec5f80]
                                   focus:ring-2 focus:ring-[#ec5f80] focus:outline-none mt-2"
                       />
@@ -288,7 +372,7 @@ export default function CreateQuiz() {
                       placeholder="Hint for players (optional)"
                       value={q.hint || ""}
                       onChange={(e) => handleQuestionChange(qIndex, "hint", e.target.value)}
-                      className="w-full p-2 rounded bg-[#1e1e1e] text-white 
+                      className="w-full p-2 rounded-full bg-[#1e1e1e] text-white 
                                 placeholder-gray-400 border border-[#ec5f80]
                                 focus:ring-2 focus:ring-[#ec5f80] focus:outline-none mt-2"
                     />
@@ -301,7 +385,7 @@ export default function CreateQuiz() {
                           : (q.correct_answer as string)
                       }
                       onChange={(e) => handleQuestionChange(qIndex, "correct_answer", e.target.value)}
-                      className="w-full p-2 rounded bg-[#1e1e1e] text-white 
+                      className="w-full p-2 rounded-full bg-[#1e1e1e] text-white 
                                 placeholder-gray-400 border border-[#ec5f80]
                                 focus:ring-2 focus:ring-[#ec5f80] focus:outline-none mt-2"
                     />
@@ -317,7 +401,7 @@ export default function CreateQuiz() {
                       placeholder="Correct Answer"
                       value={q.correct_answer as string}
                       onChange={(e) => handleQuestionChange(qIndex, "correct_answer", e.target.value)}
-                      className="w-full p-2 rounded bg-[#1e1e1e] text-white 
+                      className="w-full p-2 rounded-full bg-[#1e1e1e] text-white 
                                 placeholder-gray-400 border border-[#ec5f80]
                                 focus:ring-2 focus:ring-[#ec5f80] focus:outline-none mt-2"
                     />
@@ -325,21 +409,25 @@ export default function CreateQuiz() {
                 )}
 
                 {/* Points Input */}
+                <h4 className="text-[#ec5f80] text-md mt-2">Points</h4>
                 <input
                   type="number"
                   placeholder="Points"
                   value={q.points}
                   onChange={(e) => handleQuestionChange(qIndex, "points", e.target.value)}
-                  className="w-full p-2 rounded bg-[#1e1e1e] text-white 
-                            placeholder-gray-400 border border-[#ec5f80]
-                            focus:ring-2 focus:ring-[#ec5f80] focus:outline-none mt-2"
+                  className="mx-auto w-auto min-w-[150px] max-w-[250px] p-2 rounded-full 
+                             bg-[#1e1e1e] text-white text-center placeholder-gray-400 border border-[#ec5f80]
+                             focus:ring-2 focus:ring-[#ec5f80] focus:outline-none mt-2"
                 />
 
                 {/* Remove Question Button */}
+                
                 <button
                   onClick={() => removeQuestion(qIndex)}
-                  className="w-full bg-red-600 text-white p-2 rounded mt-4 
-                            hover:bg-red-700 transition-all duration-200"
+                  className="bg-red-600 text-white px-5 py-2 rounded-full mt-4 
+                            hover:bg-red-700 transition-all duration-200 
+                            mx-auto w-auto min-w-[150px] max-w-[250px] 
+                            text-center "
                 >
                   Remove Question
                 </button>
@@ -347,22 +435,67 @@ export default function CreateQuiz() {
             ))}
 
 
-            <button
-              onClick={addQuestion}
-              className="w-full px-4 py-2 bg-pink-500 hover:bg-pink-400 transition rounded text-white font-semibold mb-4"
-            >
-              + Add Question
-            </button>
+            {/* ✅ Add & Create Quiz Buttons */}
+            <div className="flex flex-col items-center gap-4 mt-6">
+              <button
+                onClick={addQuestion}
+                className="mx-auto w-[80%] sm:w-3/4 md:w-2/3 block relative flex justify-center items-center px-4 py-3 
+                text-[#ff3c83] text-md sm:text-base md:text-lg tracking-wider border-2 border-[#ff3c83] rounded-full overflow-hidden 
+                transition-all duration-150 ease-in hover:text-white hover:border-white 
+                before:absolute before:top-0 before:left-1/2 before:right-1/2 before:bottom-0 
+                before:bg-gradient-to-r before:from-[#fd297a] before:to-[#9424f0] before:opacity-0 
+                before:transition-all before:duration-150 before:ease-in 
+                hover:before:left-0 hover:before:right-0 hover:before:opacity-100"
+              >
+                <span className="relative z-10">Add Question</span>
+              </button>
 
-            {/* Create Quiz Button */}
-            <button
-              onClick={handleCreateQuiz}
-              disabled={loading}
-              className="w-full px-4 py-2 bg-green-600 hover:bg-green-500 transition rounded text-white font-bold"
-            >
-              {loading ? "Creating..." : "Create Quiz"}
-            </button>
-            
+              <button
+                onClick={handleCreateQuiz}
+                disabled={loading}
+                className="mx-auto w-[80%] sm:w-3/4 md:w-2/3 block relative flex justify-center items-center px-4 py-3 
+                text-[#ff3c83] text-md sm:text-base md:text-lg tracking-wider border-2 border-[#ff3c83] rounded-full overflow-hidden 
+                transition-all duration-150 ease-in hover:text-white hover:border-white 
+                before:absolute before:top-0 before:left-1/2 before:right-1/2 before:bottom-0 
+                before:bg-gradient-to-r before:from-[#fd297a] before:to-[#9424f0] before:opacity-0 
+                before:transition-all before:duration-150 before:ease-in 
+                hover:before:left-0 hover:before:right-0 hover:before:opacity-100"
+              >
+                <span className="relative z-10">{loading ? "Creating..." : " Create Quiz"}</span>
+              </button>
+            </div>
+
+            {/* ✅ Quiz Created Message */}
+            {quiz._id && (
+              <div className="bg-[#1e1e1e] p-6 rounded-lg mt-6 text-center">
+                <h2 className="text-xl text-[#ec5f80]"> Quiz Created Successfully!</h2>
+                <p className="text-gray-400">Title: <span className="text-white">{quiz.title}</span></p>
+                <p className="text-gray-400">
+                  Session Join Code (For Players): <span className="text-white">{quiz.join_code || "Not Available"}</span>
+                </p>
+
+                {/* ✅ View Leaderboard Button */}
+                <button
+                  onClick={() => {
+                    if (quiz.session_id) {
+                      router.push(`/leaderboard?session_id=${quiz.session_id}`);
+                    } else {
+                      alert("No session ID found!");
+                    }
+                  }}
+                  className="mx-auto mt-4 w-[80%] sm:w-3/4 md:w-2/3 block relative flex justify-center items-center px-4 py-3 
+                  text-[#ff3c83] text-sm sm:text-base md:text-lg tracking-wider border-2 border-[#ff3c83] rounded-full overflow-hidden 
+                  transition-all duration-150 ease-in hover:text-white hover:border-white 
+                  before:absolute before:top-0 before:left-1/2 before:right-1/2 before:bottom-0 
+                  before:bg-gradient-to-r before:from-[#fd297a] before:to-[#9424f0] before:opacity-0 
+                  before:transition-all before:duration-150 before:ease-in 
+                  hover:before:left-0 hover:before:right-0 hover:before:opacity-100"
+                >
+                  <span className="relative z-10">View Leaderboard</span>
+                </button>
+              </div>
+            )}
+
           </div>
         </div>
       </div>
