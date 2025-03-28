@@ -1,0 +1,96 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
+import Link from "next/link";
+
+export default function LoginPage() {
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const router = useRouter();
+
+  useEffect(() => {
+    // Dynamically add keyframes for animated lines
+    const styleSheet = document.createElement("style");
+    styleSheet.innerHTML = `
+      @keyframes run {
+        0% { top: -50%; }
+        100% { top: 110%; }
+      }
+    `;
+    document.head.appendChild(styleSheet);
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    try {
+      const response = await axios.post("/api/users/login", {
+        email,
+        password,
+      });
+
+      if (response.status === 200) {
+        alert("Login successful!");
+        router.push("/");
+      }
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        alert(
+          "Login failed. " +
+            (error.response?.data?.error || "Please try again later.")
+        );
+      } else {
+        alert("An unexpected error occurred. Please try again.");
+      }
+    }
+  };
+
+  return (
+    <div className="flex justify-center items-center min-h-screen w-screen p-4">
+      {/* Login Box */}
+      <form
+        onSubmit={handleSubmit}
+        className="w-[300px] max-w-md p-3 md:p-3 bg-[#191919] text-center shadow-lg shadow-blue-500/30 rounded-lg relative z-10"
+      >
+        <h1 className="text-white uppercase mt-3 text-3xl">Login</h1>
+        
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          className="bg-transparent border-2 border-pink-500 text-white p-3 w-full md:w-3/4 mx-auto block rounded-full text-center outline-none transition-all duration-300 focus:border-pink-400 mt-6"
+        />
+        
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          className="bg-transparent border-2 border-pink-500 text-white p-3 w-full md:w-3/4 mx-auto block rounded-full text-center outline-none transition-all duration-300 focus:border-pink-400 mt-4"
+        />
+        
+        <button
+          type="submit"
+          className="w-full md:w-3/4 mx-auto block relative flex justify-center items-center mt-10 px-4 py-3 text-[#ff3c83] tracking-wider border-2 border-[#ff3c83] rounded-full overflow-hidden transition-all duration-150 ease-in hover:text-white hover:border-white before:absolute before:top-0 before:left-1/2 before:right-1/2 before:bottom-0 before:bg-gradient-to-r before:from-[#fd297a] before:to-[#9424f0] before:opacity-0 before:transition-all before:duration-150 before:ease-in hover:before:left-0 hover:before:right-0 hover:before:opacity-100"
+          >
+            <span className="relative z-10 text-sm sm:text-base md:text-lg leading-none">
+              Login
+            </span>
+        </button>
+
+        <p className="mt-4 text-pink-500 text-sm">
+          Don&apos;t have an account?{" "}
+        </p>
+        <p><Link href="/signup" className="text-pink-500 font-bold hover:underline">
+            Signup here
+          </Link>
+        </p>
+      </form>
+    </div>
+  );
+}
