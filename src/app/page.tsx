@@ -33,7 +33,7 @@ function showBadgeToast(badge: Badge) {
         className={`${t.visible ? "opacity-100 scale-100" : "opacity-0 scale-95"}
           transform transition-all duration-300 pointer-events-auto flex items-center rounded-md bg-[#242424] text-white p-2 sm:p-3 w-80 sm:w-72 shadow-lg border border-[#ec5f80]`}
       >
-        <img
+        <Image
           src={badge.imageUrl}
           alt={badge.name}
           width={24}
@@ -447,11 +447,13 @@ export default function Home() {
 
             {/* Avatar Image */}
             <div className="flex justify-center items-center mt-4">
-              <img
-                src={`https://api.dicebear.com/6.x/bottts/svg?seed=${encodeURIComponent(avatarSeed.toString())}`}
-                alt="Avatar"
-                className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full border-2 border-[#ec5f80]"
-              />
+            <Image
+              src={`https://api.dicebear.com/6.x/bottts/svg?seed=${encodeURIComponent(avatarSeed.toString())}`}
+              alt="Avatar"
+              width={96}  // Default w-24 (24 * 4)
+              height={96} // Default h-24 (24 * 4)
+              className="sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full border-2 border-[#ec5f80]"
+            />
             </div>
 
 

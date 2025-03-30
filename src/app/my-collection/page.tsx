@@ -117,6 +117,10 @@ export default function MyCollection() {
     router.push(`/leaderboard?session_id=${sessionId}`);
   };
 
+  const handleViewResults = (sessionId: string) => {
+    setShowSessionsModal(false);
+    router.push(`/results/${sessionId}`);
+  };
 
   return (
     <>
@@ -222,12 +226,23 @@ export default function MyCollection() {
                     className="bg-[#1e1e1e] p-3 rounded-md flex justify-between items-center"
                   >
                     <span className="text-gray-400">Join Code: {session.join_code}</span>
-                    <button
-                      onClick={() => handleSelectSession(session._id)}
-                      className="px-3 py-1 border border-[#ec5f80] text-[#ec5f80] rounded-full transition hover:bg-white hover:text-[#ec5f80] transition"
-                    >
-                      View Leaderboard
-                    </button>
+                    <div className="flex flex-col space-y-2">
+                      <button
+                        onClick={() => handleSelectSession(session._id)}
+                        className="px-3 py-1 border border-[#ec5f80] text-[#ec5f80] rounded-full transition hover:bg-white hover:text-[#ec5f80] transition"
+                      >
+                        View Leaderboard
+                      </button>
+                      {/* View Results Button */}
+                      <button
+                        onClick={() => handleViewResults(session._id)}
+                        className="px-3 py-1 border border-[#ec5f80] text-[#ec5f80] rounded-full transition hover:bg-white hover:text-[#ec5f80] transition"
+                      >
+                        View Results
+                      </button>
+
+                    </div>
+                    
                   </li>
                 ))}
               </ul>

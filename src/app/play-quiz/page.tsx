@@ -1,10 +1,14 @@
 "use client";
 export const dynamic = "force-dynamic";
 
-import { Suspense, useState, useEffect } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import type { DropResult } from "@hello-pangea/dnd";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import Image from "next/image";
+
 
 interface Question {
   _id: string;
@@ -12,10 +16,17 @@ interface Question {
   question_type: "MCQ" | "Short Answer" | "Image" | "Ranking";
   options: string[];
   points: number;
-  media_url?: string; // for image questions
+  media_url?: string;
+  hint?: string;
 }
 
-// The main quiz logic is here
+interface QuizInfo {
+  title: string;
+  description: string;
+  duration?: number; // duration in minutes
+  start_time: string; // ISO format timestamp
+}
+
 function PlayQuizContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -23,90 +34,117 @@ function PlayQuizContent() {
   const player_quiz_id = searchParams.get("player_quiz_id");
 
   const [questions, setQuestions] = useState<Question[]>([]);
+  const [quizInfo, setQuizInfo] = useState<QuizInfo | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [loading, setLoading] = useState(true);
+  // Since we use global loading via Suspense, we assume that once data is ready, we can show the quiz.
+  // Set introStage to "quiz" once data is ready.
+  const [introStage, setIntroStage] = useState<"quiz">("quiz");
 
-  // For MCQ, Short Answer, Image: store a single answer per question.
   const [selectedAnswers, setSelectedAnswers] = useState<{ [qId: string]: string }>({});
-
-  // For Ranking: store an array of strings per question (the user’s reordered options)
   const [rankingAnswers, setRankingAnswers] = useState<{ [qId: string]: string[] }>({});
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
 
+  // ----------------- FETCH QUIZ -----------------
   useEffect(() => {
-    async function fetchQuizQuestions() {
+    async function fetchQuizData() {
       if (!session_id || !player_quiz_id) {
-        alert("Session or Player Quiz ID not found!");
+        // Redirect if IDs are missing
         router.push("/");
         return;
       }
+
       try {
         const res = await fetch(`/api/quizzes/session/${session_id}`);
-        if (!res.ok) {
-          alert("Error fetching questions.");
-          return;
-        }
         const data = await res.json();
         if (data.success) {
           setQuestions(data.questions || []);
+
+          // Shuffle ranking answers for Ranking type questions
+          const initialRankingAnswers: { [qId: string]: string[] } = {};
+          (data.questions || []).forEach((q: Question) => {
+            if (q.question_type === "Ranking") {
+              const shuffled = [...q.options].sort(() => Math.random() - 0.5);
+              initialRankingAnswers[q._id] = shuffled;
+            }
+          });
+          setRankingAnswers(initialRankingAnswers);
+
+          setQuizInfo({
+            title: data.quiz?.title || "Untitled Quiz",
+            description: data.quiz?.description || "",
+            duration: data.duration || 5, // fallback to 5 min
+            start_time: data.start_time || new Date().toISOString(),
+          });
+
+          // Calculate remaining time based on start_time and duration
+          const quizDurationSeconds = (data.duration || 5) * 60;
+          const startTime = new Date(data.start_time || new Date().toISOString());
+          const now = new Date();
+          const elapsedSeconds = Math.floor((now.getTime() - startTime.getTime()) / 1000);
+          const remainingSeconds = quizDurationSeconds - elapsedSeconds;
+          setTimeLeft(remainingSeconds > 0 ? remainingSeconds : 0);
+          // We don’t need to delay quiz start if using global loader.
+          setIntroStage("quiz");
         } else {
-          alert("No questions found for this quiz.");
+          // If no questions found, you can redirect or handle as needed.
+          router.push("/");
         }
-      } catch {
-        alert("Failed to fetch quiz questions.");
+      } catch (error) {
+        console.error("Error fetching quiz:", error);
+        router.push("/");
       }
-      setLoading(false);
     }
-    fetchQuizQuestions();
+
+    fetchQuizData();
   }, [session_id, player_quiz_id, router]);
 
-  // DRAG & DROP for Ranking
-  const handleDragEnd = (result: DropResult): void => {
-    // If no valid drop destination, just return
+  // ----------------- TIMER LOGIC -----------------
+  useEffect(() => {
+    if (introStage !== "quiz" || timeLeft === null) return;
+
+    if (timeLeft === 0) {
+      submitQuiz();
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setTimeLeft((prev) => (prev !== null ? prev - 1 : null));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [introStage, timeLeft]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60).toString().padStart(2, "0");
+    const secs = (seconds % 60).toString().padStart(2, "0");
+    return `${mins}:${secs}`;
+  };
+
+  const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
-  
+
     const questionId = questions[currentQuestionIndex]._id;
     setRankingAnswers((prev) => {
       const newOrder = [...(prev[questionId] || questions[currentQuestionIndex].options)];
-  
-      // Remove the dragged item from its original position
       const [movedItem] = newOrder.splice(result.source.index, 1);
-  
-      // Insert it at the new position
       newOrder.splice(result.destination!.index, 0, movedItem);
-  
       return { ...prev, [questionId]: newOrder };
     });
   };
-  
 
-  // Submit all answers
-  async function submitQuiz() {
-    if (!session_id || !player_quiz_id) {
-      alert("Session or Player Quiz ID missing!");
-      return;
-    }
-    const answersArray: Array<{
-      question_id: string;
-      player_quiz_id: string | null;
-      submitted_answer: string | string[];
-    }> = [];
+  const handleAnswerChange = (questionId: string, answer: string) => {
+    setSelectedAnswers((prev) => ({ ...prev, [questionId]: answer }));
+  };
 
-    for (const q of questions) {
-      if (q.question_type === "Ranking") {
-        const finalOrder = rankingAnswers[q._id] || q.options;
-        answersArray.push({
-          question_id: q._id,
-          player_quiz_id,
-          submitted_answer: finalOrder,
-        });
-      } else {
-        answersArray.push({
-          question_id: q._id,
-          player_quiz_id,
-          submitted_answer: selectedAnswers[q._id] || "",
-        });
-      }
-    }
+  const submitQuiz = async () => {
+    const answersArray = questions.map((q) => ({
+      question_id: q._id,
+      player_quiz_id,
+      submitted_answer:
+        q.question_type === "Ranking"
+          ? rankingAnswers[q._id] || q.options
+          : selectedAnswers[q._id] || "",
+    }));
 
     try {
       const res = await fetch("/api/quizzes/complete", {
@@ -118,34 +156,21 @@ function PlayQuizContent() {
       if (data.success) {
         router.push(`/quiz-complete?player_quiz_id=${player_quiz_id}`);
       } else {
-        alert("Error submitting quiz.");
+        alert("Submission failed.");
       }
     } catch {
-      alert("Failed to submit answers.");
+      alert("Error submitting quiz.");
     }
-  }
+  };
 
-  if (loading) return <p>Loading quiz...</p>;
-  if (!questions.length) return <p>No questions found.</p>;
-
-  const currentQuestion = questions[currentQuestionIndex];
-
-  function handleAnswerChange(questionId: string, answer: string) {
-    setSelectedAnswers((prev) => ({ ...prev, [questionId]: answer }));
-  }
-
-  function renderQuestion(question: Question) {
+  const renderQuestion = (question: Question) => {
     switch (question.question_type) {
       case "Ranking":
         return (
           <DragDropContext onDragEnd={handleDragEnd}>
             <Droppable droppableId="rankingOptions">
               {(provided) => (
-                <div
-                  {...provided.droppableProps}
-                  ref={provided.innerRef}
-                  style={{ width: "300px", margin: "auto" }}
-                >
+                <div {...provided.droppableProps} ref={provided.innerRef} className="w-full max-w-md mx-auto">
                   {(rankingAnswers[question._id] || question.options).map((option, index) => (
                     <Draggable key={String(index)} draggableId={String(index)} index={index}>
                       {(provided, snapshot) => (
@@ -153,16 +178,10 @@ function PlayQuizContent() {
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
-                          style={{
-                            transition: "all 0.2s ease",
-                            padding: "12px",
-                            marginBottom: "12px",
-                            backgroundColor: snapshot.isDragging ? "#007BFF" : "#f8f9fa",
-                            color: snapshot.isDragging ? "white" : "black",
-                            borderRadius: "5px",
-                            cursor: "grab",
-                            ...provided.draggableProps.style,
-                          }}
+                          className={`p-3 mb-3 rounded-full text-sm sm:text-base ${
+                            snapshot.isDragging ? "bg-white text-[#ec5f80]" : "bg-[#333436] text-white"
+                          } border border-[#ff3c83] hover:bg-white hover:text-[#ec5f80]`}
+                          style={provided.draggableProps.style}
                         >
                           {option}
                         </div>
@@ -177,22 +196,29 @@ function PlayQuizContent() {
         );
 
       case "MCQ":
+      case "Image":
         return (
-          <div>
+          <div className="space-y-4 mt-6 w-full">
+            {question.media_url && (
+              <div className="w-full flex justify-center">
+                <Image
+                  src={question.media_url}
+                  alt="Question"
+                  width={500} // Adjust as needed
+                  height={400} // Adjust as needed
+                  className="rounded-lg max-w-full h-auto max-h-[300px] sm:max-h-[350px] md:max-h-[400px] object-contain"
+                />
+              </div>
+            )}
             {question.options.map((opt, i) => (
               <button
                 key={i}
                 onClick={() => handleAnswerChange(question._id, opt)}
-                style={{
-                  display: "block",
-                  margin: "10px auto",
-                  padding: "10px",
-                  backgroundColor: selectedAnswers[question._id] === opt ? "#007BFF" : "#f8f9fa",
-                  color: selectedAnswers[question._id] === opt ? "white" : "black",
-                  borderRadius: "5px",
-                  cursor: "pointer",
-                  width: "200px",
-                }}
+                className={`w-full py-2 px-4 rounded-full text-sm sm:text-base font-medium transition-all duration-200 ${
+                  selectedAnswers[question._id] === opt
+                    ? "bg-white text-[#ec5f80] border-white"
+                    : "bg-[#333436] text-[#ec5f80] border border-[#ff3c83] hover:bg-white hover:text-[#ec5f80]"
+                }`}
               >
                 {opt}
               </button>
@@ -202,106 +228,126 @@ function PlayQuizContent() {
 
       case "Short Answer":
         return (
-          <div>
+          <div className="mt-6 space-y-3">
+            {question.hint && (
+              <p className="text-gray-400 text-sm sm:text-base">
+                Hint: <span className="italic">{question.hint}</span>
+              </p>
+            )}
             <input
               type="text"
               value={selectedAnswers[question._id] || ""}
               onChange={(e) => handleAnswerChange(question._id, e.target.value)}
               placeholder="Type your answer..."
-              style={{
-                display: "block",
-                margin: "10px auto",
-                padding: "10px",
-                border: "1px solid #ccc",
-                borderRadius: "5px",
-                width: "80%",
-              }}
+              className="w-full text-center p-2 rounded-full bg-[#1e1e1e] text-white text-sm border border-[#ff3c83] focus:outline-none focus:ring-2 focus:ring-[#ec5f80] max-w-[400px] mx-auto"
             />
           </div>
         );
 
-      case "Image":
-        return (
-          <div>
-            {question.media_url && (
-              <img
-                src={question.media_url}
-                alt="Question"
-                style={{ maxWidth: "300px", marginBottom: "10px" }}
-              />
-            )}
-            {question.options.map((opt, i) => (
-              <button
-                key={i}
-                onClick={() => handleAnswerChange(question._id, opt)}
-                style={{
-                  display: "block",
-                  margin: "10px auto",
-                  padding: "10px",
-                  backgroundColor: selectedAnswers[question._id] === opt ? "#007BFF" : "#f8f9fa",
-                  color: selectedAnswers[question._id] === opt ? "white" : "black",
-                  borderRadius: "5px",
-                  cursor: "pointer",
-                  width: "200px",
-                }}
-              >
-                {opt}
-              </button>
-            ))}
-          </div>
-        );
-
       default:
-        return <p>Question type not supported</p>;
+        return <p className="text-white">Unsupported question type.</p>;
     }
+  };
+
+  const currentQuestion = questions[currentQuestionIndex];
+  const progressPercent = questions.length > 0 ? ((currentQuestionIndex + 1) / questions.length) * 100 : 0;
+
+  // Do not render anything until questions and quizInfo are loaded.
+  if (!quizInfo || questions.length === 0 || timeLeft === null) {
+    return null;
   }
 
   return (
-    <div style={{ textAlign: "center", padding: "20px" }}>
-      <h1>Quiz Time!</h1>
-      <h2>{currentQuestion.question_text}</h2>
-      {renderQuestion(currentQuestion)}
-      <div style={{ marginTop: "20px" }}>
-        {currentQuestionIndex > 0 && (
-          <button
-            onClick={() => setCurrentQuestionIndex(currentQuestionIndex - 1)}
-            style={{ padding: "10px 20px", marginRight: "10px" }}
-          >
-            Previous
-          </button>
-        )}
-        {currentQuestionIndex < questions.length - 1 && (
-          <button
-            onClick={() => setCurrentQuestionIndex(currentQuestionIndex + 1)}
-            style={{ padding: "10px 20px" }}
-          >
-            Next
-          </button>
-        )}
-        {currentQuestionIndex === questions.length - 1 && (
-          <button
-            onClick={submitQuiz}
-            style={{
-              padding: "10px 20px",
-              backgroundColor: "#DC3545",
-              color: "white",
-              border: "none",
-              cursor: "pointer",
-              marginLeft: "10px",
-            }}
-          >
-            Submit Quiz
-          </button>
-        )}
+    <>
+      <Header />
+      <div className="flex justify-center items-center min-h-screen px-4 py-6">
+        <div className="bg-[#242424] p-6 sm:p-10 rounded-[30px] shadow-lg w-full max-w-md sm:max-w-lg md:max-w-xl text-center">
+          <div className="flex-1 bg-[#333436] rounded-[30px] p-6 sm:p-10">
+
+            {/* Timer & Progress Bar */}
+            {introStage === "quiz" && (
+              <>
+                <div className="mb-4 flex justify-between items-center text-white text-sm sm:text-base font-semibold">
+                  <div>
+                    Time Left:{" "}
+                    <span className={timeLeft <= 15 ? "text-red-400" : "text-[#ec5f80]"}>
+                      {formatTime(timeLeft)}
+                    </span>
+                  </div>
+                  <div>
+                    {currentQuestionIndex + 1} / {questions.length}
+                  </div>
+                </div>
+                <div className="w-full bg-[#1e1e1e] rounded-full h-2 mb-6">
+                  <div
+                    className="bg-[#ff3c83] h-2 rounded-full transition-all duration-500 ease-in-out"
+                    style={{ width: `${progressPercent}%` }}
+                  />
+                </div>
+              </>
+            )}
+
+            {/* Quiz Content */}
+            {introStage === "quiz" && (
+              <>
+                <h2 className="text-2xl sm:text-3xl text-white font-semibold mb-4">
+                  {currentQuestion.question_text}
+                </h2>
+                {renderQuestion(currentQuestion)}
+
+                {/* Navigation Buttons */}
+                <div className="mt-6 flex justify-center items-center gap-4">
+                  <button
+                    onClick={() => setCurrentQuestionIndex(currentQuestionIndex - 1)}
+                    disabled={currentQuestionIndex === 0}
+                    className={`w-10 h-10 rounded-full flex justify-center items-center text-xl font-bold ${
+                      currentQuestionIndex === 0
+                        ? "bg-gray-500 text-white cursor-not-allowed"
+                        : "bg-[#ec5f80] hover:bg-pink-600 text-white"
+                    }`}
+                  >
+                    ◀
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      if (currentQuestionIndex === questions.length - 1) submitQuiz();
+                    }}
+                    disabled={currentQuestionIndex !== questions.length - 1}
+                    className={`relative flex justify-center items-center px-6 py-2 font-bold uppercase tracking-wider rounded-full overflow-hidden transition-all duration-150 ease-in w-[150px] ${
+                      currentQuestionIndex === questions.length - 1
+                        ? "text-[#ff3c83] border-2 border-[#ff3c83] hover:text-white hover:border-white before:absolute before:top-0 before:left-1/2 before:right-1/2 before:bottom-0 before:bg-gradient-to-r before:from-[#fd297a] before:to-[#9424f0] before:opacity-0 before:transition-all before:duration-150 before:ease-in hover:before:left-0 hover:before:right-1 hover:before:opacity-100"
+                        : "text-gray-400 border-2 border-gray-400 cursor-not-allowed"
+                    }`}
+                  >
+                    <span className="relative z-10 text-sm sm:text-base">Submit</span>
+                  </button>
+
+                  <button
+                    onClick={() => setCurrentQuestionIndex(currentQuestionIndex + 1)}
+                    disabled={currentQuestionIndex === questions.length - 1}
+                    className={`w-10 h-10 rounded-full flex justify-center items-center text-xl font-bold ${
+                      currentQuestionIndex === questions.length - 1
+                        ? "bg-gray-500 text-white cursor-not-allowed"
+                        : "bg-[#ec5f80] hover:bg-pink-600 text-white"
+                    }`}
+                  >
+                    ▶
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       </div>
-    </div>
+      <Footer />
+    </>
   );
 }
 
-// Wrap the content component in a Suspense boundary
 export default function PlayQuiz() {
   return (
-    <Suspense fallback={<p>Loading quiz...</p>}>
+    <Suspense fallback={<p className="text-center text-white mt-8">Loading quiz...</p>}>
       <PlayQuizContent />
     </Suspense>
   );
