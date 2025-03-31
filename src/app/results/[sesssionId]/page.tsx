@@ -30,7 +30,7 @@ export default function QuizResults() {
   const { sessionId } = useParams();
   const [results, setResults] = useState<Result | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [canAccessResults, setCanAccessResults] = useState(false);
 
   useEffect(() => {

@@ -1,10 +1,8 @@
-
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-
 
 interface QuestionConfig {
   points: number;
@@ -44,8 +42,8 @@ export default function AIQuizPage() {
   async function handleGenerateQuiz() {
     try {
       setLoading(true);
-      setMessage(""); // ✅ Clear previous messages initially
-  
+      setMessage(""); // Clear previous messages
+
       const response = await fetch("/api/ai-quiz/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -57,10 +55,10 @@ export default function AIQuizPage() {
           questionConfigs,
         }),
       });
-  
+
       const data = await response.json();
       setLoading(false);
-  
+
       if (data.success) {
         setQuizData({
           quizId: data.quizId,
@@ -69,19 +67,18 @@ export default function AIQuizPage() {
           message: data.message,
         });
       } else {
-        setMessage(`Error: ${data.error || "Failed to generate quiz"}`); // ✅ Set message ONLY for errors
+        setMessage(`Error: ${data.error || "Failed to generate quiz"}`);
       }
     } catch (error) {
-      console.error("❌ Error generating AI quiz:", error);
+      console.error("Error generating AI quiz:", error);
       setLoading(false);
-      setMessage("Failed to generate quiz"); // ✅ Set message ONLY for errors
+      setMessage("Failed to generate quiz");
     }
   }
-  
 
   return (
     <>
-      <Header/>
+      <Header />
       <div className="flex justify-center items-center min-h-screen px-4 py-6">
         <div className="bg-[#242424] p-6 sm:p-10 rounded-[30px] shadow-lg w-full max-w-md sm:max-w-lg md:max-w-xl text-center">
           <div className="flex-1 bg-[#333436] rounded-[30px] p-6 sm:p-10">
@@ -92,19 +89,19 @@ export default function AIQuizPage() {
               Note: All questions will be <span className="font-semibold">multiple choice</span>.
             </p>
 
-            {/* ✅ Quiz Topic Input */}
+            {/* Quiz Topic Input */}
             <input
               type="text"
               placeholder="Enter Quiz Topic (e.g. JavaScript, Biology)"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
               className="w-full text-center p-1 sm:p-2 md:p-2 mb-2 rounded-full bg-[#1e1e1e] 
-              text-white  text-xs sm:text-sm md:text-base 
+              text-white text-xs sm:text-sm md:text-base 
               placeholder-gray-400 border border-[#ff3c83] truncate 
               focus:outline-none focus:ring-2 focus:ring-[#ec5f80]"
             />
 
-            {/* ✅ Duration & Number of Questions Inputs */}
+            {/* Duration & Number of Questions Inputs */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-gray-400 text-sm sm:text-base">Duration (mins)</label>
@@ -114,7 +111,7 @@ export default function AIQuizPage() {
                   value={duration}
                   onChange={(e) => setDuration(Number(e.target.value))}
                   className="w-full text-center p-1 sm:p-2 rounded-full bg-[#1e1e1e] 
-                  text-white  text-xs sm:text-sm md:text-base 
+                  text-white text-xs sm:text-sm md:text-base 
                   placeholder-gray-400 border border-[#ff3c83] 
                   focus:outline-none focus:ring-2 focus:ring-[#ec5f80]"
                 />
@@ -128,16 +125,16 @@ export default function AIQuizPage() {
                   value={numQuestions}
                   onChange={(e) => setNumQuestions(Number(e.target.value))}
                   className="w-full text-center p-1 sm:p-2 rounded-full bg-[#1e1e1e] 
-                  text-white  text-xs sm:text-sm md:text-base 
+                  text-white text-xs sm:text-sm md:text-base 
                   placeholder-gray-400 border border-[#ff3c83] 
                   focus:outline-none focus:ring-2 focus:ring-[#ec5f80]"
                 />
               </div>
             </div>
 
-            {/* ✅ Question Configs (Now Scrollable) */}
+            {/* Question Configs (Now Scrollable) */}
             <div className="mt-6 bg-[#1e1e1e] p-4 rounded-lg max-h-[300px] overflow-y-auto">
-              <h3 className="text-[#ec5f80] text-xl">Configure Each Question's Points</h3>
+              <h3 className="text-[#ec5f80] text-xl">Configure Each Question&apos;s Points</h3>
               <div className="space-y-3 mt-4">
                 {questionConfigs.map((config, index) => (
                   <div key={index} className="flex items-center justify-between bg-[#242424] p-3 rounded-lg">
@@ -155,7 +152,7 @@ export default function AIQuizPage() {
                         });
                       }}
                       className="w-20 text-center p-2 rounded-full bg-[#1e1e1e] 
-                      text-white  text-sm 
+                      text-white text-sm 
                       placeholder-gray-400 border border-[#ff3c83] 
                       focus:outline-none focus:ring-2 focus:ring-[#ec5f80]"
                     />
@@ -164,7 +161,7 @@ export default function AIQuizPage() {
               </div>
             </div>
 
-            {/* ✅ Generate Quiz Button (Improved Spacing) */}
+            {/* Generate Quiz Button */}
             <button
               onClick={handleGenerateQuiz}
               disabled={loading}
@@ -179,16 +176,18 @@ export default function AIQuizPage() {
               <span className="relative z-10">{loading ? "Generating..." : "Generate Quiz"}</span>
             </button>
 
-            {/* ✅ Error Message */}
+            {/* Error Message */}
             {message && <p className="text-center text-red-500 mt-4">{message}</p>}
 
-            {/* ✅ Quiz Created Message */}
+            {/* Quiz Created Message */}
             {quizData && (
               <div className="bg-[#1e1e1e] p-6 rounded-lg mt-6 text-center">
                 <h2 className="text-xl text-[#ec5f80]">Quiz Created Successfully!</h2>
-                <p className="text-gray-400">Join Code: <span className="text-white">{quizData.join_code}</span></p>
+                <p className="text-gray-400">
+                  Join Code: <span className="text-white">{quizData.join_code}</span>
+                </p>
 
-                {/* ✅ View Leaderboard Button (Improved Spacing) */}
+                {/* View Leaderboard Button */}
                 <button
                   onClick={() => router.push(`/leaderboard?session_id=${quizData.sessionId}`)}
                   className="mx-auto mt-2 w-[80%] sm:w-3/4 md:w-2/3 block relative flex justify-center items-center px-4 py-3 
@@ -206,10 +205,7 @@ export default function AIQuizPage() {
           </div>
         </div>
       </div>
-      <Footer/>
+      <Footer />
     </>
-    
-          
-        
   );
 }

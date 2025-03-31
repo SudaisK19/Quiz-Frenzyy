@@ -11,7 +11,7 @@ function QuizCompleteContent() {
   const router = useRouter();
   const player_quiz_id = searchParams.get("player_quiz_id");
 
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [score, setScore] = useState<number | null>(null);

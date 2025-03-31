@@ -27,7 +27,7 @@ interface Badge {
 
 export default function Profile() {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false); // ✅ Controls expandable form
   const [newData, setNewData] = useState({ username: "", email: "", password: "" });

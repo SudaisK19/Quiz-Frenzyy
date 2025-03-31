@@ -41,7 +41,7 @@ export default function CreateQuiz() {
   });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  
   const router = useRouter();
 
   // Fetch logged-in user and set created_by field.

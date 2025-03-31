@@ -24,7 +24,7 @@ interface UserCollection {
 
 export default function MyCollection() {
   const [collection, setCollection] = useState<UserCollection | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [rehostMessage, setRehostMessage] = useState<string>("");
   const [showSessionsModal, setShowSessionsModal] = useState(false);

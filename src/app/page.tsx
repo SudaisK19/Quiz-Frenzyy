@@ -42,7 +42,8 @@ function showBadgeToast(badge: Badge) {
         />
         <div className="text-left leading-tight">
           <p className="text-xs sm:text-sm text-gray-300">
-            You've earned{" "}
+          You&apos;ve earned
+          {" "}
             <span className="font-bold text-[#ec5f80]">{badge.name}</span>
           </p>
           <p className="text-[10px] sm:text-xs text-gray-400">{badge.description}</p>
@@ -79,12 +80,14 @@ async function updateBadges(userId: string) {
     toast.error("Badge update failed.");
   }
 }
-
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface UserProfile {
   _id: string;
   username: string;
 }
 
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface JoinData {
   player_quiz_id: string;
   session_id: string;
@@ -166,9 +169,9 @@ export default function Home() {
       } else {
         setError("Invalid quiz code. Please try again.");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error joining quiz:", error);
-      setError(error.message || "Something went wrong.");
+      setError("Something went wrong.");
     }
   }
 
@@ -197,7 +200,7 @@ export default function Home() {
         );
       } else {
         toast.error("Failed to update session details: " + updatedData.error);      }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error updating session details:", err);
       setError("Failed to update session details");
     }
