@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 interface Quiz {
   _id: string;
@@ -41,9 +43,18 @@ export default function MyCollection() {
       })
       .then((data) => {
         if (data.success) {
+          //  Remove duplicates within each section separately
+          const uniqueHosted = new Map<string, Quiz>();
+          const uniquePlayed = new Map<string, Quiz>();
+
+          
+          data.hosted_quizzes.forEach((quiz: Quiz) => uniqueHosted.set(quiz._id, quiz)); // Explicit type
+          data.participated_quizzes.forEach((quiz: Quiz) => uniquePlayed.set(quiz._id, quiz)); //  Explicit type
+
+
           setCollection({
-            hosted_quizzes: data.hosted_quizzes,
-            participated_quizzes: data.participated_quizzes,
+            hosted_quizzes: Array.from(uniqueHosted.values()),
+            participated_quizzes: Array.from(uniquePlayed.values()),
           });
         } else {
           setError(data.error);
@@ -57,7 +68,6 @@ export default function MyCollection() {
       });
   }, []);
 
-  // Rehost Quiz function remains unchanged.
   const handleRehostQuiz = async (quizId: string) => {
     try {
       const res = await fetch("/api/quizzes/rehost", {
@@ -67,12 +77,9 @@ export default function MyCollection() {
         body: JSON.stringify({ quizId, duration: 10 }),
       });
 
-      const rawText = await res.text();
-      console.log("Rehost raw response:", rawText);
-      const data = JSON.parse(rawText);
-
+      const data = await res.json();
       if (data.success) {
-        setRehostMessage(`New session created for quiz ${quizId}! Join code: ${data.join_code}`);
+        setRehostMessage(`New session created! Join Code: ${data.join_code}`);
       } else {
         setRehostMessage("Rehost failed: " + data.error);
       }
@@ -82,7 +89,6 @@ export default function MyCollection() {
     }
   };
 
-  // Updated function to fetch sessions using the new route (/api/quizzes/sessions-list)
   const handleViewSessions = async (quizId: string, quizTitle: string) => {
     try {
       const res = await fetch(`/api/quizzes/sessions-list?quizId=${quizId}`, {
@@ -90,131 +96,187 @@ export default function MyCollection() {
         credentials: "include",
       });
       const data = await res.json();
+      
       if (data.success) {
-        // Expecting an array of sessions from the new route.
         setCurrentQuizSessions(data.sessions);
         setCurrentQuizTitle(quizTitle);
         setShowSessionsModal(true);
+        setError(null); // ✅ Clear any previous errors
       } else {
-        alert("Failed to fetch sessions: " + data.error);
+        setError(data.error || "Failed to fetch sessions."); // ✅ Show error in UI
       }
     } catch (err) {
       console.error("Error fetching sessions:", err);
-      alert("Failed to fetch sessions");
+      setError("Failed to fetch sessions. Please try again."); // ✅ User-friendly error message
     }
   };
+  
 
-  // When a session is selected, navigate to the leaderboard for that session.
   const handleSelectSession = (sessionId: string) => {
     setShowSessionsModal(false);
     router.push(`/leaderboard?session_id=${sessionId}`);
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>{error}</p>;
+  const handleViewResults = (sessionId: string) => {
+    setShowSessionsModal(false);
+    router.push(`/results/${sessionId}`);
+  };
 
   return (
-    <div style={{ padding: "20px", maxWidth: "600px", margin: "auto" }}>
-      <h1>My Collection</h1>
+    <>
+      <Header />
+      <div className="flex justify-center items-center p-6 min-h-screen w-full  ">
+        <div className="bg-[#242424] p-10 rounded-[30px] shadow-lg flex flex-col w-11/12 md:w-9/10 min-h-[80vh] mx-auto my-10">
+          
+          {/* 🔹 Hosted Quizzes */}
+          <div className="bg-[#333436] rounded-[20px] p-6 mb-6">
+            {error && <p className="text-red-500 text-center mt-4">{error}</p>}
 
-      <h3>Hosted Quizzes:</h3>
-      {collection?.hosted_quizzes.length ? (
-        <ul>
-          {collection.hosted_quizzes.map((quiz, index) => (
-            <li key={`${quiz._id}-${index}`} style={{ marginBottom: "20px" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <div>
-                  <h4>{quiz.title}</h4>
-                  <p>{quiz.description}</p>
-                </div>
-                <div>
-                  <button
-                    onClick={() => handleRehostQuiz(quiz._id)}
-                    style={{ padding: "6px 12px", marginRight: "10px" }}
-                  >
-                    Rehost Quiz
-                  </button>
-                  <button
-                    onClick={() => handleViewSessions(quiz._id, quiz.title)}
-                    style={{ padding: "6px 12px" }}
-                  >
-                    View Sessions
-                  </button>
-                </div>
+            <h2 className="text-4xl sm:text-4xl text-white mb-6 ml-2">
+              Hosted <span className="text-pink-400">Quizzes</span>
+            </h2>
+
+            {collection?.hosted_quizzes.length ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {collection.hosted_quizzes.map((quiz) => (
+                  <div key={quiz._id} className="bg-[#1e1e1e] p-5 rounded-xl shadow-lg flex flex-col justify-between items-center">
+                    <h4 className="text-white text-lg mb-2 break-words text-center w-full mb-8">
+                      {quiz.title}
+                    </h4>
+              
+                    {/* Buttons  */}
+                    <div className="flex flex-col gap-3 w-full">
+                      <button
+                        onClick={() => handleRehostQuiz(quiz._id)}
+                        className="w-full relative flex justify-center items-center px-4 py-2 text-[#ff3c83]  tracking-wider border-2 border-[#ff3c83] rounded-full overflow-hidden transition-all duration-150 ease-in hover:text-white hover:border-white before:absolute before:top-0 before:left-1/2 before:right-1/2 before:bottom-0 before:bg-gradient-to-r before:from-[#fd297a] before:to-[#9424f0] before:opacity-0 before:transition-all before:duration-150 before:ease-in hover:before:left-0 hover:before:right-0 hover:before:opacity-100"
+                      >
+                        <span className="relative z-10 text-sm sm:text-base md:text-lg leading-none">
+                          Rehost
+                        </span>
+                      </button>
+              
+                      <button
+                        onClick={() => handleViewSessions(quiz._id, quiz.title)}
+                        className="w-full relative flex justify-center items-center px-4 py-2 text-[#ff3c83]  tracking-wider border-2 border-[#ff3c83] rounded-full overflow-hidden transition-all duration-150 ease-in hover:text-white hover:border-white before:absolute before:top-0 before:left-1/2 before:right-1/2 before:bottom-0 before:bg-gradient-to-r before:from-[#fd297a] before:to-[#9424f0] before:opacity-0 before:transition-all before:duration-150 before:ease-in hover:before:left-0 hover:before:right-0 hover:before:opacity-100"
+                      >
+                        <span className="relative z-10 text-sm sm:text-base md:text-lg leading-none">
+                          View Sessions
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+               
+              
+                ))}
               </div>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>No hosted quizzes.</p>
-      )}
+            ) : (
+              <p className="text-gray-400">No hosted quizzes.</p>
+            )}
+          </div>
 
-      {rehostMessage && <p>{rehostMessage}</p>}
+          {/* 🔹 Played Quizzes */}
+          <div className="bg-[#333436] rounded-[20px] p-6">
+            <h2 className="text-4xl sm:text-4xl text-white mb-6 ml-2">
+              Played <span className="text-pink-400">Quizzes</span>
+            </h2>
 
-      <h3>Played Quizzes:</h3>
-      {collection?.participated_quizzes.length ? (
-        <ul>
-          {collection.participated_quizzes.map((quiz, index) => (
-            <li key={`${quiz._id}-${index}`}>
-              <h4>{quiz.title}</h4>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>No played quizzes.</p>
-      )}
+            {collection?.participated_quizzes.length ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {collection.participated_quizzes.map((quiz) => (
+                  <div key={quiz._id} className="bg-[#1e1e1e] p-5 rounded-xl shadow-lg flex flex-col justify-between items-center">
+                    <h4 className="text-white text-lg mb-2 break-words text-center w-full mb-8">
+                      {quiz.title}
+                    </h4>
+              
+                    {/* 🔹 Single Button - Stacked like Hosted Quizzes */}
+                    <div className="flex flex-col gap-3 w-full">
+                      <button
+                        onClick={() => handleViewSessions(quiz._id, quiz.title)}
+                        className="w-full relative flex justify-center items-center px-4 py-2 text-[#ff3c83] tracking-wider border-2 border-[#ff3c83] rounded-full overflow-hidden transition-all duration-150 ease-in hover:text-white hover:border-white before:absolute before:top-0 before:left-1/2 before:right-1/2 before:bottom-0 before:bg-gradient-to-r before:from-[#fd297a] before:to-[#9424f0] before:opacity-0 before:transition-all before:duration-150 before:ease-in hover:before:left-0 hover:before:right-0 hover:before:opacity-100"
+                      >
+                        <span className="relative z-10 text-sm sm:text-base md:text-lg leading-none">
+                          View Sessions
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            
+            ) : (
+              <p className="text-gray-400">No played quizzes.</p>
+            )}
+          </div>
 
-      {/* Modal for displaying sessions */}
+          
+        </div>
+      </div>
+
+
+      {/* Sessions Modal */}
       {showSessionsModal && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(0,0,0,0.5)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "white",
-              padding: "20px",
-              borderRadius: "8px",
-              maxWidth: "400px",
-              width: "100%",
-            }}
-          >
-            <h3>Sessions for {currentQuizTitle}</h3>
+        <div className="fixed inset-0 flex justify-center items-center bg-black/65 z-50 overflow-y-auto">
+          <div className="bg-[#242424] p-6 rounded-lg w-96 max-h-[90vh] overflow-y-auto">
+            <h3 className="text-[#ec5f80] text-xl mb-4">Sessions for {currentQuizTitle}</h3>
             {currentQuizSessions.length ? (
-              <ul>
+              <ul className="space-y-2">
                 {currentQuizSessions.map((session) => (
-                  <li key={session._id} style={{ marginBottom: "10px" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <span>Join Code: {session.join_code}</span>
+                  <li
+                    key={session._id}
+                    className="bg-[#1e1e1e] p-3 rounded-md flex justify-between items-center"
+                  >
+                    <span className="text-gray-400">Join Code: {session.join_code}</span>
+                    <div className="flex flex-col space-y-2">
                       <button
                         onClick={() => handleSelectSession(session._id)}
-                        style={{ padding: "4px 8px" }}
+                        className="px-3 py-1 border border-[#ec5f80] text-[#ec5f80] rounded-full transition hover:bg-white hover:text-[#ec5f80] transition"
                       >
                         View Leaderboard
                       </button>
+                      {/* View Results Button */}
+                      <button
+                        onClick={() => handleViewResults(session._id)}
+                        className="px-3 py-1 border border-[#ec5f80] text-[#ec5f80] rounded-full transition hover:bg-white hover:text-[#ec5f80] transition"
+                      >
+                        View Results
+                      </button>
+
                     </div>
+                    
                   </li>
                 ))}
               </ul>
             ) : (
-              <p>No sessions found.</p>
+              <p className="text-gray-400">No sessions found.</p>
             )}
-            <button onClick={() => setShowSessionsModal(false)} style={{ marginTop: "10px", padding: "6px 12px" }}>
+            <button
+              onClick={() => setShowSessionsModal(false)}
+              className="mt-5 px-6 py-2 w-auto mx-auto block border border-[#ec5f80] text-[#ec5f80] rounded-full transition hover:bg-white hover:text-[#ec5f80]"
+            >
               Close
             </button>
           </div>
         </div>
       )}
-    </div>
+
+      {/* 🔹 Rehost Message Modal */}
+      {rehostMessage && (
+        <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-black/65 z-50">
+          <div className="bg-[#242424] p-6 rounded-lg w-80 text-center shadow-lg">
+            <h3 className="text-green-400 text-lg font-semibold mb-4">Quiz Rehosted Successfully!</h3>
+            <p className="text-gray-300">{rehostMessage}</p>
+            <button 
+              onClick={() => setRehostMessage("")} 
+              className="w-full mt-4 px-4 py-2 border border-[#ec5f80] text-[#ec5f80] rounded-full transition hover:bg-white hover:text-[#ec5f80] transition"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
+
+
+      <Footer />
+    </>
   );
 }

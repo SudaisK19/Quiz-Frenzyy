@@ -10,37 +10,40 @@
   },
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
-    "axios": "^1.8.2",
+    "@tailwindcss/postcss": "^4.0.12",
+    "axios": "^1.7.9",
     "bcrypt": "^5.1.1",
-    "bcryptjs": "^3.0.2",
+    "bcryptjs": "^2.4.3",
     "cloudinary": "^2.6.0",
     "dotenv": "^16.4.7",
+    "framer-motion": "^12.6.2",
     "lodash": "^4.17.21",
-    "mongoose": "^8.12.1",
-    "next": "^15.2.1",
+    "lottie-react": "^2.4.1",
+    "mongoose": "^8.9.5",
+    "next": "15.2.1",
     "nodemailer": "^6.10.0",
-    "openai": "^4.86.2",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "openai": "^4.86.1",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
     "react-hot-toast": "^2.5.2",
-    "rimraf": "^6.0.1",
+    "react-icons": "^5.5.0",
+    "tailwindcss": "^4.0.12",
     "utils": "^0.3.1"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.3.0",
+    "@eslint/eslintrc": "^3",
     "@types/bcrypt": "^5.0.2",
-    "@types/jsonwebtoken": "^9.0.9",
+    "@types/jsonwebtoken": "^9.0.8",
     "@types/lodash": "^4.17.16",
-    "@types/node": "^22.13.10",
-    "@types/react": "^19.0.10",
-    "@types/react-dom": "^19.0.4",
-    "autoprefixer": "^10.4.21",
-    "eslint": "^9.22.0",
-    "eslint-config-next": "^15.2.1",
-    "jsonwebtoken": "^9.0.2",
+    "@types/node": "^22.10.10",
+    "@types/react": "19.0.10",
+    "@types/react-dom": "19.0.4",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^9",
+    "eslint-config-next": "15.2.1",
+    "jsonwebtoken": "^8.5.1",
     "postcss": "^8.5.3",
-    "tailwindcss": "^4.0.12",
-    "typescript": "^5.8.2"
+    "typescript": "^5"
   },
   "eslintConfig": {
     "extends": "next",
@@ -49,5 +52,9 @@
       "@typescript-eslint/no-explicit-any": "off",
       "react/no-unescaped-entities": "off"
     }
+  },
+  "overrides": {
+    "@types/react": "19.0.10",
+    "@types/react-dom": "19.0.4"
   }
 }

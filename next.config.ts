@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
         hostname: "api.dicebear.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com", // ✅ Allow Cloudinary images
+        pathname: "/**",
+      },
     ],
     dangerouslyAllowSVG: true,
   },

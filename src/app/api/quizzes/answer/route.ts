@@ -11,12 +11,12 @@ export async function POST(request: NextRequest) {
     const { player_quiz_id, question_id, submitted_answer } = await request.json();
 
     if (!player_quiz_id || !question_id || submitted_answer === undefined) {
-      return NextResponse.json({ error: "missing required fields" }, { status: 400 });
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
     const question = await Question.findById(question_id);
     if (!question) {
-      return NextResponse.json({ error: "question not found" }, { status: 404 });
+      return NextResponse.json({ error: "Question not found" }, { status: 404 });
     }
 
     let is_correct = false;
@@ -58,6 +58,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, is_correct, pointsEarned }, { status: 201 });
   } catch (error) {
     console.error("error saving answer:", error);
-    return NextResponse.json({ error: "internal server error" }, { status: 500 });
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

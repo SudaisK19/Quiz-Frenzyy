@@ -15,7 +15,7 @@ export async function PATCH(request: NextRequest) {
     const { playerQuizId, avatar, displayName } = body;
 
     if (!playerQuizId) {
-      return NextResponse.json({ error: "playerQuizId is required" }, { status: 400 });
+      return NextResponse.json({ error: "PlayerQuizId is required" }, { status: 400 });
     }
 
     

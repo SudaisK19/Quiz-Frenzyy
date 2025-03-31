@@ -68,7 +68,7 @@ export async function GET(
   } catch (error) {
     console.error("error fetching leaderboard:", error);
     return NextResponse.json(
-      { error: "internal server error" },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }

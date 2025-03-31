@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Session from "@/models/sessionModel";
 import Question from "@/models/questionModel";
 import { connect } from "@/dbConfig/dbConfig";
-import { shuffle } from "lodash"; // library for shuffle function
+import { shuffle } from "lodash"; // Library for shuffle function
 
 connect();
 
@@ -38,9 +38,13 @@ export async function GET(
       return NextResponse.json({ error: "No questions available for this quiz" }, { status: 404 });
     }
 
-    
     questions = shuffle(questions).map((question) => {
-      if ((question.question_type === "MCQ" ||question.question_type === "Ranking" ||question.question_type === "Image") &&question.options?.length){
+      if (
+        (question.question_type === "MCQ" ||
+          question.question_type === "Ranking" ||
+          question.question_type === "Image") &&
+        question.options?.length
+      ) {
         question.options = shuffle(question.options);
       }
       return {
@@ -61,6 +65,7 @@ export async function GET(
         quiz: session.quiz_id,
         questions,
         duration: session.quiz_id.duration,
+        start_time: session.start_time, // ✅ Added Start Time
       },
       { status: 200 }
     );

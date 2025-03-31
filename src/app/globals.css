@@ -1,16 +1,44 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@import "tailwindcss";
+
+
+html, body {
+  background: linear-gradient(135deg, #121212, #2C003E, #FF4F9E);
+  overflow: auto;
+  overflow-x:hidden;
+  font-family: "Poppins", sans-serif;
+  
+  
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+
+
+main{
+  position: relative;
+  z-index: 3;
+}
+
+
+
+/* Falling Robots Animation */
+@keyframes fall {
+  0% {
+    transform: translateY(-10vh); /* Start slightly above the viewport */
+    opacity: 0.9;
+  }
+  80% {
+    opacity: 0.9; /* Fully visible until near the bottom */
+  }
+  100% {
+    transform: translateY(calc(100vh + 100%));
+    opacity: 0.7; /* Gradually disappears */
   }
 }
 
+.falling-robot {
+  position: relative;
+  opacity: 1.0;
+  animation: fall linear infinite;
+  z-index: 1;
+}

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 export async function POST() {
   try {
-    const response = NextResponse.json({ message: "logout successful", success: true }, { status: 200 });
+    const response = NextResponse.json({ message: "Logout successful", success: true }, { status: 200 });
 
     response.cookies.set({
       name: "authToken",
@@ -16,6 +16,6 @@ export async function POST() {
     return response;
   } catch (error) {
     console.error("error during logout:", error);
-    return NextResponse.json({ error: "logout failed" }, { status: 500 });
+    return NextResponse.json({ error: "Logout failed" }, { status: 500 });
   }
 }

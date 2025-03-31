@@ -12,28 +12,28 @@ function getBadges(points: number, plays: number, hosts: number) {
 
   if (plays >= 1) {
     badges.push({
-      name: 'first quiz conqueror',
+      name: 'First Quiz Conqueror',
       imageUrl: '/badges/first-quiz-conqueror.png',
       description: 'first quiz done',
     })
   }
   if (plays >= 5) {
     badges.push({
-      name: 'quiz dynamo',
+      name: 'Quiz Dynamo',
       imageUrl: '/badges/quiz-dynamo.png',
       description: '5 quizzes done',
     })
   }
   if (plays >= 10) {
     badges.push({
-      name: 'quiz virtuoso',
+      name: 'Quiz Virtuoso',
       imageUrl: '/badges/quiz-virtuoso.png',
       description: '10 quizzes done like a pro',
     })
   }
   if (plays >= 50) {
     badges.push({
-      name: 'quiz legend',
+      name: 'Quiz Legend',
       imageUrl: '/badges/quiz-legend.png',
       description: '50 quizzes done like a legend',
     })
@@ -41,21 +41,21 @@ function getBadges(points: number, plays: number, hosts: number) {
 
   if (points >= 50) {
     badges.push({
-      name: 'point pioneer',
+      name: 'Point Pioneer',
       imageUrl: '/badges/point-pioneer.png',
       description: '50 points earned',
     })
   }
   if (points >= 100) {
     badges.push({
-      name: 'centurion',
+      name: 'Centurion',
       imageUrl: '/badges/centurion.png',
       description: '100 points earned',
     })
   }
   if (points >= 200) {
     badges.push({
-      name: 'double century champion',
+      name: 'Double Century Champion',
       imageUrl: '/badges/double-century-champion.png',
       description: '200 points earned',
     })
@@ -70,14 +70,14 @@ function getBadges(points: number, plays: number, hosts: number) {
 
   if (hosts >= 1) {
     badges.push({
-      name: 'quiz host extraordinaire',
+      name: 'Quiz Host Extraordinaire',
       imageUrl: '/badges/quiz-host-extraordinaire.png',
       description: 'hosted your first quiz',
     })
   }
   if (hosts >= 10) {
     badges.push({
-      name: 'master quiz host',
+      name: 'Master Quiz Host',
       imageUrl: '/badges/master-quiz-host.png',
       description: 'hosted 10 quizzes',
     })

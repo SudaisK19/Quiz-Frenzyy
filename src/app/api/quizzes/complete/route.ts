@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     if (!player_quiz_id || !answers || answers.length === 0) {
       console.log("Missing required fields: player_quiz_id or answers");
       return NextResponse.json(
-        { error: "player quiz id and answers are required" },
+        { error: "Player quiz Id and answers are required" },
         { status: 400 }
       );
     }
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     if (!playerQuiz) {
       console.log("Player quiz not found for id:", player_quiz_id);
       return NextResponse.json(
-        { error: "player quiz not found" },
+        { error: "Player quiz not found" },
         { status: 404 }
       );
     }
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
       answers.map(async (ans: { question_id: string; submitted_answer: string | string[] }) => {
         const question = await Question.findById(ans.question_id);
         if (!question) {
-          throw new Error(`Question not found for id: ${ans.question_id}`);
+          throw new Error(`Question not found for Id: ${ans.question_id}`);
         }
         let is_correct = false;
         const submitted = ans.submitted_answer;
@@ -114,6 +114,6 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error("Error finalizing quiz:", error);
-    return NextResponse.json({ error: "internal server error" }, { status: 500 });
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
