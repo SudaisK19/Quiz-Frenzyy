@@ -80,14 +80,14 @@ async function updateBadges(userId: string) {
     toast.error("Badge update failed.");
   }
 }
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 interface UserProfile {
   _id: string;
   username: string;
 }
 
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 interface JoinData {
   player_quiz_id: string;
   session_id: string;
@@ -96,9 +96,9 @@ interface JoinData {
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [quizCode, setQuizCode] = useState("");
-  const [error, setError] = useState("");
-  const [userData, setUserData] = useState<any>(null);
-  const [joinData, setJoinData] = useState<any>(null);
+  const [, setError] = useState("");
+  const [userData, setUserData] = useState<UserProfile | null>(null);
+  const [joinData, setJoinData] = useState<JoinData | null>(null);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [avatarSeed, setAvatarSeed] = useState(50);
   const [sessionDisplayName, setSessionDisplayName] = useState("");
@@ -187,16 +187,16 @@ export default function Home() {
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          playerQuizId: joinData.player_quiz_id,
+          playerQuizId: joinData?.player_quiz_id,
           avatar: avatarUrl,
-          displayName: sessionDisplayName || userData.username,
+          displayName: sessionDisplayName || userData?.username,
         }),
       });
       const updatedData = await res.json();
       if (updatedData.success) {
         setShowAvatarModal(false);
         router.push(
-          `/play-quiz?session_id=${joinData.session_id}&player_quiz_id=${joinData.player_quiz_id}`
+          `/play-quiz?session_id=${joinData?.session_id}&player_quiz_id=${joinData?.player_quiz_id}`
         );
       } else {
         toast.error("Failed to update session details: " + updatedData.error);      }
