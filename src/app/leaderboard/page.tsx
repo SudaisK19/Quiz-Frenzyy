@@ -2,7 +2,7 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState, Suspense } from "react";
-import {useSearchParams } from "next/navigation";
+import {  useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -62,7 +62,7 @@ function LeaderboardContent() {
   let prevScore: number | null = null;
   let rankOffset = 0;
 
-  const rankedPlayers = sortedPlayers.map((player) => {
+  const rankedPlayers = sortedPlayers.map((player, index) => {
     if (player.score !== prevScore) {
       rank += rankOffset;
       rankOffset = 1;

@@ -75,9 +75,9 @@ const handleUpdate = async () => {
     <>
       <Header />
       <div className="flex justify-center items-center p-6 min-h-screen w-full">
-        <div className="bg-[#242424] p-10 rounded-[30px] shadow-lg flex flex-col md:flex-row w-11/12 md:w-9/10 min-h-[80vh] mx-auto my-10">
+        <div className="bg-[#242424] p-10 rounded-[30px] shadow-lg flex flex-col  md:flex-row w-11/12 md:w-9/10 min-h-[80vh] mx-auto my-10">
           {/* User Info */}
-          <div className="flex-1 bg-[#333436] rounded-[30px] p-10">
+          <div className="flex-1  bg-[#333436] rounded-[30px] p-10">
             {error && <p className="text-center text-red-500 mt-4">{error}</p>}
 
             <div className="flex items-center gap-2">
@@ -104,32 +104,29 @@ const handleUpdate = async () => {
 
 
             {editMode && (
-              <div className="mt-4 bg-[#242424] p-6 rounded-lg shadow-md">
+              <div className="mt-4 bg-[#242424] flex flex-col p-6 rounded-lg shadow-md ">
                 <input
                   type="text"
                   placeholder="New Username"
                   value={newData.username}
                   onChange={(e) => setNewData({ ...newData, username: e.target.value })}
-                  className="w-full p-2 rounded-md bg-[#333] text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#ec5f80] text-sm md:text-base"
-                />
+                  className=" w-full p-1 sm:p-2 md:p-2 mb-2 rounded-full bg-[#1e1e1e] text-white placeholder-white text-xs sm:text-sm md:text-base placeholder-gray-400 border border-[#ff3c83] focus:outline-none focus:ring-2 focus:ring-[#ec5f80]"                />
                 <input
                   type="email"
                   placeholder="New Email"
                   value={newData.email}
                   onChange={(e) => setNewData({ ...newData, email: e.target.value })}
-                  className="w-full p-2 rounded-md bg-[#333] text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#ec5f80] text-sm md:text-base"
-                />
+                  className=" w-full p-1 sm:p-2 md:p-2 mb-2 rounded-full bg-[#1e1e1e] text-white placeholder-white text-xs sm:text-sm md:text-base placeholder-gray-400 border border-[#ff3c83] focus:outline-none focus:ring-2 focus:ring-[#ec5f80]"                />
                 <input
                   type="password"
                   placeholder="New Password (Optional)"
                   value={newData.password}
                   onChange={(e) => setNewData({ ...newData, password: e.target.value })}
-                  className="w-full p-2 rounded-md bg-[#333] text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#ec5f80] text-sm md:text-base"
-                />
+                  className=" w-full   p-1 sm:p-2 md:p-2 mb-2 rounded-full bg-[#1e1e1e] text-white placeholder-white text-xs sm:text-sm md:text-base placeholder-gray-400 border border-[#ff3c83] focus:outline-none focus:ring-2 focus:ring-[#ec5f80]"                />
 
                 <button
                   onClick={handleUpdate}
-                  className="mt-4 px-4 py-2 border border-[#ec5f80] text-[#ec5f80] rounded-full transition hover:bg-white hover:text-[#ec5f80] w-full md:w-auto">
+                  className="mt-4 px-4 py-2 border border-[#ec5f80] text-[#ec5f80] rounded-full transition hover:bg-white hover:text-[#ec5f80] w-full md:w-auto  max-w-[250px] sm:max-w-[220px] md:max-w-[200px] lg:max-w-[250px]">
                   Change
                 </button>
               </div>
