@@ -62,7 +62,7 @@ function LeaderboardContent() {
   let prevScore: number | null = null;
   let rankOffset = 0;
 
-  const rankedPlayers = sortedPlayers.map((player) => {
+  const rankedPlayers = sortedPlayers.map((player,) => {
     if (player.score !== prevScore) {
       rank += rankOffset;
       rankOffset = 1;
