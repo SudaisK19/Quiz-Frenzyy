@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import "@/models/quizModel";
 
-connect();
+
 
 type UpdateData = {
   username?: string;
@@ -15,6 +15,7 @@ type UpdateData = {
 
 export async function GET(request: NextRequest) {
   try {
+    await connect();
     const token = request.cookies.get("authToken")?.value;
     if (!token) {
       return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });

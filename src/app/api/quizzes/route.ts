@@ -5,7 +5,7 @@ import Session from "@/models/sessionModel";
 import UserNew from "@/models/userModel";
 import { connect } from "@/dbConfig/dbConfig";
 
-connect();
+
 
 interface QuestionInput {
   question_text: string;
@@ -20,6 +20,7 @@ interface QuestionInput {
 
 export async function POST(request: NextRequest) {
   try {
+    await connect();
     const { title, description, created_by, duration, total_points, questions } = await request.json();
 
     const quiz = new Quiz({

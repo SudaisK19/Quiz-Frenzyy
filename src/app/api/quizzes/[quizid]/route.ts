@@ -3,11 +3,13 @@ import Quiz from "@/models/quizModel";
 import Question from "@/models/questionModel";
 import { connect } from "@/dbConfig/dbConfig";
 
-connect();
+
 
 export async function PATCH(request: NextRequest, context: unknown) {
   const { params } = context as { params: { quizid: string } };
   try {
+
+    await connect();
     const { title, description, duration, questions } = await request.json();
 
     const totalQuizPoints = await Question.aggregate([

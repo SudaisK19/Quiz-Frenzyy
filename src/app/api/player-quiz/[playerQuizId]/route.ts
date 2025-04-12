@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import PlayerQuiz from "@/models/playerQuizModel";
 import { connect } from "@/dbConfig/dbConfig";
 
-connect();
+
 
 export async function GET(
   request: NextRequest,
   context: { params: Promise<{ playerQuizId: string }> }
 ) {
   try {
+    await connect();
     const resolvedParams = await context.params;
     const { playerQuizId } = resolvedParams;
 

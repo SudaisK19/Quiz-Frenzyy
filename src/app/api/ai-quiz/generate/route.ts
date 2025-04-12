@@ -8,7 +8,7 @@ import mongoose from "mongoose";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import OpenAI from "openai";
 
-connect();
+await connect();
 
 interface DecodedToken extends JwtPayload {
   id?: string;
@@ -23,6 +23,8 @@ interface GeneratedQuestion {
 
 export async function POST(request: NextRequest) {
   try {
+    await connect();
+
     const { topic, numQuestions, duration, questionConfigs } = await request.json();
     if (!topic || !numQuestions) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });

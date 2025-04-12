@@ -5,10 +5,11 @@ import UserNew from "@/models/userModel";
 import { connect } from "@/dbConfig/dbConfig";
 import jwt from "jsonwebtoken";
 
-connect();
+
 
 export async function POST(req: NextRequest) {
   try {
+    await connect();
     const { quizId, duration } = await req.json();
     if (!quizId) {
       return NextResponse.json({ error: "Quiz ID is required" }, { status: 400 });

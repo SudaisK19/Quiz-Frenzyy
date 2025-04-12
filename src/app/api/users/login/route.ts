@@ -3,10 +3,11 @@ import User from "@/models/userModel";
 import jwt from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server";
 
-connect();
+
 
 export async function POST(request: NextRequest) {
   try {
+    await connect();
     const { email, password } = await request.json();
 
     const user = await User.findOne({ email });

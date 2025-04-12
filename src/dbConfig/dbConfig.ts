@@ -1,4 +1,3 @@
-
 import { EventEmitter } from "events";
 EventEmitter.defaultMaxListeners = 20;
 
@@ -46,11 +45,12 @@ export async function connect() {
     return cached.conn;
   }
 
-  // If there's no existing promise, create one
+  // If there's no existing promise, create one with pooling enabled
   if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGO_URI as string).then((mongooseInstance) => {
-      return mongooseInstance;
-    });
+    cached.promise = mongoose.connect(MONGO_URI as string, {
+      // Setting the maximum number of connections in the pool
+      maxPoolSize: 10,
+    }).then((mongooseInstance) => mongooseInstance);
   }
 
   try {
