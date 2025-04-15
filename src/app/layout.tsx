@@ -7,17 +7,37 @@ import { Toaster } from "react-hot-toast"; // Import the Toaster
 
 const generateRobots = () => {
   const robots = [];
-  const sources = ["/images/robot1.png", "/images/robot4.png", "/images/robot3.png","/images/book (1).png","/images/game (2).png","/images/pencil (2).png","/images/qmark (1).png","/images/brain (1).png"];
-  const totalRobots = 60;
-  const screenWidth = 100; // Percentage width of screen
-  const spacing = screenWidth / totalRobots; // Correct spacing across full width
+  const sources = [
+    "/images/robot1.png",
+    "/images/robot4.png",
+    "/images/robot3.png",
+    "/images/book (1).png",
+    "/images/game (2).png",
+    "/images/pencil (2).png",
+    "/images/qmark (1).png",
+    "/images/brain (1).png",
+  ];
+
+  // Detect screen width
+  const screenWidth = typeof window !== "undefined" ? window.innerWidth : 1440;
+
+  // Adjust robot count based on screen size
+  let totalRobots = 60;
+  if (screenWidth <= 425) totalRobots = 8;       // Small mobiles
+  else if (screenWidth <= 480 && screenWidth > 425 ) totalRobots = 10;
+  else if (screenWidth <= 768 && screenWidth > 480 ) totalRobots = 25;  // Tablets
+  else if (screenWidth <= 1024 && screenWidth > 768) totalRobots = 40; // Small laptops
+  else totalRobots = 60;                          // Full-size screens
+
+  const screenWidthPercent = 100;
+  const spacing = screenWidthPercent / totalRobots;
 
   for (let i = 0; i < totalRobots; i++) {
-    const randomSrc = sources[i % sources.length]; // Cycle through images
-    const fixedLeft = i * spacing; // Evenly distribute across full width
-    const randomDuration = 25 + Math.random() * 8; // Fall duration (12s - 20s)
-    const randomDelay = Math.random() * 30; // Random delay (0s - 5s)
-    const fixedRotation = Math.random() * 40 - 20; // Random tilt (-20° to 20°)
+    const randomSrc = sources[i % sources.length];
+    const fixedLeft = i * spacing;
+    const randomDuration = 25 + Math.random() * 8;
+    const randomDelay = Math.random() * 30;
+    const fixedRotation = Math.random() * 40 - 20;
 
     robots.push(
       <Image
@@ -28,17 +48,20 @@ const generateRobots = () => {
         height={30}
         style={{
           position: "absolute",
-          left: `calc(${fixedLeft}vw - ${30 / 2}px)`, // Adjust for centering
+          left: `calc(${fixedLeft}vw - ${30 / 2}px)`,
           top: "-10%",
-          transform: `rotate(${fixedRotation}deg)`, // Tilt at spawn, no rotation while falling
+          transform: `rotate(${fixedRotation}deg)`,
           animation: `fall ${randomDuration}s linear infinite`,
           animationDelay: `${randomDelay}s`,
+          pointerEvents: "none", // Optional: let clicks pass through
         }}
       />
     );
   }
+
   return robots;
 };
+
 
 
 

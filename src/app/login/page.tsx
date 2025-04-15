@@ -48,8 +48,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen w-screen p-4">
-      <div className="w-[300px] max-w-md p-3 md:p-3 bg-[#191919] text-center shadow-lg shadow-blue-500/30 rounded-lg relative z-10">
+    <div className="w-full px-2 sm:px-4 md:px-6 lg:px-8 xl:px-12 flex justify-center items-center min-h-screen">
+      <div className="w-full max-w-3xs sm:max-w-xs md:max-w-xs lg:max-w-xs xl:max-w-xs p-5 sm:p-6 md:p-8 bg-[#191919] text-center shadow-lg shadow-blue-500/30 rounded-lg relative z-10">
 
         
 
