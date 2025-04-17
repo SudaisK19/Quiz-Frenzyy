@@ -196,11 +196,9 @@ export default function CreateQuiz() {
       }
   
       if (q.question_type === "MCQ" || q.question_type === "Image") {
-        // Extract all options (assuming q.options is an array of strings)
         const options = q.options.map((opt) => opt.trim().toLowerCase());
         const correctAnswer = typeof q.correct_answer === "string" ? q.correct_answer.trim().toLowerCase() : "";
   
-        // ❌ Check if the correct answer is valid
         if (!options.includes(correctAnswer)) {
           setMessage(`Error: Question ${qIndex + 1} has an invalid correct answer!`);
           isValid = false;
@@ -227,16 +225,15 @@ export default function CreateQuiz() {
     setLoading(false);
   
     if (!data.success) {
-      setMessage(`Error creating quiz: ${data.error}`); 
+      setMessage(`Error creating quiz: ${data.error}`);
     } else {
       setQuiz((prevQuiz) => ({
         ...prevQuiz,
-        _id: data.quiz._id,
-        join_code: data.session.join_code,
-        session_id: data.session.sessionId,
+        _id: data.quiz._id, // No session or join_code here
       }));
     }
   }
+  
   
 
   return (
@@ -343,8 +340,6 @@ export default function CreateQuiz() {
                     )}
                   </div>
                 )}
-
-
 
                 {/* Options for MCQ, Ranking, Image */}
                 {(q.question_type === "MCQ" || q.question_type === "Ranking" || q.question_type === "Image") && (
@@ -461,17 +456,19 @@ export default function CreateQuiz() {
 
               <button
                 onClick={handleCreateQuiz}
-                disabled={loading}
-                className="mx-auto w-[80%] sm:w-3/4 md:w-2/3 block relative flex justify-center items-center px-4 py-3 
+                disabled={loading || quiz.questions.length === 0}
+                className={`mx-auto w-[80%] sm:w-3/4 md:w-2/3 block relative flex justify-center items-center px-4 py-3 
                 text-[#ff3c83] text-md sm:text-base md:text-lg tracking-wider border-2 border-[#ff3c83] rounded-full overflow-hidden 
                 transition-all duration-150 ease-in hover:text-white hover:border-white 
                 before:absolute before:top-0 before:left-1/2 before:right-1/2 before:bottom-0 
                 before:bg-gradient-to-r before:from-[#fd297a] before:to-[#9424f0] before:opacity-0 
                 before:transition-all before:duration-150 before:ease-in 
-                hover:before:left-0 hover:before:right-0 hover:before:opacity-100"
+                hover:before:left-0 hover:before:right-0 hover:before:opacity-100
+                ${quiz.questions.length === 0 ? "cursor-not-allowed" : ""}`}
               >
                 <span className="relative z-10">{loading ? "Creating..." : " Create Quiz"}</span>
               </button>
+
 
               {/* ✅ Error Message */}
               {message && <p className="text-center text-red-500 mt-4">{message}</p>}
@@ -480,32 +477,14 @@ export default function CreateQuiz() {
             {/* ✅ Quiz Created Message */}
             {quiz._id && (
               <div className="bg-[#1e1e1e] p-6 rounded-lg mt-6 text-center">
-                <h2 className="text-xl text-[#ec5f80]"> Quiz Created Successfully!</h2>
-                <p className="text-gray-400">Title: <span className="text-white">{quiz.title}</span></p>
+                <h2 className="text-xl text-[#ec5f80]">Quiz Created Successfully!</h2>
                 <p className="text-gray-400">
-                  Session Join Code (For Players): <span className="text-white">{quiz.join_code || "Not Available"}</span>
+                  Quiz ID: <span className="text-white">{quiz._id}</span>
                 </p>
-
-                {/* ✅ View Leaderboard Button */}
-                <button
-                  onClick={() => {
-                    if (quiz.session_id) {
-                      router.push(`/leaderboard?session_id=${quiz.session_id}`);
-                    } else {
-                      setMessage("No session ID found!");
-                    }
-                  }}
-                  className="mx-auto mt-4 w-[80%] sm:w-3/4 md:w-2/3 block relative flex justify-center items-center px-4 py-3 
-                  text-[#ff3c83] text-sm sm:text-base md:text-lg tracking-wider border-2 border-[#ff3c83] rounded-full overflow-hidden 
-                  transition-all duration-150 ease-in hover:text-white hover:border-white 
-                  before:absolute before:top-0 before:left-1/2 before:right-1/2 before:bottom-0 
-                  before:bg-gradient-to-r before:from-[#fd297a] before:to-[#9424f0] before:opacity-0 
-                  before:transition-all before:duration-150 before:ease-in 
-                  hover:before:left-0 hover:before:right-0 hover:before:opacity-100"
-                  >
-                  <span className="relative z-10">View Leaderboard</span>
-                </button>
-
+                <p className="text-sm text-gray-500 mt-2">
+                  You can start the quiz later from the{" "}
+                  <span className="text-[#ec5f80] font-medium">"Hosted Quizzes"</span> section in your collection.
+                </p>
               </div>
             )}
 

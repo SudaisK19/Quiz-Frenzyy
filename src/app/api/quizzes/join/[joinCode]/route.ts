@@ -3,11 +3,11 @@ import Session from "@/models/sessionModel";
 import PlayerQuiz from "@/models/playerQuizModel";
 import { connect } from "@/dbConfig/dbConfig";
 
-connect();
+
 
 export async function GET(request: NextRequest) {
   try {
-    
+    await connect();
     const pathSegments = request.nextUrl.pathname.split("/");
     const joinCode = pathSegments[pathSegments.length - 1];
 

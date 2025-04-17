@@ -4,13 +4,14 @@ import Question from "@/models/questionModel";
 import { connect } from "@/dbConfig/dbConfig";
 import { shuffle } from "lodash"; // Library for shuffle function
 
-connect();
+
 
 export async function GET(
   request: NextRequest,
   context: { params: Promise<{ sessionId: string }> }
 ) {
   try {
+    await connect();
     const { sessionId } = await context.params;
 
     if (!sessionId) {

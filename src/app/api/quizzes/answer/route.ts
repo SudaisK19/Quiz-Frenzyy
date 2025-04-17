@@ -4,10 +4,11 @@ import Question from "@/models/questionModel";
 import PlayerQuiz from "@/models/playerQuizModel";
 import { connect } from "@/dbConfig/dbConfig";
 
-connect();
+
 
 export async function POST(request: NextRequest) {
   try {
+    await connect();
     const { player_quiz_id, question_id, submitted_answer } = await request.json();
 
     if (!player_quiz_id || !question_id || submitted_answer === undefined) {

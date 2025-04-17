@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import Session from "@/models/sessionModel";
 import { connect } from "@/dbConfig/dbConfig";
 
-connect();
+
 
 export async function GET(request: NextRequest) {
   try {
+    await connect();
     const { searchParams } = new URL(request.url);
     const quizId = searchParams.get("quizId");
 

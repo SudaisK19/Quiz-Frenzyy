@@ -6,10 +6,12 @@ import AnswerNew from "@/models/answerModel";
 import QuestionNews from "@/models/questionModel"; // ✅ Ensure this is imported
 import { connect } from "@/dbConfig/dbConfig";
 
-connect();
+
 
 export async function GET(request: NextRequest) {
   try {
+
+    await connect();
     // ✅ Step 1: Authenticate User
     const token = request.cookies.get("authToken")?.value;
     if (!token) {

@@ -4,10 +4,10 @@ import UserNew from "@/models/userModel";
 import { connect } from "@/dbConfig/dbConfig";
 import jwt from "jsonwebtoken";
 
-connect();
 
 export async function GET(request: NextRequest) {
   try {
+    await connect();
     const token = request.cookies.get("authToken")?.value;
     if (!token) {
       return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });

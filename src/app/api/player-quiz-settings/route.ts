@@ -2,11 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import PlayerQuiz from "@/models/playerQuizModel";
 import { connect } from "@/dbConfig/dbConfig";
 
-connect();
+
 
 export async function PATCH(request: NextRequest) {
   console.log("PATCH /api/player-quiz-settings was called!"); // debug ke liye
   try {
+
+    await connect();
 
     const body = await request.json();
     

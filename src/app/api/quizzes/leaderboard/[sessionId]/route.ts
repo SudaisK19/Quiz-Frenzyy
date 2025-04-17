@@ -3,13 +3,14 @@ import PlayerQuizNew from "@/models/playerQuizModel";
 import Answer from "@/models/answerModel";
 import { connect } from "@/dbConfig/dbConfig";
 
-connect();
+
 
 export async function GET(
   request: NextRequest,
   context: { params: Promise<{ sessionId: string }> }
 ) {
   try {
+    await connect();
     const { sessionId } = await context.params;
     if (!sessionId) {
       return NextResponse.json(

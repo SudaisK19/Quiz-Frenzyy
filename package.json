@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "sync-indexes": "node scripts/syncIndexes.ts",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -16,7 +17,7 @@
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.6.0",
     "dotenv": "^16.4.7",
-    "framer-motion": "^12.5.0",
+    "framer-motion": "^12.6.2",
     "lodash": "^4.17.21",
     "lottie-react": "^2.4.1",
     "mongoose": "^8.9.5",
