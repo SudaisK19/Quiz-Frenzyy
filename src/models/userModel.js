@@ -45,6 +45,11 @@ const userSchema = new mongoose.Schema(
       ref: "Quiz", 
       index: true 
     }],
+    hasSeenTour: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
   },
   { timestamps: true }
 );

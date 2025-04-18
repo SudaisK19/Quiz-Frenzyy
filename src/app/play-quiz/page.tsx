@@ -290,9 +290,12 @@ function PlayQuizContent() {
             {/* Quiz Content */}
             {introStage === "quiz" && (
               <>
+              <p className="text-sm text-white mb-4">{currentQuestion.question_type}</p>
                 <h2 className="text-2xl sm:text-3xl text-white font-semibold mb-4">
                   {currentQuestion.question_text}
                 </h2>
+                
+
                 {renderQuestion(currentQuestion)}
 
                 {/* Navigation Buttons */}
@@ -316,7 +319,7 @@ function PlayQuizContent() {
                     disabled={currentQuestionIndex !== questions.length - 1}
                     className={`relative flex justify-center items-center px-6 py-2 font-bold uppercase tracking-wider rounded-full overflow-hidden transition-all duration-150 ease-in w-[150px] ${
                       currentQuestionIndex === questions.length - 1
-                        ? "text-[#ff3c83] border-2 border-[#ff3c83] hover:text-white hover:border-white before:absolute before:top-0 before:left-1/2 before:right-1/2 before:bottom-0 before:bg-gradient-to-r before:from-[#fd297a] before:to-[#9424f0] before:opacity-0 before:transition-all before:duration-150 before:ease-in hover:before:left-0 hover:before:right-1 hover:before:opacity-100"
+                        ? "text-[#ff3c83] border-2 border-[#ff3c83] hover:text-white hover:border-white before:absolute before:top-0 before:left-1/2 before:right-1/2 before:bottom-0 before:bg-gradient-to-r before:from-[#fd297a] before:to-[#9424f0] before:opacity-0 before:transition-all before:duration-150 before:ease-in hover:before:left-0 hover:before:right-0 hover:before:opacity-100"
                         : "text-gray-400 border-2 border-gray-400 cursor-not-allowed"
                     }`}
                   >

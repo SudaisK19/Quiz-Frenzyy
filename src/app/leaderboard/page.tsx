@@ -2,7 +2,7 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -23,12 +23,11 @@ function LeaderboardContent() {
   const session_id = searchParams.get("session_id");
 
   const [players, setPlayers] = useState<Player[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchLeaderboard() {
       if (!session_id ) {
-       
         return;
       }
 
@@ -62,7 +61,7 @@ function LeaderboardContent() {
   let prevScore: number | null = null;
   let rankOffset = 0;
 
-  const rankedPlayers = sortedPlayers.map((player, index) => {
+  const rankedPlayers = sortedPlayers.map((player,) => {
     if (player.score !== prevScore) {
       rank += rankOffset;
       rankOffset = 1;
@@ -78,9 +77,10 @@ function LeaderboardContent() {
     <>
       <Header />
       <div className="flex justify-center items-center min-h-screen p-4 sm:p-6">
-        <div className="bg-[#242424] p-4 sm:p-6 md:p-10 rounded-[20px] sm:rounded-[30px] shadow-lg w-full max-w-5xl">
+        <div className="bg-[#242424] p-4 sm:p-6 md:p-10 rounded-[20px] sm:rounded-[30px] shadow-lg w-full max-w-5xl xs:max-w-full">
+
           <div className="flex-1 bg-[#333436] rounded-[20px] sm:rounded-[30px] p-4 sm:p-6 md:p-10">
-            
+
             {/*  Heading */}
             <h1 className="text-white text-3xl sm:text-4xl text-center mb-4 sm:mb-6">Leaderboard</h1>
 
@@ -94,7 +94,6 @@ function LeaderboardContent() {
                     <th className="py-3 px-2 sm:px-3 text-center">Avatar</th>
                     <th className="py-3 px-2 sm:px-3 text-center">Display Name</th>
                     <th className="py-3 px-2 sm:px-3 text-center">Original Username</th>
-                    <th className="py-3 px-2 sm:px-3 text-center">Attempted</th>
                     <th className="py-3 px-2 sm:px-3 text-center">Correct</th>
                     <th className="py-3 px-2 sm:px-3 text-center">Score</th>
                   </tr>
@@ -121,7 +120,6 @@ function LeaderboardContent() {
                         </td>
                         <td className="py-3 px-2 sm:px-3 text-center text-sm sm:text-lg">{player.displayName || "—"}</td>
                         <td className="py-3 px-2 sm:px-3 text-center text-sm sm:text-lg">{player.originalUsername || "—"}</td>
-                        <td className="py-3 px-2 sm:px-3 text-center text-sm sm:text-lg">{player.attempted ?? "-"}</td>
                         <td className="py-3 px-2 sm:px-3 text-center text-sm sm:text-lg">{player.correct ?? "-"}</td>
                         <td className="py-3 px-2 sm:px-3 text-center font-bold text-sm sm:text-lg">{player.score}</td>
                       </tr>

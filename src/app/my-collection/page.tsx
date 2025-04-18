@@ -46,7 +46,6 @@ export default function MyCollection() {
         if (data.success) {
           const uniqueHosted = new Map<string, Quiz>();
           const uniquePlayed = new Map<string, Quiz>();
-
           data.hosted_quizzes.forEach((quiz: Quiz) => uniqueHosted.set(quiz._id, quiz));
           data.participated_quizzes.forEach((quiz: Quiz) => uniquePlayed.set(quiz._id, quiz));
 
@@ -57,15 +56,15 @@ export default function MyCollection() {
 
           // Fetch session counts for hosted quizzes
           Array.from(uniqueHosted.values()).forEach(async (quiz) => {
-            const res = await fetch(`/api/quizzes/sessions-list?quizId=${quiz._id}`, {
+            const res2 = await fetch(`/api/quizzes/sessions-list?quizId=${quiz._id}`, {
               method: "GET",
               credentials: "include",
             });
-            const data = await res.json();
-            if (data.success) {
+            const d2 = await res2.json();
+            if (d2.success) {
               setSessionCounts((prev) => ({
                 ...prev,
-                [quiz._id]: data.sessions.length,
+                [quiz._id]: d2.sessions.length,
               }));
             }
           });
@@ -167,8 +166,7 @@ export default function MyCollection() {
     <>
       <Header />
       <div className="flex justify-center items-center p-6 min-h-screen w-full">
-        <div className="bg-[#242424] p-10 rounded-[30px] shadow-lg flex flex-col w-11/12 md:w-9/10 min-h-[80vh] mx-auto my-10">
-
+        <div className="bg-[#242424] p-10 rounded-[30px] shadow-lg flex flex-col w-11/12 md:w-9/10 max-w-7xl mx-auto my-10">
           {/* 🔹 Hosted Quizzes */}
           <div className="bg-[#333436] rounded-[20px] p-6 mb-6">
             {error && <p className="text-red-500 text-center mt-4">{error}</p>}
@@ -182,7 +180,10 @@ export default function MyCollection() {
                 {collection.hosted_quizzes.map((quiz) => {
                   const sessionCount = sessionCounts[quiz._id] || 0;
                   return (
-                    <div key={quiz._id} className="bg-[#1e1e1e] p-5 rounded-xl shadow-lg flex flex-col justify-between items-center">
+                    <div
+                      key={quiz._id}
+                      className="bg-[#1e1e1e] p-5 rounded-xl shadow-lg flex flex-col justify-between"
+                    >
                       <h4 className="text-white text-lg mb-2 break-words text-center w-full mb-8">
                         {quiz.title}
                       </h4>
@@ -200,8 +201,8 @@ export default function MyCollection() {
                         ) : (
                           <button
                             onClick={() => handleRehostQuiz(quiz._id)}
-                            className="w-full relative flex justify-center items-center px-4 py-2 text-[#ff3c83] tracking-wider border-2 border-[#ff3c83] rounded-full overflow-hidden transition-all duration-150 ease-in hover:text-white hover:border-white before:absolute before:top-0 before:left-1/2 before:right-1/2 before:bottom-0 before:bg-gradient-to-r before:from-[#fd297a] before:to-[#9424f0] before:opacity-0 hover:before:left-0 hover:before:right-0 hover:before:opacity-100"
-                          >
+                            className="w-full relative flex justify-center items-center px-4 py-2 text-[#ff3c83] tracking-wider border-2 border-[#ff3c83] rounded-full overflow-hidden transition-all duration-150 ease-in hover:text-white hover:border-white before:absolute before:top-0 before:left-1/2 before:right-1/2 before:bottom-0 before:bg-gradient-to-r before:from-[#fd297a] before:to-[#9424f0] before:opacity-0 before:transition-all before:duration-150 before:ease-in hover:before:left-0 hover:before:right-0 hover:before:opacity-100"
+                            >
                             <span className="relative z-10 text-sm sm:text-base md:text-lg leading-none">
                               Rehost
                             </span>
@@ -210,8 +211,8 @@ export default function MyCollection() {
 
                         <button
                           onClick={() => handleViewSessions(quiz._id, quiz.title)}
-                          className="w-full relative flex justify-center items-center px-4 py-2 text-[#ff3c83] tracking-wider border-2 border-[#ff3c83] rounded-full overflow-hidden transition-all duration-150 ease-in hover:text-white hover:border-white before:absolute before:top-0 before:left-1/2 before:right-1/2 before:bottom-0 before:bg-gradient-to-r before:from-[#fd297a] before:to-[#9424f0] before:opacity-0 hover:before:left-0 hover:before:right-0 hover:before:opacity-100"
-                        >
+                          className="w-full relative flex justify-center items-center px-4 py-2 text-[#ff3c83] tracking-wider border-2 border-[#ff3c83] rounded-full overflow-hidden transition-all duration-150 ease-in hover:text-white hover:border-white before:absolute before:top-0 before:left-1/2 before:right-1/2 before:bottom-0 before:bg-gradient-to-r before:from-[#fd297a] before:to-[#9424f0] before:opacity-0 before:transition-all before:duration-150 before:ease-in hover:before:left-0 hover:before:right-0 hover:before:opacity-100"
+                          >
                           <span className="relative z-10 text-sm sm:text-base md:text-lg leading-none">
                             View Sessions
                           </span>
@@ -235,15 +236,18 @@ export default function MyCollection() {
             {collection?.participated_quizzes.length ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {collection.participated_quizzes.map((quiz) => (
-                  <div key={quiz._id} className="bg-[#1e1e1e] p-5 rounded-xl shadow-lg flex flex-col justify-between items-center">
+                  <div
+                    key={quiz._id}
+                    className="bg-[#1e1e1e] p-5 rounded-xl shadow-lg flex flex-col justify-between"
+                  >
                     <h4 className="text-white text-lg mb-2 break-words text-center w-full mb-8">
                       {quiz.title}
                     </h4>
                     <div className="flex flex-col gap-3 w-full">
                       <button
                         onClick={() => handleViewSessions(quiz._id, quiz.title)}
-                        className="w-full relative flex justify-center items-center px-4 py-2 text-[#ff3c83] tracking-wider border-2 border-[#ff3c83] rounded-full overflow-hidden transition-all duration-150 ease-in hover:text-white hover:border-white before:absolute before:top-0 before:left-1/2 before:right-1/2 before:bottom-0 before:bg-gradient-to-r before:from-[#fd297a] before:to-[#9424f0] before:opacity-0 hover:before:left-0 hover:before:right-0 hover:before:opacity-100"
-                      >
+                        className="w-full relative flex justify-center items-center px-4 py-2 text-[#ff3c83] tracking-wider border-2 border-[#ff3c83] rounded-full overflow-hidden transition-all duration-150 ease-in hover:text-white hover:border-white before:absolute before:top-0 before:left-1/2 before:right-1/2 before:bottom-0 before:bg-gradient-to-r before:from-[#fd297a] before:to-[#9424f0] before:opacity-0 before:transition-all before:duration-150 before:ease-in hover:before:left-0 hover:before:right-0 hover:before:opacity-100"
+                        >
                         <span className="relative z-10 text-sm sm:text-base md:text-lg leading-none">
                           View Sessions
                         </span>
@@ -253,7 +257,7 @@ export default function MyCollection() {
                 ))}
               </div>
             ) : (
-              <p className="text-gray-400">No played quizzes.</p>
+              <p className="text-center text-gray-400">No played quizzes.</p>
             )}
           </div>
         </div>
@@ -275,14 +279,13 @@ export default function MyCollection() {
                     <div className="flex flex-col space-y-2">
                       <button
                         onClick={() => handleSelectSession(session._id)}
-                        className="px-3 py-1 border border-[#ec5f80] text-[#ec5f80] rounded-full transition hover:bg-white hover:text-[#ec5f80] transition"
+                        className="px-3 py-1 border border-[#ec5f80] text-[#ec5f80] rounded-full transition hover:bg-white hover:text-[#ec5f80]"
                       >
                         View Leaderboard
                       </button>
-                      {/* View Results Button */}
                       <button
                         onClick={() => handleViewResults(session._id)}
-                        className="px-3 py-1 border border-[#ec5f80] text-[#ec5f80] rounded-full transition hover:bg-white hover:text-[#ec5f80] transition"
+                        className="px-3 py-1 border border-[#ec5f80] text-[#ec5f80] rounded-full transition hover:bg-white hover:text-[#ec5f80]"
                       >
                         View Results
                       </button>
@@ -309,9 +312,9 @@ export default function MyCollection() {
           <div className="bg-[#242424] p-6 rounded-lg w-80 text-center shadow-lg">
             <h3 className="text-green-400 text-lg font-semibold mb-4">Quiz Session Created Successfully!</h3>
             <p className="text-gray-300">{rehostMessage}</p>
-            <button 
-              onClick={() => setRehostMessage("")} 
-              className="w-full mt-4 px-4 py-2 border border-[#ec5f80] text-[#ec5f80] rounded-full transition hover:bg-white hover:text-[#ec5f80] transition"
+            <button
+              onClick={() => setRehostMessage("")}
+              className="w-full mt-4 px-4 py-2 border border-[#ec5f80] text-[#ec5f80] rounded-full transition hover:bg-white hover:text-[#ec5f80]"
             >
               OK
             </button>

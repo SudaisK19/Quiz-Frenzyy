@@ -7,8 +7,6 @@ import Footer from "@/components/Footer";
 import Image from "next/image";
 import toast from "react-hot-toast"; 
 
-
-
 interface User {
   username: string;
   email: string;
@@ -27,9 +25,9 @@ interface Badge {
 
 export default function Profile() {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [editMode, setEditMode] = useState(false); // ✅ Controls expandable form
+  const [editMode, setEditMode] = useState(false);
   const [newData, setNewData] = useState({ username: "", email: "", password: "" });
   const router = useRouter();
 
@@ -49,156 +47,167 @@ export default function Profile() {
       .catch(() => setError("Failed to load profile"));
   }, []);
 
-  //  Update Profile Function
+  // Update Profile Function
+  const handleUpdate = async () => {
+    const res = await fetch("/api/users/profile", {
+      method: "PATCH",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newData),
+    });
 
-const handleUpdate = async () => {
-  const res = await fetch("/api/users/profile", {
-    method: "PATCH",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(newData),
-  });
-
-  const data = await res.json();
-  if (data.success) {
-    toast.success("Profile updated successfully!"); // ✅ Toast message
-    setUser(data.user);
-    setEditMode(false);
-  } else {
-    toast.error("Update failed: " + data.error); // ✅ Toast message
-  }
-};
-
-
+    const data = await res.json();
+    if (data.success) {
+      toast.success("Profile updated successfully!");
+      setUser(data.user);
+      setEditMode(false);
+    } else {
+      toast.error("Update failed: " + data.error);
+    }
+  };
 
   return (
     <>
       <Header />
-      <div className="flex justify-center items-center p-6 min-h-screen w-full">
-        <div className="bg-[#242424] p-10 rounded-[30px] shadow-lg flex flex-col  md:flex-row w-11/12 md:w-9/10 min-h-[80vh] mx-auto my-10">
-          {/* User Info */}
-          <div className="flex-1  bg-[#333436] rounded-[30px] p-10">
-            {error && <p className="text-center text-red-500 mt-4">{error}</p>}
+      {/* Outer Container: uses responsive padding and centers content */}
+      <div className="w-full px-2 sm:px-4 md:px-6 lg:px-8 xl:px-12 flex justify-center items-center min-h-screen">
+        <div className="container mx-auto p-6 xs:p-2">
+          {/* Main Card Container: 
+              - Removed min-h-[80vh] so height is dictated by content.
+              - Responsive padding and margins are in place.
+          */}
+          <div className="bg-[#242424] p-10 xs:p-4 rounded-[30px] shadow-lg flex flex-col md:flex-row w-full max-w-7xl mx-auto my-10 xs:my-4">
+            {/* Left/Main Section */}
+            <div className="flex-1 bg-[#333436] rounded-[30px] p-10 xs:p-4">
+              {error && <p className="text-center text-red-500 mt-4 xs:mt-2">{error}</p>}
 
-            <div className="flex items-center gap-2">
-              <h2 className="text-white text-xl sm:text-2xl md:text-3xl  break-words">
-                {user?.username}
-              </h2>
-              <span className="px-3 py-1 rounded-full text-xs sm:text-sm md:text-md bg-[#ec5f80] text-white">
-                {user?.isVerified ? "Verified" : "Not Verified"}
-              </span>
-            </div>
-            <p className="text-gray-400 mt-1 text-sm md:text-base break-words">
-              Email: {user?.email}
-            </p>
-
-            {/* Update Profile Section */}
-            <button
-              onClick={() => setEditMode(!editMode)}
-              className="w-1/5 md:w-1/5  relative flex justify-center items-center mt-10 px-2 py-3 text-[#ff3c83] tracking-wider border-2 border-[#ff3c83] rounded-full overflow-hidden transition-all duration-150 ease-in hover:text-white hover:border-white before:absolute before:top-0 before:left-1/2 before:right-1/2 before:bottom-0 before:bg-gradient-to-r before:from-[#fd297a] before:to-[#9424f0] before:opacity-0 before:transition-all before:duration-150 before:ease-in hover:before:left-0 hover:before:right-0 hover:before:opacity-100"
-            >
-              <span className="relative z-10 text-sm sm:text-base md:text-md leading-none">
-                {editMode ? "Cancel" : "Update Profile"}
-              </span>
-            </button>
-
-
-            {editMode && (
-              <div className="mt-4 bg-[#242424] flex flex-col p-6 rounded-lg shadow-md ">
-                <input
-                  type="text"
-                  placeholder="New Username"
-                  value={newData.username}
-                  onChange={(e) => setNewData({ ...newData, username: e.target.value })}
-                  className=" w-full p-1 sm:p-2 md:p-2 mb-2 rounded-full bg-[#1e1e1e] text-white placeholder-white text-xs sm:text-sm md:text-base placeholder-gray-400 border border-[#ff3c83] focus:outline-none focus:ring-2 focus:ring-[#ec5f80]"                />
-                <input
-                  type="email"
-                  placeholder="New Email"
-                  value={newData.email}
-                  onChange={(e) => setNewData({ ...newData, email: e.target.value })}
-                  className=" w-full p-1 sm:p-2 md:p-2 mb-2 rounded-full bg-[#1e1e1e] text-white placeholder-white text-xs sm:text-sm md:text-base placeholder-gray-400 border border-[#ff3c83] focus:outline-none focus:ring-2 focus:ring-[#ec5f80]"                />
-                <input
-                  type="password"
-                  placeholder="New Password (Optional)"
-                  value={newData.password}
-                  onChange={(e) => setNewData({ ...newData, password: e.target.value })}
-                  className=" w-full   p-1 sm:p-2 md:p-2 mb-2 rounded-full bg-[#1e1e1e] text-white placeholder-white text-xs sm:text-sm md:text-base placeholder-gray-400 border border-[#ff3c83] focus:outline-none focus:ring-2 focus:ring-[#ec5f80]"                />
-
-                <button
-                  onClick={handleUpdate}
-                  className="mt-4 px-4 py-2 border border-[#ec5f80] text-[#ec5f80] rounded-full transition hover:bg-white hover:text-[#ec5f80] w-full md:w-auto  max-w-[250px] sm:max-w-[220px] md:max-w-[200px] lg:max-w-[250px]">
-                  Change
-                </button>
+              {/* User Info */}
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="text-white xs:text-lg text-xl sm:text-2xl md:text-3xl break-words">
+                  {user?.username}
+                </h2>
+                <span className="px-3 py-1 rounded-full text-xs xs:text-[10px] sm:text-sm md:text-md bg-[#ec5f80] text-white">
+                  {user?.isVerified ? "Verified" : "Not Verified"}
+                </span>
               </div>
-            )}
+              <p className="text-gray-400 mt-1 text-sm xs:text-xs md:text-base break-words">
+                Email: {user?.email}
+              </p>
 
-            {/* Stats Section */}
-            <div className="mt-6 p-6 bg-[#242424] rounded-[20px]">
-              <div className="text-white space-y-3">
-                <div className="flex justify-between items-center border-b border-gray-500 pb-2">
-                  <p className="text-sm md:text-md">Total Points</p>
-                  <p className="text-lg  font-bold text-[#ec5f80]">{user?.total_points}</p>
+              {/* Update Profile Button */}
+              <button
+                onClick={() => setEditMode(!editMode)}
+                className="mt-10 xs:mt-4 px-2 py-3 text-[#ff3c83] tracking-wider border-2 border-[#ff3c83] rounded-full transition-all duration-150 ease-in hover:text-white hover:border-white relative overflow-hidden w-full xs:w-full sm:w-1/2 md:w-auto"
+              >
+                <span className="relative z-10 text-sm xs:text-xs sm:text-base md:text-md leading-none">
+                  {editMode ? "Cancel" : "Update Profile"}
+                </span>
+              </button>
+
+              {/* Update Profile Form */}
+              {editMode && (
+                <div className="mt-4 bg-[#242424] flex flex-col p-6 xs:p-4 rounded-lg shadow-md">
+                  <input
+                    type="text"
+                    placeholder="New Username"
+                    value={newData.username}
+                    onChange={(e) =>
+                      setNewData({ ...newData, username: e.target.value })
+                    }
+                    className="w-full p-2 xs:p-1 mb-2 rounded-full bg-[#1e1e1e] text-white placeholder-gray-400 border border-[#ff3f80] focus:outline-none focus:ring-2 focus:ring-[#ec5f80] text-xs xs:text-[10px] sm:text-sm md:text-base"
+                  />
+                  <input
+                    type="email"
+                    placeholder="New Email"
+                    value={newData.email}
+                    onChange={(e) =>
+                      setNewData({ ...newData, email: e.target.value })
+                    }
+                    className="w-full p-2 xs:p-1 mb-2 rounded-full bg-[#1e1e1e] text-white placeholder-gray-400 border border-[#ff3f80] focus:outline-none focus:ring-2 focus:ring-[#ec5f80] text-xs xs:text-[10px] sm:text-sm md:text-base"
+                  />
+                  <input
+                    type="password"
+                    placeholder="New Password (Optional)"
+                    value={newData.password}
+                    onChange={(e) =>
+                      setNewData({ ...newData, password: e.target.value })
+                    }
+                    className="w-full p-2 xs:p-1 mb-2 rounded-full bg-[#1e1e1e] text-white placeholder-gray-400 border border-[#ff3f80] focus:outline-none focus:ring-2 focus:ring-[#ec5f80] text-xs xs:text-[10px] sm:text-sm md:text-base"
+                  />
+
+                  <button
+                    onClick={handleUpdate}
+                    className="mt-4 px-4 py-2 border border-[#ec5f80] text-[#ec5f80] rounded-full transition hover:bg-white hover:text-[#ec5f80] w-full max-w-[250px] xs:max-w-full"
+                  >
+                    Change
+                  </button>
                 </div>
-
-                <div className="flex justify-between items-center border-b border-gray-500 pb-2">
-                  <p className="text-sm md:text-md">Badges Earned</p>
-                  <p className="text-lg  font-bold text-[#ec5f80]">{user?.badges.length}</p>
-                </div>
-
-                <div className="flex justify-between items-center border-b border-gray-500 pb-2">
-                  <p className="text-sm md:text-md">Hosted Quizzes</p>
-                  <p className="text-lg  font-bold text-[#ec5f80]">{user?.hosted_quizzes.length}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Dynamic Badges Section */}
-            <section className="mt-10 w-full">
-              <h2 className="text-2xl sm:text-3xl  font-bold text-white mb-5 text-center">
-                Your <span className="text-pink-400">Badges</span>
-              </h2>
-
-              {user?.badges && user.badges.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                  {user.badges.map((badge, index) => (
-                    <div
-                      key={index}
-                      className="bg-[#1e1e1e] p-5 rounded-xl text-center shadow-lg max-w-full flex flex-col items-center"
-                    >
-                      <Image
-                        src={badge.imageUrl}
-                        alt={badge.name}
-                        width={80}
-                        height={80}
-                        className="max-w-full h-auto"
-                      />
-                      <h3 className="text-md md:text-lg  text-white mt-3 break-words">
-                        {badge.name}
-                      </h3>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-gray-400 text-center">No badges yet.</p>
               )}
-            </section>
 
+              {/* Stats Section */}
+              <div className="mt-6 xs:mt-4 p-6 xs:p-4 bg-[#242424] rounded-[20px]">
+                <div className="text-white space-y-3">
+                  <div className="flex justify-between items-center border-b border-gray-500 pb-2">
+                    <p className="text-sm xs:text-xs md:text-md">Total Points</p>
+                    <p className="text-lg xs:text-base font-bold text-[#ec5f80]">{user?.total_points}</p>
+                  </div>
+                  <div className="flex justify-between items-center border-b border-gray-500 pb-2">
+                    <p className="text-sm xs:text-xs md:text-md">Badges Earned</p>
+                    <p className="text-lg xs:text-base font-bold text-[#ec5f80]">{user?.badges.length}</p>
+                  </div>
+                  <div className="flex justify-between items-center border-b border-gray-500 pb-2">
+                    <p className="text-sm xs:text-xs md:text-md">Hosted Quizzes</p>
+                    <p className="text-lg xs:text-base font-bold text-[#ec5f80]">{user?.hosted_quizzes.length}</p>
+                  </div>
+                </div>
+              </div>
 
-            {/* Logout Button */}
-            <button
-              onClick={() => {
-                fetch("/api/users/logout", { method: "POST", credentials: "include" }).then(() => router.push("/login"));
-              }}
-              className="mt-5 px-6 py-2 w-auto mx-auto block border border-[#ec5f80] text-[#ec5f80] rounded-full transition hover:bg-white hover:text-[#ec5f80]"
-            >
-              Logout
-            </button>
+              {/* Badges Section */}
+              <section className="mt-10 xs:mt-8 w-full">
+                <h2 className="text-2xl xs:text-xl sm:text-3xl font-bold text-white mb-5 xs:mb-4 text-center">
+                  Your <span className="text-pink-400">Badges</span>
+                </h2>
 
+                {user?.badges && user.badges.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                    {user.badges.map((badge, index) => (
+                      <div
+                        key={index}
+                        className="bg-[#1e1e1e] p-5 xs:p-3 rounded-xl text-center shadow-lg flex flex-col items-center"
+                      >
+                        <Image
+                          src={badge.imageUrl}
+                          alt={badge.name}
+                          width={80}
+                          height={80}
+                          className="max-w-full h-auto"
+                        />
+                        <h3 className="text-md xs:text-sm md:text-lg text-white mt-3 break-words">
+                          {badge.name}
+                        </h3>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-400 text-center">No badges yet.</p>
+                )}
+              </section>
+
+              {/* Logout Button */}
+              <button
+                onClick={() => {
+                  fetch("/api/users/logout", { method: "POST", credentials: "include" }).then(() =>
+                    router.push("/login")
+                  );
+                }}
+                className="mt-5 xs:mt-4 px-6 py-2 border border-[#ec5f80] text-[#ec5f80] rounded-full transition hover:bg-white hover:text-[#ec5f80] block mx-auto"
+              >
+                Logout
+              </button>
+            </div>
           </div>
         </div>
       </div>
-
-
       <Footer />
     </>
   );
