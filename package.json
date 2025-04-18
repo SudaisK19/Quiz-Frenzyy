@@ -7,7 +7,8 @@
     "sync-indexes": "node scripts/syncIndexes.ts",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "postinstall": "npm install --legacy-peer-deps"
   },
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
