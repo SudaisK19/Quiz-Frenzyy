@@ -11,7 +11,6 @@ type UpdateData = {
   username?: string;
   email?: string;
   password?: string;
-  hasSeenTour?: boolean;
 };
 
 export async function GET(request: NextRequest) {
@@ -78,11 +77,10 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Invalid token structure" }, { status: 401 });
     }
 
-    const { username, email, password,hasSeenTour } = await request.json();
+    const { username, email, password } = await request.json();
     
     const updateData: UpdateData = { username, email };
     if (password) updateData.password = password;
-    if (typeof hasSeenTour === "boolean") updateData.hasSeenTour = hasSeenTour;
 
     const updatedUser = await User.findByIdAndUpdate(
       decoded.id,

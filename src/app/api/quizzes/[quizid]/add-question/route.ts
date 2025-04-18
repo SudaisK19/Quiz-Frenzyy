@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import Question from "@/models/questionModel";
 import { connect } from "@/dbConfig/dbConfig";
 
-connect();
 
 export async function POST(request: NextRequest, context: unknown) {
   const { params } = context as { params: { quizid: string } };
   try {
+
+    await connect();
     const { question_text, question_type, options, correct_answer } = await request.json();
 
     if (!question_text || !correct_answer) {

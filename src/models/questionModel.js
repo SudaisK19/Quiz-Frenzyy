@@ -7,6 +7,41 @@ const questionSchema = new mongoose.Schema(
       ref: "Quiz",
       required: true,
       index: true, // Index applied
+      index: true, // Index applied
+    },
+    question_text: {
+      type: String,
+      required: true,
+      index: true, // Index applied
+    },
+    question_type: {
+      type: String,
+      required: true,
+      enum: ["MCQ", "Short Answer", "Image", "Ranking"],
+      index: true, // Index applied
+    },
+    media_url: {
+      type: String,
+      index: true, // Index applied
+    },
+    options: {
+      type: [String],
+      required: true,
+      index: true, // Index applied (creates a multikey index)
+    },
+    correct_answer: {
+      type: mongoose.Schema.Types.Mixed,
+      required: true,
+     
+    },
+    hint: {
+      type: String,
+      index: true, // Index applied
+    },
+    points: {
+      type: Number,
+      required: true,
+      index: true, // Index applied
     },
     question_text: {
       type: String,

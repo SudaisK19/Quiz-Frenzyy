@@ -137,7 +137,6 @@ export default function MyCollection() {
         credentials: "include",
       });
       const data = await res.json();
-
       if (data.success) {
         setCurrentQuizSessions(data.sessions);
         setCurrentQuizTitle(quizTitle);
