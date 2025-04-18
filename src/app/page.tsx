@@ -7,8 +7,9 @@ import { motion } from "framer-motion";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import toast from "react-hot-toast";
-import Joyride from 'react-joyride';
-
+import introJs from 'intro.js';
+import 'intro.js/introjs.css';
+import 'intro.js/themes/introjs-modern.css'; // ✅ Use the modern theme
 
 // Lottie import + cache
 const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
@@ -97,14 +98,89 @@ export default function Home() {
   const [avatarSeed, setAvatarSeed] = useState(50);
   const [sessionDisplayName, setSessionDisplayName] = useState("");
   const router = useRouter();
-  const [runTour, setRunTour] = useState(false);
-  const [showJoyride, setShowJoyride] = useState(false);
-
-   // Run tour only on first visit
-   useEffect(() => {
+  const waitForElement = (selector: string, timeout = 3000): Promise<Element> => {
+    return new Promise((resolve, reject) => {
+      const interval = 100;
+      let elapsed = 0;
+  
+      const check = () => {
+        const element = document.querySelector(selector);
+        if (element) resolve(element);
+        else if (elapsed >= timeout) reject(`Timeout: ${selector} not found`);
+        else {
+          elapsed += interval;
+          setTimeout(check, interval);
+        }
+      };
+  
+      check();
+    });
+  };
+  
+  
+  const startIntroTour = () => {
+    const intro = introJs();
+  
+    intro.setOptions({
+      steps: [
+        {
+          element: '.create-quiz-tour',
+          intro: 'Choose from MCQs, image-based questions, short answers, and ranking questions to create your own quiz!',
+        },
+        {
+          element: '.ai-quiz-tour',
+          intro: 'Let AI create a unique MCQ quiz for you!',
+        },
+        {
+          element: '.join-quiz-tour',
+          intro: 'Join a quiz using the Quiz ID.',
+        },
+        {
+          element: '.profile-link-tour',
+          intro: 'Visit your profile to view collected badges or manage your info.',
+        },
+        {
+          element: '.collection-link-tour',
+          intro: 'Find your saved quizzes and quiz history here.',
+        },
+      ],
+      showProgress: true,
+      showStepNumbers: true,
+      showBullets: false,
+      nextLabel: 'Next',
+      prevLabel: 'Back',
+      doneLabel: 'Close',
+      skipLabel: 'Skip',
+      disableInteraction: true,
+      hidePrev: false,
+      hideNext: false,
+      scrollToElement: true,
+      scrollTo: 'tooltip',
+      tooltipClass: 'custom-tooltip', // optional
+      overlayOpacity: 0.6,
+    });
+  
+    intro.oncomplete(() => {
+      if (userData?._id) {
+        localStorage.setItem(`hasSeenTour_${userData._id}`, 'true');
+      }
+    });
+  
+    intro.onexit(() => {
+      if (userData?._id) {
+        localStorage.setItem(`hasSeenTour_${userData._id}`, 'true');
+      }
+    });
+  
+    intro.start();
+  };
+  
+  useEffect(() => {
     async function loadProfileAndMaybeRunTour() {
       try {
-        const res = await fetch("/api/users/profile", { credentials: "include" });
+        const res = await fetch('/api/users/profile', {
+          credentials: 'include',
+        });
         const data = await res.json();
   
         if (!data.success || !data.user) {
@@ -115,35 +191,41 @@ export default function Home() {
         setIsLoggedIn(true);
         setUserData(data.user);
   
-        // Badge logic
         if (data.user._id) updateBadges(data.user._id);
   
-        const hasSeenTour = data.user.hasSeenTour;
         const userKey = `hasSeenTour_${data.user._id}`;
+        const hasSeenTour = data.user.hasSeenTour;
         const seenLocally = localStorage.getItem(userKey);
   
         if (!hasSeenTour && !seenLocally) {
-          setRunTour(true);
-          setShowJoyride(true);
-  
-          // Update backend
-          await fetch("/api/users/profile", {
-            method: "PATCH",
-            credentials: "include",
+          await fetch('/api/users/profile', {
+            method: 'PATCH',
+            credentials: 'include',
             headers: {
-              "Content-Type": "application/json",
+              'Content-Type': 'application/json',
             },
             body: JSON.stringify({ hasSeenTour: true }),
           });
   
-          // Set local fallback to prevent repeated runs this session
-          localStorage.setItem(userKey, "true");
-        } else {
-          setShowJoyride(true); // still show Joyride component (even if not running)
-        }
+          localStorage.setItem(userKey, 'true');
   
+          // Wait for header links before starting tour
+          Promise.all([
+            waitForElement('.create-quiz-tour'),
+            waitForElement('.ai-quiz-tour'),
+            waitForElement('.join-quiz-tour'),
+            waitForElement('.profile-link-tour'),
+            waitForElement('.collection-link-tour'),
+          ])
+            .then(() => {
+              startIntroTour();
+            })
+            .catch((err) => {
+              console.warn('Tour skipped due to missing elements:', err);
+            });
+        }
       } catch (error) {
-        console.error("Failed to fetch user profile:", error);
+        console.error('Failed to fetch user profile:', error);
         setIsLoggedIn(false);
       }
     }
@@ -151,7 +233,8 @@ export default function Home() {
     loadProfileAndMaybeRunTour();
   }, []);
   
-
+  
+  
 
   // Join quiz handler
   async function handleJoinQuiz() {
@@ -247,86 +330,7 @@ export default function Home() {
   return (
     <>
       <Header />
-      {showJoyride && (
-        <Joyride
-          steps={[
-            {
-              target: '.create-quiz-tour',
-              content:
-                'Choose from MCQs, image-based questions, short answers, and ranking questions to create your own quiz and challenge your friends!',
-              disableBeacon: true,
-            },
-            {
-              target: '.ai-quiz-tour',
-              content: 'Let AI create a unique MCQ quiz for you!',
-              disableBeacon: true,
-            },
-            {
-              target: '.join-quiz-tour',
-              content: 'Join a quiz using the Quiz ID.',
-              disableBeacon: true,
-            },
-            {
-              target: '.profile-link-tour',
-              content: 'Visit your profile to view collected badges or manage your info.',
-              disableBeacon: true,
-            },
-            {
-              target: '.collection-link-tour',
-              content: 'Find your saved quizzes and quiz history here.',
-              disableBeacon: true,
-            },
-          ]}
-          run={runTour}
-          continuous
-          showSkipButton
-          showProgress
-          disableOverlayClose
-          styles={{
-            options: {
-              zIndex: 9999,
-              primaryColor: '#ff3c83', // button & accent color
-              backgroundColor: '#1e1e2f', // tour bubble background
-              textColor: '#ffffff', // text
-              overlayColor: 'rgba(0, 0, 0, 0.6)',
-              arrowColor: '#1e1e2f',
-            },
-            tooltipContainer: {
-              textAlign: 'left',
-              padding: '1rem',
-              maxWidth: '320px',
-              borderRadius: '0.75rem',
-            },
-            buttonNext: {
-              backgroundColor: '#ff3c83',
-              color: '#fff',
-              padding: '6px 12px',
-              borderRadius: '0.5rem',
-            },
-            buttonBack: {
-              color: '#ccc',
-              marginRight: '0.5rem',
-            },
-            buttonSkip: {
-              color: '#ff3c83',
-              fontWeight: '500',
-            },
-          }}
-          locale={{
-            last: 'Close', // replaces "Last" with "Close"
-            skip: 'Skip',
-            next: 'Next',
-            back: 'Back',
-          }}
-          callback={(data) => {
-            if (['finished', 'skipped'].includes(data.status) && userData?._id) {
-              localStorage.setItem(`hasSeenTour_${userData._id}`, 'true');
-              setRunTour(false);
-            }
-          }}
-          
-        />
-      )}
+      
 
 
 
@@ -475,8 +479,3 @@ export default function Home() {
     </>
   );
 }
-
-
-
-
-

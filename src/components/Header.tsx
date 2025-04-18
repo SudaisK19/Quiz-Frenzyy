@@ -50,7 +50,7 @@ export default function Header() {
           <>
             <button
               onClick={() => router.push("/my-collection")}
-              className="text-sm sm:text-base md:text-lg text-gray-400 hover:text-[#ec5f80] transition-all duration-300"
+              className="collection-link-tour text-sm sm:text-base md:text-lg text-gray-400 hover:text-[#ec5f80] transition-all duration-300"
             >
               My Collection
             </button>
@@ -58,7 +58,7 @@ export default function Header() {
             {/* Profile Button with Hover Animation */}
             <button
               onClick={() => router.push("/profile")}
-              className="flex items-center px-4 py-2 bg-[#1e1e1e] rounded-full text-gray-400 
+              className="profile-link-tour flex items-center px-4 py-2 bg-[#1e1e1e] rounded-full text-gray-400 
              hover:text-[#ec5f80] transition-all duration-300 shadow-md hover:shadow-lg 
              hover:scale-105 group" // Ensures hover effect applies to children
             >
@@ -140,7 +140,7 @@ export default function Header() {
                   router.push("/my-collection");
                   setMenuOpen(false);
                 }}
-                className="text-sm sm:text-base md:text-lg text-gray-400 hover:text-[#ec5f80] transition-all duration-300"
+                className="collection-link-tour text-sm sm:text-base md:text-lg text-gray-400 hover:text-[#ec5f80] transition-all duration-300"
               >
                 My Collection
               </button>
@@ -150,7 +150,7 @@ export default function Header() {
                   router.push("/profile");
                   setMenuOpen(false);
                 }}
-                className="text-sm sm:text-base md:text-lg text-gray-400 hover:text-[#ec5f80] transition-all duration-300"
+                className="profile-link-tour text-sm sm:text-base md:text-lg text-gray-400 hover:text-[#ec5f80] transition-all duration-300"
               >
                 Profile
               </button>

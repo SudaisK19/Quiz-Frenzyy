@@ -4,18 +4,12 @@ import Question from "@/models/questionModel";
 import { connect } from "@/dbConfig/dbConfig";
 
 
-<<<<<<< HEAD
-export async function PATCH(request: NextRequest, context: unknown) {
-  const { params } = context as { params: { quizid: string } };
-  try {
-=======
 
 export async function PATCH(request: NextRequest, context: unknown) {
   const { params } = context as { params: { quizid: string } };
   try {
 
     await connect();
->>>>>>> 1bc7449504aa569c39fc4a19b22e2007975dc293
     const { title, description, duration, questions } = await request.json();
 
     const totalQuizPoints = await Question.aggregate([
