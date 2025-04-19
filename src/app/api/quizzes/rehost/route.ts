@@ -5,8 +5,6 @@ import UserNew from "@/models/userModel";
 import { connect } from "@/dbConfig/dbConfig";
 import jwt from "jsonwebtoken";
 
-
-
 export async function POST(req: NextRequest) {
   try {
     await connect();

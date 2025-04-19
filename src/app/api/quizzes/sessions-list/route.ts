@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import Session from "@/models/sessionModel";
 import { connect } from "@/dbConfig/dbConfig";
 
-
-
 export async function GET(request: NextRequest) {
   try {
     await connect();

@@ -1,3 +1,4 @@
+
 import { NextRequest, NextResponse } from "next/server";
 import PlayerQuiz from "@/models/playerQuizModel";
 import { connect } from "@/dbConfig/dbConfig";

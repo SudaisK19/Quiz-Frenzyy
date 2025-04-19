@@ -12,14 +12,10 @@ html, body {
   
 }
 
-
-
 main{
   position: relative;
   z-index: 3;
 }
-
-
 
 /* Falling Robots Animation */
 @keyframes fall {

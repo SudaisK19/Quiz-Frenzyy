@@ -103,7 +103,6 @@ export default function Profile() {
                   {editMode ? "Cancel" : "Update Profile"}
                 </span>
               </button>
-
               {/* Update Profile Form */}
               {editMode && (
                 <div className="mt-4 bg-[#242424] flex flex-col p-6 xs:p-4 rounded-lg shadow-md">

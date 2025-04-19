@@ -57,7 +57,6 @@ export async function GET(request: NextRequest) {
     await playerQuiz.save();
 
    
-
     return NextResponse.json({
       success: true,
       session_id: session._id,

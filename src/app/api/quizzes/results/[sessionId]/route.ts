@@ -1,3 +1,4 @@
+
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import Session from "@/models/sessionModel";
@@ -5,7 +6,6 @@ import PlayerQuiz from "@/models/playerQuizModel";
 import AnswerNew from "@/models/answerModel";
 import QuestionNews from "@/models/questionModel"; // ✅ Ensure this is imported
 import { connect } from "@/dbConfig/dbConfig";
-
 
 
 export async function GET(request: NextRequest) {

@@ -7,7 +7,6 @@ import UserNew from "@/models/userModel";
 import { connect } from "@/dbConfig/dbConfig";
 
 connect();
-
 export async function POST(request: NextRequest) {
   try {
     const { player_quiz_id, answers } = await request.json();

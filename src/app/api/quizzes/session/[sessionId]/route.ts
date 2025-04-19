@@ -66,7 +66,7 @@ export async function GET(
         quiz: session.quiz_id,
         questions,
         duration: session.quiz_id.duration,
-        start_time: session.start_time, // ✅ Added Start Time
+        start_time: session.start_time, // Added Start Time
       },
       { status: 200 }
     );

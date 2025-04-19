@@ -1,8 +1,8 @@
+
 import { NextRequest, NextResponse } from "next/server";
 import PlayerQuizNew from "@/models/playerQuizModel";
 import Answer from "@/models/answerModel";
 import { connect } from "@/dbConfig/dbConfig";
-
 
 
 export async function GET(

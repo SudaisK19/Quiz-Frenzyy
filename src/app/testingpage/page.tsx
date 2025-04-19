@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-
 export default function Home() {
   const [data, setData] = useState<string | null>(null);
   const [error, setError] = useState<Error | null>(null);
@@ -16,8 +15,9 @@ export default function Home() {
   }, []);
 
   if (error) {
-    throw error; // Trigger `error.tsx`
+    throw error; // Trigger `error.tsx` jk
   }
 
-  return <div>{data ? <p>{data}</p> : <p>Loading...</p>}</div>;
+  return <div>{data ? <p>{data}</p> : <p>Loading..</p>}</div>;
 }
+

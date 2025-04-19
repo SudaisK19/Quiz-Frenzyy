@@ -3,6 +3,7 @@ import Question from "@/models/questionModel";
 import { connect } from "@/dbConfig/dbConfig";
 
 
+
 export async function POST(request: NextRequest, context: unknown) {
   const { params } = context as { params: { quizid: string } };
   try {

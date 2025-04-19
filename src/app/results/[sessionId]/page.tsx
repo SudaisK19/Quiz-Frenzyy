@@ -15,7 +15,6 @@ interface Answer {
   question_type: string;
   image_url?: string | null;
 }
-
 interface Result {
   quiz_id: string;
   displayName: string;
