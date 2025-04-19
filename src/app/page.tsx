@@ -8,8 +8,8 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import toast from "react-hot-toast";
 import introJs from 'intro.js';
-import './styles/introjs.css';
-import './styles/introjs-modern.css'; 
+import '@/styles/introjs.css';
+import '@/styles/introjs-modern.css'; 
 
 // Lottie import + cache
 const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
