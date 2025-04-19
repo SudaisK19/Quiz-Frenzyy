@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Image from "next/image";
@@ -67,10 +66,10 @@ export default function CreateQuiz() {
   function removeQuestion(idx: number) {
     setQuiz((q) => ({
       ...q,
-      questions: q.questions.filter((_unused, i) => i !== idx),
+      questions: q.questions.filter((_, i) => i !== idx),
     }));
     setQuestionErrors((errs) => {
-      const { [idx]: _unused, ...rest } = errs;
+      const { [idx]: _, ...rest } = errs;
       const updated: typeof rest = {};
       Object.entries(rest).forEach(([k, v]) => {
         const key = Number(k);
@@ -105,7 +104,7 @@ export default function CreateQuiz() {
       return { ...q, questions: qs };
     });
     setQuestionErrors((errs) => {
-      const { [i]: _unused, ...rest } = errs;
+      const { [i]: _, ...rest } = errs;
       return rest;
     });
   }
@@ -117,7 +116,7 @@ export default function CreateQuiz() {
       return { ...q, questions: qs };
     });
     setQuestionErrors((errs) => {
-      const { [qi]: _unused, ...rest } = errs;
+      const { [qi]: _, ...rest } = errs;
       return rest;
     });
   }
