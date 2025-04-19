@@ -36,7 +36,6 @@ export default function CreateQuiz() {
   const [loading, setLoading] = useState(false);
   const [generalMessage, setGeneralMessage] = useState<string | null>(null);
   const [questionErrors, setQuestionErrors] = useState<{ [idx: number]: string }>({});
-  const router = useRouter();
 
   useEffect(() => {
     fetch("/api/users/profile", { credentials: "include" })
@@ -68,10 +67,10 @@ export default function CreateQuiz() {
   function removeQuestion(idx: number) {
     setQuiz((q) => ({
       ...q,
-      questions: q.questions.filter((_, i) => i !== idx),
+      questions: q.questions.filter((_unused, i) => i !== idx),
     }));
     setQuestionErrors((errs) => {
-      const { [idx]: _, ...rest } = errs;
+      const { [idx]: _unused, ...rest } = errs;
       const updated: typeof rest = {};
       Object.entries(rest).forEach(([k, v]) => {
         const key = Number(k);
@@ -106,7 +105,7 @@ export default function CreateQuiz() {
       return { ...q, questions: qs };
     });
     setQuestionErrors((errs) => {
-      const { [i]: _, ...rest } = errs;
+      const { [i]: _unused, ...rest } = errs;
       return rest;
     });
   }
@@ -118,7 +117,7 @@ export default function CreateQuiz() {
       return { ...q, questions: qs };
     });
     setQuestionErrors((errs) => {
-      const { [qi]: _, ...rest } = errs;
+      const { [qi]: _unused, ...rest } = errs;
       return rest;
     });
   }
@@ -413,7 +412,7 @@ export default function CreateQuiz() {
                 <p className="text-sm text-gray-500 mt-2">
                   You can start the quiz later from the{" "}
                   <span className="text-[#ec5f80] font-medium">
-                    "Hosted Quizzes"
+                  &quot;Hosted Quizzes&quot;
                   </span>{" "}
                   section in your collection.
                 </p>

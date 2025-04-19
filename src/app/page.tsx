@@ -13,11 +13,11 @@ import 'intro.js/themes/introjs-modern.css'; // ✅ Use the modern theme
 
 // Lottie import + cache
 const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
-const animationCache: { data: any } = { data: null };
+const animationCache: { data: object | null } = { data: null };
 
 
 const AnimatedLottie = memo(function AnimatedLottie() {
-  const [animationData, setAnimationData] = useState<any>(null);
+  const [animationData, setAnimationData] = useState<object | null>(null);
   const hasFetched = useRef(false);
 
 

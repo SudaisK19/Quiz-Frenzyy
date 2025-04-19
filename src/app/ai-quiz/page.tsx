@@ -15,7 +15,6 @@ export default function AIQuizPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [quizData, setQuizData] = useState<QuizData | null>(null);
-  const router = useRouter();
 
   useEffect(() => {
     setQuestionConfigs((prev) => {
@@ -109,7 +108,7 @@ export default function AIQuizPage() {
 
             {/* Question Configs */}
             <div className="mt-6 bg-[#1e1e1e] p-4 rounded-lg max-h-[300px] overflow-y-auto">
-              <h3 className="text-[#ec5f80] text-xl">Configure Each Question's Points</h3>
+              <h3 className="text-[#ec5f80] text-xl">Configure Each Question&apos;s Points</h3>
               <div className="space-y-3 mt-4">
                 {questionConfigs.map((config, idx) => (
                   <div key={idx} className="flex items-center justify-between bg-[#242424] p-3 rounded-lg">
@@ -154,7 +153,7 @@ export default function AIQuizPage() {
                 </p>
                 <p className="text-sm text-gray-500 mt-2">
                   You can start the quiz later from the{" "}
-                  <span className="text-[#ec5f80] font-medium">"Hosted Quizzes"</span> section in your collection.
+                  <span className="text-[#ec5f80] font-medium">&quot;Hosted Quizzes&quot;</span> section in your collection.
                 </p>
               </div>
             )}

@@ -14,9 +14,9 @@ const sections = [
       <div className="space-y-4 text-gray-300 text-base sm:text-lg">
         <ol className="list-decimal pl-6 space-y-2">
           <li>Sign up or log in to your account.</li>
-          <li>Navigate to "Create Quiz" to generate questions using AI or enter manually.</li>
+          <li>Navigate to &quot;Create Quiz&quot; to generate questions using AI or enter manually.</li>
           <li>Create the quiz — your quiz will be saved automatically.</li>
-          <li>Start the quiz from "Hosted Quizzes" from "My Collection" when ready.</li>
+          <li>Start the quiz from &quot;Hosted Quizzes&quot; from &quot;My Collection&quot; when ready.</li>
         </ol>
         <div className="w-full flex justify-center">
           <Image
@@ -35,8 +35,8 @@ const sections = [
     content: (
       <div className="space-y-4 text-gray-300 text-base sm:text-lg">
         <ol className="list-decimal pl-6 space-y-2">
-          <li>Use the AI form under the "Create Quiz" section.</li>
-          <li>Enter a topic, difficulty level, number of questions, and click "Generate".</li>
+          <li>Use the AI form under the &quot;Create Quiz&quot; section.</li>
+          <li>Enter a topic, difficulty level, number of questions, and click &quot;Generate&quot;.</li>
           <li>Review, edit (optional), and save the quiz.</li>
         </ol>
         <div className="w-full flex justify-center">
@@ -56,9 +56,9 @@ const sections = [
     content: (
       <div className="space-y-4 text-gray-300 text-base sm:text-lg">
         <ol className="list-decimal pl-6 space-y-2">
-          <li>Go to "Join Quiz" from the homepage or sidebar.</li>
+          <li>Go to &quot;Join Quiz&quot; from the homepage or sidebar.</li>
           <li>Enter the Quiz ID and a temporary username. You can choose your avatar before joining.</li>
-          <li>Click "Join" and wait for the host to start.</li>
+          <li>Click &quot;Join&quot; and wait for the host to start.</li>
         </ol>
         <div className="w-full flex justify-center">
           <Image
@@ -77,9 +77,9 @@ const sections = [
     content: (
       <div className="space-y-4 text-gray-300 text-base sm:text-lg">
         <ol className="list-decimal pl-6 space-y-2">
-          <li>Click your profile or use the "Collection" page to view hosted/saved quizzes.</li>
-          <li>You can start, or rehost them easily using the "Start Quiz/Rehost" button.</li>
-          <li>You can view sessions for your quizzes using the "View Sessions" button.</li>
+          <li>Click your profile or use the &quot;Collection&quot; page to view hosted/saved quizzes.</li>
+          <li>You can start, or rehost them easily using the &quot;Start Quiz/Rehost&quot; button.</li>
+          <li>You can view sessions for your quizzes using the &quot;View Sessions&quot; button.</li>
         </ol>
         <div className="w-full flex justify-center">
           <Image
@@ -99,7 +99,7 @@ const sections = [
       <div className="space-y-4 text-gray-300 text-base sm:text-lg">
         <ul className="list-disc pl-6 space-y-4">
           <li><strong>Quiz not starting?</strong>
-            <p className="ml-4">Ensure the host clicks "Start Quiz" under Hosted Quizzes.</p>
+            <p className="ml-4">Ensure the host clicks &quot;Start Quiz&quot; under Hosted Quizzes.</p>
           </li>
           <li><strong>Quiz ID not working?</strong>
             <p className="ml-4">Verify the ID or check if the quiz has ended.</p>
@@ -108,7 +108,7 @@ const sections = [
             <p className="ml-4">Refresh the page or rejoin using the Quiz ID.</p>
           </li>
           <li><strong>Leaderboard not updating?</strong>
-            <p className="ml-4">Refresh the page or go to "My Collection" to view Leaderboard in "View Sessions".</p>
+            <p className="ml-4">Refresh the page or go to &quot;My Collection&quot; to view Leaderboard in &quot;View Sessions&quot;.</p>
           </li>
           <li><strong>AI not generating?</strong>
             <p className="ml-4">Try a more specific prompt or reduce question count.</p>
