@@ -8,7 +8,7 @@
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
-    "moduleResolution": "node16",
+    "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
@@ -20,15 +20,8 @@
     ],
     "paths": {
       "@/*": ["./src/*"]
-    },
-    "types": ["tailwindcss"],  // Optional: Add this line to ensure Tailwind types are picked up.
+    }
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts",
-    "src/app/quiz-complete"
-  ],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/quiz-complete"],
   "exclude": ["node_modules"]
 }
