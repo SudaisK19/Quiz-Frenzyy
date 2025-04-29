@@ -225,8 +225,8 @@ export default function CreateQuiz() {
       <Header />
       <div className="flex justify-center items-center min-h-screen px-4 sm:px-6 md:px-8 lg:px-12 py-6">
         <div className="bg-[#242424] p-6 sm:p-10 rounded-[30px] shadow-lg w-full max-w-2xl text-center">
-          <div className="bg-[#333436] rounded-[30px] p-6 sm:p-10">
-            <h1 className="text-4xl text-white mb-6">
+          <div className="flex-1 bg-[#333436] rounded-[30px] p-6 sm:p-10">
+            <h1 className="text-4xl text-center text-white mb-6">
               Create <span className="text-[#ec5f80]">Your Own</span> Quiz
             </h1>
 
@@ -236,7 +236,7 @@ export default function CreateQuiz() {
               placeholder="Quiz Title"
               value={quiz.title}
               onChange={(e) => handleInputChange(e, "title")}
-              className="w-full p-2 mb-4 rounded-full bg-[#1e1e1e] text-white placeholder-gray-400 border border-[#ff3c83] focus:outline-none"
+              className="w-full text-center p-2 mb-4 rounded-full bg-[#1e1e1e] text-white placeholder-gray-400 border border-[#ff3c83] focus:outline-none focus:ring-2 focus:ring-[#ec5f80]"
             />
 
             {/* Description */}
@@ -244,7 +244,7 @@ export default function CreateQuiz() {
               placeholder="Quiz Description"
               value={quiz.description}
               onChange={(e) => handleInputChange(e, "description")}
-              className="w-full p-2 mb-4 rounded-full bg-[#1e1e1e] text-white placeholder-gray-400 border border-[#ff3c83] focus:outline-none"
+              className="w-full text-center p-2 mb-4 rounded-full bg-[#1e1e1e] text-white placeholder-gray-400 border border-[#ff3c83] focus:outline-none focus:ring-2 focus:ring-[#ec5f80]"
             />
 
             {/* Duration */}
@@ -255,13 +255,13 @@ export default function CreateQuiz() {
                 min={1}
                 value={quiz.duration}
                 onChange={(e) => handleInputChange(e, "duration")}
-                className="w-full p-2 rounded-full bg-[#1e1e1e] text-center text-white border border-[#ff3c83] focus:outline-none"
+                className="w-full text-center p-2 rounded-full bg-[#1e1e1e] text-center text-white border border-[#ff3c83] focus:outline-none focus:ring-2 focus:ring-[#ec5f80]"
               />
             </div>
 
             {/* Questions */}
             {quiz.questions.map((q, i) => (
-              <div key={i} className="bg-[#242424] p-4 rounded-lg mb-4 text-left">
+              <div key={i} className="bg-[#242424] p-4 rounded-lg mt-4 ">
                 <h3 className="text-[#ec5f80] text-lg mb-2 text-center">
                   Question {i + 1}
                 </h3>
@@ -270,12 +270,12 @@ export default function CreateQuiz() {
                   placeholder="Question Text"
                   value={q.question_text}
                   onChange={(e) => handleQuestionChange(i, "question_text", e.target.value)}
-                  className="w-full p-2 mb-2 rounded-full bg-[#1e1e1e] text-white placeholder-gray-400 border border-[#ec5f83] focus:outline-none"
+                  className="w-full p-2 mb-2 rounded-full bg-[#1e1e1e] text-white placeholder-gray-400 border border-[#ec5f83] focus:outline-none focus:ring-2 focus:ring-[#ec5f80]"
                 />
                 <select
                   value={q.question_type}
                   onChange={(e) => handleQuestionChange(i, "question_type", e.target.value)}
-                  className="w-full p-2 mb-2 rounded-full bg-[#1e1e1e] text-white border border-[#ec5f83] focus:outline-none"
+                  className="w-full p-2 mb-2 rounded-full bg-[#1e1e1e] text-white border border-[#ec5f83] focus:outline-none focus:ring-2 focus:ring-[#ec5f80]"
                 >
                   <option>Choose type</option>
                   <option>MCQ</option>
@@ -297,33 +297,54 @@ export default function CreateQuiz() {
                         alt="Uploaded"
                         width={100}
                         height={100}
-                        className="rounded-lg mb-2"
+                        className="rounded-lg mb-2 border-[#ec5f80] shadow-lg"
                       />
                     )}
                   </>
                 )}
-                {(q.question_type === "MCQ" ||
-                  q.question_type === "Ranking" ||
-                  q.question_type === "Image") &&
-                  q.options.map((opt, oi) => (
-                    <input
-                      key={oi}
-                      type="text"
-                      placeholder={`Option ${oi + 1}`}
-                      value={opt}
-                      onChange={(e) => handleOptionChange(i, oi, e.target.value)}
-                      className="w-full p-2 mb-2 rounded-full bg-[#1e1e1e] text-white placeholder-gray-400 border border-[#ec5f83] focus:outline-none"
-                    />
-                  ))}
-                {(q.question_type === "MCQ" || q.question_type === "Image") && (
-                  <input
-                    type="text"
-                    placeholder="Correct Answer"
-                    value={q.correct_answer as string}
-                    onChange={(e) => handleQuestionChange(i, "correct_answer", e.target.value)}
-                    className="w-full p-2 mb-2 rounded-full bg-[#1e1e1e] text-white placeholder-gray-400 border border-[#ec5f83] focus:outline-none"
-                  />
+                {/* Options for MCQ, Ranking, Image */}
+                {(q.question_type === "MCQ" || q.question_type === "Ranking" || q.question_type === "Image") && (
+                  <div className="mt-2">
+                    <h4 className="text-[#ec5f80] text-center text-md">
+                      {q.question_type === "Ranking"
+                        ? "Enter Options in Correct Order (Ranking)"
+                        : "Options"}
+                    </h4>
+                    {q.options.map((opt, oi) => (
+                      <input
+                        key={oi}
+                        type="text"
+                        placeholder={
+                          q.question_type === "Ranking"
+                            ? `Rank ${oi + 1} option`
+                            : `Option ${oi + 1}`
+                        }
+                        value={opt}
+                        onChange={(e) => handleOptionChange(i, oi, e.target.value)}
+                        className="w-full p-2 mt-2 rounded-full bg-[#1e1e1e] text-white 
+                                  placeholder-gray-400 border border-[#ec5f80]
+                                  focus:ring-2 focus:ring-[#ec5f80] focus:outline-none"
+                      />
+                    ))}
+                  </div>
                 )}
+
+                {/* Correct Answer Input for MCQ & Image */}
+                {(q.question_type === "MCQ" || q.question_type === "Image") && (
+                  <div className="mt-2">
+                    <h4 className="text-[#ec5f80] text-center text-md">Enter Correct Answer</h4>
+                    <input
+                      type="text"
+                      placeholder="Correct Answer"
+                      value={q.correct_answer as string}
+                      onChange={(e) => handleQuestionChange(i, "correct_answer", e.target.value)}
+                      className="w-full p-2 mt-2 rounded-full bg-[#1e1e1e] text-white 
+                                placeholder-gray-400 border border-[#ec5f80]
+                                focus:ring-2 focus:ring-[#ec5f80] focus:outline-none"
+                    />
+                  </div>
+                )}
+
                 {q.question_type === "Short Answer" && (
                   <>
                     <input
@@ -331,7 +352,7 @@ export default function CreateQuiz() {
                       placeholder="Hint (optional)"
                       value={q.hint || ""}
                       onChange={(e) => handleQuestionChange(i, "hint", e.target.value)}
-                      className="w-full p-2 mb-2 rounded-full bg-[#1e1e1e] text-white placeholder-gray-400 border border-[#ec5f83] focus:outline-none"
+                      className="w-full p-2 mb-2 rounded-full bg-[#1e1e1e] text-white placeholder-gray-400 border border-[#ec5f83] focus:outline-none focus:ring-2 focus:ring-[#ec5f80]"
                     />
                     <input
                       type="text"
@@ -342,17 +363,22 @@ export default function CreateQuiz() {
                           : (q.correct_answer as string)
                       }
                       onChange={(e) => handleQuestionChange(i, "correct_answer", e.target.value)}
-                      className="w-full p-2 mb-2 rounded-full bg-[#1e1e1e] text-white placeholder-gray-400 border border-[#ec5f83] focus:outline-none"
+                      className="w-full p-2 mb-2 rounded-full bg-[#1e1e1e] text-white placeholder-gray-400 border border-[#ec5f83] focus:outline-none focus:ring-2 focus:ring-[#ec5f80]"
                     />
                   </>
                 )}
+                {/* Points Input */}
+                <h4 className="text-[#ec5f80] text-center text-md mt-2 ">Points</h4>
                 <input
                   type="number"
                   placeholder="Points"
                   value={q.points}
                   onChange={(e) => handleQuestionChange(i, "points", e.target.value)}
-                  className="w-full p-2 mb-2 rounded-full bg-[#1e1e1e] text-white placeholder-gray-400 border border-[#ec5f83] focus:outline-none"
+                  className="mx-auto text-center w-auto min-w-[150px] max-w-[250px] p-2 mt-2 rounded-full 
+                            bg-[#1e1e1e] text-white text-center placeholder-gray-400 border border-[#ec5f80]
+                            focus:ring-2 focus:ring-[#ec5f80] focus:outline-none"
                 />
+
                 {questionErrors[i] && (
                   <p className="text-red-500 text-sm mb-2">{questionErrors[i]}</p>
                 )}

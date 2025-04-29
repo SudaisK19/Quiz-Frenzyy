@@ -1,0 +1,277 @@
+<html><head><meta charset="utf-8"/><title>QuizApp Test Report</title><style type="text/css">:root {
+  --text-primary: #111;
+  --text-secondary: #4f4f4f;
+  --success: #006633;
+  --success-bright: #80ffbf;
+  --danger: #cc071e;
+  --danger-bright: #fbdfe0;
+  --warning: #995c00;
+  --warning-bright: #ffeea8;
+  --panel: #eee;
+  --border: #949494;
+  --disabled: #6b6b6b;
+}
+
+html,
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  margin: 0;
+  padding: 0;
+  color: var(--text-primary);
+}
+body {
+  padding: 2rem 1rem;
+}
+.jesthtml-content {
+  margin: 0 auto;
+  max-width: 70rem;
+}
+header {
+  display: flex;
+  align-items: center;
+}
+#title {
+  margin: 0;
+  flex-grow: 1;
+}
+#logo {
+  height: 4rem;
+}
+#timestamp {
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+}
+
+#metadata-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.additional-information-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+}
+
+/** SUMMARY */
+#summary {
+  color: var(--text-primary);
+  display: flex;
+  font-family: monospace;
+  font-size: 1rem;
+}
+#summary > div {
+  margin-right: 0.5rem;
+  background: var(--panel);
+  padding: 1rem;
+  min-width: 15rem;
+}
+#summary > div:last-child {
+  margin-right: 0;
+}
+@media only screen and (max-width: 720px) {
+  #summary {
+    flex-direction: column;
+  }
+  #summary > div {
+    margin-right: 0;
+    margin-top: 1rem;
+  }
+  #summary > div:first-child {
+    margin-top: 0;
+  }
+}
+
+.summary-total {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+.summary-passed {
+  color: var(--success);
+  border-left: 0.4rem solid var(--success);
+  padding-left: 0.5rem;
+  margin-bottom: 0.15rem;
+}
+.summary-failed,
+.summary-obsolete-snapshots {
+  color: var(--danger);
+  border-left: 0.4rem solid var(--danger);
+  padding-left: 0.5rem;
+  margin-bottom: 0.15rem;
+}
+.summary-pending {
+  color: var(--warning);
+  border-left: 0.4rem solid var(--warning);
+  padding-left: 0.5rem;
+  margin-bottom: 0.15rem;
+}
+.summary-empty {
+  color: var(--disabled);
+  border-left: 0.4rem solid var(--disabled);
+  margin-bottom: 0.15rem;
+}
+
+.test-result {
+  padding: 1rem;
+  margin-bottom: 0.25rem;
+}
+.test-result:last-child {
+  border: 0;
+}
+.test-result.passed {
+  background-color: var(--success-bright);
+  color: var(--success);
+}
+.test-result.failed {
+  background-color: var(--danger-bright);
+  color: var(--danger);
+}
+.test-result.pending {
+  background-color: var(--warning-bright);
+  color: var(--warning);
+}
+
+.test-info {
+  display: flex;
+  justify-content: space-between;
+}
+.test-suitename {
+  width: 20%;
+  text-align: left;
+  font-weight: bold;
+  word-break: break-word;
+}
+.test-title {
+  width: 40%;
+  text-align: left;
+  font-style: italic;
+}
+.test-status {
+  width: 20%;
+  text-align: right;
+}
+.test-duration {
+  width: 10%;
+  text-align: right;
+  font-size: 0.85rem;
+}
+
+.failureMessages {
+  padding: 0 1rem;
+  margin-top: 1rem;
+  border-top: 1px dashed var(--danger);
+}
+.failureMessages.suiteFailure {
+  border-top: none;
+}
+.failureMsg {
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  white-space: -pre-wrap;
+  white-space: -o-pre-wrap;
+  word-wrap: break-word;
+}
+
+.suite-container {
+  margin-bottom: 1rem;
+}
+.suite-info {
+  padding: 1rem;
+  background-color: var(--panel);
+  color: var(--text-secondary);
+  border: 0.15rem solid;
+  border-color: var(--panel);
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+.suite-info:hover {
+  border-color: var(--border);
+  cursor: pointer;
+}
+.suite-info .suite-path {
+  word-break: break-all;
+  flex-grow: 1;
+  font-family: monospace;
+  font-size: 1rem;
+}
+.suite-info .suite-time {
+  margin-left: 1rem;
+  padding: 0.2rem 0.3rem;
+  font-size: 0.85rem;
+}
+.suite-info .suite-time.warn {
+  background-color: var(--danger);
+  color: #fff;
+}
+.suite-info:before {
+  content: "\2303";
+  display: inline-block;
+  margin-right: 1rem;
+  transform: rotate(180deg) translateY(0.15rem);
+}
+.suite-container[open] .suite-info:before {
+  transform: rotate(0deg) translateY(0.15rem);
+}
+
+/* CONSOLE LOGS */
+.suite-consolelog {
+  margin-bottom: 0.25rem;
+  padding: 1rem;
+  background-color: var(--panel);
+}
+.suite-consolelog-header {
+  font-weight: bold;
+}
+.suite-consolelog-item {
+  padding: 0.5rem;
+}
+.suite-consolelog-item pre {
+  margin: 0.5rem 0;
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  white-space: -pre-wrap;
+  white-space: -o-pre-wrap;
+  word-wrap: break-word;
+}
+.suite-consolelog-item-origin {
+  color: var(--text-secondary);
+  font-weight: bold;
+}
+.suite-consolelog-item-message {
+  color: var(--text-primary);
+  font-size: 1rem;
+  padding: 0 0.5rem;
+}
+
+/* OBSOLETE SNAPSHOTS */
+.suite-obsolete-snapshots {
+  margin-bottom: 0.25rem;
+  padding: 1rem;
+  background-color: var(--danger-bright);
+  color: var(--danger);
+}
+.suite-obsolete-snapshots-header {
+  font-weight: bold;
+}
+.suite-obsolete-snapshots-item {
+  padding: 0.5rem;
+}
+.suite-obsolete-snapshots-item pre {
+  margin: 0.5rem 0;
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  white-space: -pre-wrap;
+  white-space: -o-pre-wrap;
+  word-wrap: break-word;
+}
+.suite-obsolete-snapshots-item-message {
+  color: var(--text-primary);
+  font-size: 1rem;
+  padding: 0 0.5rem;
+}
+</style></head><body><main class="jesthtml-content"><header><h1 id="title">QuizApp Test Report</h1></header><section id="metadata-container"><div id="timestamp">Started: 2025-04-29 13:29:23</div><div id="summary"><div id="suite-summary"><div class="summary-total">Suites (25)</div><div class="summary-passed ">25 passed</div><div class="summary-failed  summary-empty">0 failed</div><div class="summary-pending  summary-empty">0 pending</div></div><div id="test-summary"><div class="summary-total">Tests (102)</div><div class="summary-passed ">102 passed</div><div class="summary-failed  summary-empty">0 failed</div><div class="summary-pending  summary-empty">0 pending</div></div></div></section><details id="suite-1" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">D:\quizapp\src\app\api\quizzes\[quizid]\add-question\__tests__\route.test.ts</div><div class="suite-time">2.287s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/quiz/[quizid]/question</div><div class="test-title">returns 400 if required fields are missing</div><div class="test-status">passed</div><div class="test-duration">0.024s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/quiz/[quizid]/question</div><div class="test-title">returns 201 when question is created successfully</div><div class="test-status">passed</div><div class="test-duration">0.003s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/quiz/[quizid]/question</div><div class="test-title">returns 500 on unexpected errors</div><div class="test-status">passed</div><div class="test-duration">0.035s</div></div></div></div></details><details id="suite-2" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">D:\quizapp\src\app\api\player-quiz\[playerQuizId]\__tests__\route.test.ts</div><div class="suite-time">2.271s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/player-quiz/[playerQuizId]</div><div class="test-title">400 when no ID provided</div><div class="test-status">passed</div><div class="test-duration">0.024s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/player-quiz/[playerQuizId]</div><div class="test-title">404 when quiz not found</div><div class="test-status">passed</div><div class="test-duration">0.029s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/player-quiz/[playerQuizId]</div><div class="test-title">200 and data on success</div><div class="test-status">passed</div><div class="test-duration">0.002s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/player-quiz/[playerQuizId]</div><div class="test-title">500 on unexpected error</div><div class="test-status">passed</div><div class="test-duration">0.016s</div></div></div></div></details><details id="suite-3" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">D:\quizapp\src\app\api\quizzes\[quizid]\__tests__\route.test.ts</div><div class="suite-time">2.6s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">PATCH /api/quiz/[quizid]</div><div class="test-title">returns 404 when quiz not found</div><div class="test-status">passed</div><div class="test-duration">0.015s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">PATCH /api/quiz/[quizid]</div><div class="test-title">updates quiz and returns 200 without questions</div><div class="test-status">passed</div><div class="test-duration">0.003s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">PATCH /api/quiz/[quizid]</div><div class="test-title">updates associated questions when provided</div><div class="test-status">passed</div><div class="test-duration">0.001s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">PATCH /api/quiz/[quizid]</div><div class="test-title">returns 500 on unexpected errors</div><div class="test-status">passed</div><div class="test-duration">0.027s</div></div></div></div></details><details id="suite-4" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">D:\quizapp\src\app\api\quizzes\answer\__tests__\route.test.ts</div><div class="suite-time">2.845s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/answer</div><div class="test-title">returns 400 when required fields are missing</div><div class="test-status">passed</div><div class="test-duration">0.016s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/answer</div><div class="test-title">returns 404 when question is not found</div><div class="test-status">passed</div><div class="test-duration">0.002s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/answer</div><div class="test-title">returns 201 and awards points when answer is correct</div><div class="test-status">passed</div><div class="test-duration">0.003s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/answer</div><div class="test-title">returns 201 and awards zero points when answer is incorrect</div><div class="test-status">passed</div><div class="test-duration">0.003s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/answer</div><div class="test-title">returns 500 on unexpected errors</div><div class="test-status">passed</div><div class="test-duration">0.037s</div></div></div></div></details><details id="suite-5" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">D:\quizapp\src\app\api\quizzes\__tests__\route.test.ts</div><div class="suite-time">2.98s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/quiz</div><div class="test-title">returns 400 when title is missing</div><div class="test-status">passed</div><div class="test-duration">0.012s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/quiz</div><div class="test-title">returns 400 when description is missing</div><div class="test-status">passed</div><div class="test-duration">0.001s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/quiz</div><div class="test-title">returns 400 when created_by is missing</div><div class="test-status">passed</div><div class="test-duration">0.001s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/quiz</div><div class="test-title">returns 400 when duration is missing</div><div class="test-status">passed</div><div class="test-duration">0.001s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/quiz</div><div class="test-title">returns 201 and quiz on success</div><div class="test-status">passed</div><div class="test-duration">0.005s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/quiz</div><div class="test-title">returns 400 on mongoose validation error</div><div class="test-status">passed</div><div class="test-duration">0.041s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/quiz</div><div class="test-title">returns 500 on unexpected error</div><div class="test-status">passed</div><div class="test-duration">0.003s</div></div></div></div></details><details id="suite-6" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">D:\quizapp\src\app\api\ai-quiz\generate\__tests__\route.test.ts</div><div class="suite-time">3.122s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/ai-quiz/generate</div><div class="test-title">returns 201 and new quiz ID on success</div><div class="test-status">passed</div><div class="test-duration">0.016s</div></div></div></div></details><details id="suite-7" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">D:\quizapp\src\app\api\users\login\__tests__\route.test.ts</div><div class="suite-time">2.507s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/users/login route</div><div class="test-title">returns 404 if user not found</div><div class="test-status">passed</div><div class="test-duration">0.014s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/users/login route</div><div class="test-title">returns 401 if password does not match</div><div class="test-status">passed</div><div class="test-duration">0.001s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/users/login route</div><div class="test-title">returns 200 and sets cookie on valid credentials</div><div class="test-status">passed</div><div class="test-duration">0.002s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/users/login route</div><div class="test-title">returns 500 on DB error</div><div class="test-status">passed</div><div class="test-duration">0.022s</div></div></div></div></details><details id="suite-8" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">D:\quizapp\src\app\api\users\signup\__tests__\route.test.ts</div><div class="suite-time">0.691s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/users/signup route</div><div class="test-title">returns 400 when fields are missing</div><div class="test-status">passed</div><div class="test-duration">0.002s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/users/signup route</div><div class="test-title">returns 400 if user already exists</div><div class="test-status">passed</div><div class="test-duration">0.001s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/users/signup route</div><div class="test-title">returns 201 and user on success</div><div class="test-status">passed</div><div class="test-duration">0.002s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/users/signup route</div><div class="test-title">returns 500 on DB error</div><div class="test-status">passed</div><div class="test-duration">0.011s</div></div></div></div></details><details id="suite-9" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">D:\quizapp\src\app\api\quizzes\complete\__tests__\route.test.ts</div><div class="suite-time">0.754s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/quizzes/complete</div><div class="test-title">400 if player_quiz_id or answers missing</div><div class="test-status">passed</div><div class="test-duration">0.016s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/quizzes/complete</div><div class="test-title">404 if player quiz not found</div><div class="test-status">passed</div><div class="test-duration">0.002s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/quizzes/complete</div><div class="test-title">500 if question lookup fails</div><div class="test-status">passed</div><div class="test-duration">0.012s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/quizzes/complete</div><div class="test-title">200 happy path: processes answers, updates quiz &amp; user</div><div class="test-status">passed</div><div class="test-duration">0.014s</div></div></div></div></details><details id="suite-10" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">D:\quizapp\src\app\api\quizzes\results\[sessionId]\__tests__\route.test.ts</div><div class="suite-time">0.537s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/quizzes/results/[sessionId]</div><div class="test-title">401 when no authToken cookie</div><div class="test-status">passed</div><div class="test-duration">0.009s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/quizzes/results/[sessionId]</div><div class="test-title">500 when jwt.verify throws, then 401 when verify returns no id</div><div class="test-status">passed</div><div class="test-duration">0.021s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/quizzes/results/[sessionId]</div><div class="test-title">400 when sessionId segment missing</div><div class="test-status">passed</div><div class="test-duration">0.001s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/quizzes/results/[sessionId]</div><div class="test-title">404 when Session.findById returns null</div><div class="test-status">passed</div><div class="test-duration">0.002s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/quizzes/results/[sessionId]</div><div class="test-title">404 when no PlayerQuiz for user &amp; session</div><div class="test-status">passed</div><div class="test-duration">0.002s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/quizzes/results/[sessionId]</div><div class="test-title">404 when AnswerNew.find returns empty array</div><div class="test-status">passed</div><div class="test-duration">0.003s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/quizzes/results/[sessionId]</div><div class="test-title">200 happy path: trims media_url &amp; leaves completed_at as Date</div><div class="test-status">passed</div><div class="test-duration">0.004s</div></div></div></div></details><details id="suite-11" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">D:\quizapp\src\app\signup\__tests__\signup.test.tsx</div><div class="suite-time">1.273s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">SignupPage Component</div><div class="test-title">should display success message and redirect after 2 seconds</div><div class="test-status">passed</div><div class="test-duration">0.256s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">SignupPage Component</div><div class="test-title">should display error message if signup fails (e.g., user exists)</div><div class="test-status">passed</div><div class="test-duration">0.068s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">SignupPage Component</div><div class="test-title">should display fallback error message on unexpected error</div><div class="test-status">passed</div><div class="test-duration">0.08s</div></div></div></div></details><details id="suite-12" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">D:\quizapp\src\app\helpcenter\__tests__\HelpCenterPage.test.tsx</div><div class="suite-time">1.415s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">&lt;HelpCenterPage /&gt;</div><div class="test-title">renders the header and footer</div><div class="test-status">passed</div><div class="test-duration">0.087s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">&lt;HelpCenterPage /&gt;</div><div class="test-title">displays the help center heading</div><div class="test-status">passed</div><div class="test-duration">0.098s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">&lt;HelpCenterPage /&gt;</div><div class="test-title">renders all help sections initially collapsed</div><div class="test-status">passed</div><div class="test-duration">0.026s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">&lt;HelpCenterPage /&gt;</div><div class="test-title">expands and collapses a section when clicked</div><div class="test-status">passed</div><div class="test-duration">0.194s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">&lt;HelpCenterPage /&gt;</div><div class="test-title">allows only one section open at a time</div><div class="test-status">passed</div><div class="test-duration">0.158s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">&lt;HelpCenterPage /&gt;</div><div class="test-title">renders the fallback while loading</div><div class="test-status">passed</div><div class="test-duration">0.01s</div></div></div></div></details><details id="suite-13" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">D:\quizapp\src\components\Footer.test.tsx</div><div class="suite-time">1.036s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">&lt;Footer /&gt;</div><div class="test-title">renders ©…All rights reserved and Powered by NOVA</div><div class="test-status">passed</div><div class="test-duration">0.067s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">&lt;Footer /&gt;</div><div class="test-title">navigates to /helpcenter when Help Center is clicked</div><div class="test-status">passed</div><div class="test-duration">0.112s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">&lt;Footer /&gt;</div><div class="test-title">does not navigate when Contact is clicked</div><div class="test-status">passed</div><div class="test-duration">0.035s</div></div></div></div></details><details id="suite-14" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">D:\quizapp\src\app\login\__tests__\login.test.tsx</div><div class="suite-time">1.242s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">LoginPage Component</div><div class="test-title">should display success message and redirect after 2 seconds</div><div class="test-status">passed</div><div class="test-duration">0.35s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">LoginPage Component</div><div class="test-title">should display fallback error message on invalid credentials</div><div class="test-status">passed</div><div class="test-duration">0.059s</div></div></div></div></details><details id="suite-15" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">D:\quizapp\src\app\api\player-quiz-settings\__tests__\route.test.ts</div><div class="suite-time">0.747s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">PATCH /api/player-quiz-settings</div><div class="test-title">returns 400 when playerQuizId is missing</div><div class="test-status">passed</div><div class="test-duration">0.011s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">PATCH /api/player-quiz-settings</div><div class="test-title">returns 404 when quiz not found</div><div class="test-status">passed</div><div class="test-duration">0.003s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">PATCH /api/player-quiz-settings</div><div class="test-title">returns 200 and updated quiz on success</div><div class="test-status">passed</div><div class="test-duration">0.002s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">PATCH /api/player-quiz-settings</div><div class="test-title">returns 500 on unexpected error</div><div class="test-status">passed</div><div class="test-duration">0.013s</div></div></div></div></details><details id="suite-16" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">D:\quizapp\src\components\Robots.test.tsx</div><div class="suite-time">1.043s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">&lt;Robots /&gt;</div><div class="test-title">always renders a wrapper div immediately</div><div class="test-status">passed</div><div class="test-duration">0.089s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">&lt;Robots /&gt;</div><div class="test-title">renders 60 images after mount</div><div class="test-status">passed</div><div class="test-duration">0.08s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">&lt;Robots /&gt;</div><div class="test-title">calculates correct styles for the first robot</div><div class="test-status">passed</div><div class="test-duration">0.059s</div></div></div></div></details><details id="suite-17" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">D:\quizapp\src\app\api\users\profile\__tests__\route.test.ts</div><div class="suite-time">0.575s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/users/profile</div><div class="test-title">returns 401 if no token</div><div class="test-status">passed</div><div class="test-duration">0.002s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/users/profile</div><div class="test-title">returns 200 and user on valid token</div><div class="test-status">passed</div><div class="test-duration">0.001s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">PATCH /api/users/profile</div><div class="test-title">returns 401 if token invalid</div><div class="test-status">passed</div><div class="test-duration">0.001s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">PATCH /api/users/profile</div><div class="test-title">returns 200 and updated user on success</div><div class="test-status">passed</div><div class="test-duration">0.001s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">PATCH /api/users/profile</div><div class="test-title">returns 500 on DB error</div><div class="test-status">passed</div><div class="test-duration">0.001s</div></div></div></div></details><details id="suite-18" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">D:\quizapp\src\app\api\quizzes\user\__tests__\route.test.ts</div><div class="suite-time">0.366s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/user/quizzes</div><div class="test-title">401 when no token</div><div class="test-status">passed</div><div class="test-duration">0.002s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/user/quizzes</div><div class="test-title">401 when invalid token</div><div class="test-status">passed</div><div class="test-duration">0.001s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/user/quizzes</div><div class="test-title">404 when user not found</div><div class="test-status">passed</div><div class="test-duration">0.001s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/user/quizzes</div><div class="test-title">200 returns hosted and participated quizzes</div><div class="test-status">passed</div><div class="test-duration">0.001s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/user/quizzes</div><div class="test-title">500 on unexpected error</div><div class="test-status">passed</div><div class="test-duration">0.027s</div></div></div></div></details><details id="suite-19" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">D:\quizapp\src\components\PageLoader.test.tsx</div><div class="suite-time">0.554s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">&lt;PageLoader /&gt;</div><div class="test-title">mount hote hi loader show karta hai</div><div class="test-status">passed</div><div class="test-duration">0.049s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">&lt;PageLoader /&gt;</div><div class="test-title">400ms ke baad loader hide ho jata hai</div><div class="test-status">passed</div><div class="test-duration">0.012s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">&lt;PageLoader /&gt;</div><div class="test-title">pathname change hone par loader dobara show hota hai</div><div class="test-status">passed</div><div class="test-duration">0.043s</div></div></div></div></details><details id="suite-20" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">D:\quizapp\src\app\api\quizzes\leaderboard\[sessionId]\__tests__\route.test.ts</div><div class="suite-time">0.326s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/quizzes/leaderboard/[sessionId]</div><div class="test-title">returns 400 when sessionId is empty</div><div class="test-status">passed</div><div class="test-duration">0.002s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/quizzes/leaderboard/[sessionId]</div><div class="test-title">returns 500 if connect() throws</div><div class="test-status">passed</div><div class="test-duration">0.013s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/quizzes/leaderboard/[sessionId]</div><div class="test-title">200 happy path: sorts by score, attempted, then completed_at, and sets no-store header</div><div class="test-status">passed</div><div class="test-duration">0.004s</div></div></div></div></details><details id="suite-21" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">D:\quizapp\src\app\api\quizzes\join\[joinCode]\__tests__\route.test.ts</div><div class="suite-time">0.387s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/quizzes/join/[joinCode]</div><div class="test-title">400 if no join code in URL</div><div class="test-status">passed</div><div class="test-duration">0.011s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/quizzes/join/[joinCode]</div><div class="test-title">404 if session not found</div><div class="test-status">passed</div><div class="test-duration">0.002s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/quizzes/join/[joinCode]</div><div class="test-title">400 if session expired and flips is_active off</div><div class="test-status">passed</div><div class="test-duration">0.01s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/quizzes/join/[joinCode]</div><div class="test-title">401 if user header missing</div><div class="test-status">passed</div><div class="test-duration">0.002s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/quizzes/join/[joinCode]</div><div class="test-title">400 if player already joined</div><div class="test-status">passed</div><div class="test-duration">0.002s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/quizzes/join/[joinCode]</div><div class="test-title">200 happy path: creates a new PlayerQuiz</div><div class="test-status">passed</div><div class="test-duration">0.002s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/quizzes/join/[joinCode]</div><div class="test-title">500 if connect() throws</div><div class="test-status">passed</div><div class="test-duration">0.01s</div></div></div></div></details><details id="suite-22" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">D:\quizapp\src\app\api\quizzes\rehost\__tests__\route.test.ts</div><div class="suite-time">0.326s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/quizzes/rehost</div><div class="test-title">201 happy path: creates session &amp; updates user</div><div class="test-status">passed</div><div class="test-duration">0.007s</div></div></div></div></details><details id="suite-23" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">D:\quizapp\src\app\api\quizzes\session\[sessionId]\__tests__\route.test.ts</div><div class="suite-time">0.374s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/quizzes/session/[sessionId]</div><div class="test-title">400 when sessionId is missing</div><div class="test-status">passed</div><div class="test-duration">0.002s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/quizzes/session/[sessionId]</div><div class="test-title">404 when session not found</div><div class="test-status">passed</div><div class="test-duration">0.004s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/quizzes/session/[sessionId]</div><div class="test-title">400 when session expired (and deactivates it)</div><div class="test-status">passed</div><div class="test-duration">0.001s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/quizzes/session/[sessionId]</div><div class="test-title">404 when no questions for this quiz</div><div class="test-status">passed</div><div class="test-duration">0.007s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/quizzes/session/[sessionId]</div><div class="test-title">500 on unexpected error</div><div class="test-status">passed</div><div class="test-duration">0.006s</div></div></div></div></details><details id="suite-24" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">D:\quizapp\src\app\api\quizzes\sessions-list\__tests__\route.test.ts</div><div class="suite-time">0.324s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/quizzes/sessions-list?quizId=</div><div class="test-title">400 when quizId missing</div><div class="test-status">passed</div><div class="test-duration">0.003s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/quizzes/sessions-list?quizId=</div><div class="test-title">200 returns sorted sessions</div><div class="test-status">passed</div><div class="test-duration">0.003s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">GET /api/quizzes/sessions-list?quizId=</div><div class="test-title">500 on unexpected error</div><div class="test-status">passed</div><div class="test-duration">0.01s</div></div></div></div></details><details id="suite-25" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">D:\quizapp\src\app\api\quizzes\session\start\__tests__\route.test.ts</div><div class="suite-time">0.167s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/quizzes/session</div><div class="test-title">400 when quizId is missing</div><div class="test-status">passed</div><div class="test-duration">0.001s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/quizzes/session</div><div class="test-title">401 when token is missing</div><div class="test-status">passed</div><div class="test-duration">0.001s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/quizzes/session</div><div class="test-title">500 on invalid token (jwt.verify throws)</div><div class="test-status">passed</div><div class="test-duration">0.006s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/quizzes/session</div><div class="test-title">404 when quiz not found</div><div class="test-status">passed</div><div class="test-duration">0.001s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/quizzes/session</div><div class="test-title">201 on success</div><div class="test-status">passed</div><div class="test-duration">0.001s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">POST /api/quizzes/session</div><div class="test-title">500 on unexpected error</div><div class="test-status">passed</div><div class="test-duration">0.003s</div></div></div></div></details></main></body></html>
