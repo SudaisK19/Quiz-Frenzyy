@@ -77,10 +77,10 @@ QuizFrenzy is a dynamic, AI-driven web quiz platform built using Next.js, Tailwi
    npm install
 
 3.cp .env.example .env
-# then edit .env with your credentials:
-# MONGODB_URI=your-atlas-uri
-# REDIS_URL=redis://localhost:6379
-# NEXT_PUBLIC_CHATGPT_API_KEY=your-chatgpt-key
+  then edit .env with your credentials:
+  MONGODB_URI=your-atlas-uri
+  REDIS_URL=redis://localhost:6379
+  NEXT_PUBLIC_CHATGPT_API_KEY=your-chatgpt-key
 
 
 ## Documentation
